@@ -46,7 +46,7 @@
   tools: [lookup_order, check_return]
   args: {check_return: {motivo: arrependimento, canal: online, data_recebimento: "2026-03-22"}}
   contains: ["29/03"]
-  any: ["reembolso", "dentro do prazo", "pode devolver", "pode solicitar"]
+  any: ["reembolso", "dentro do prazo", "pode devolver", "pode solicitar", "elegivel", "solicitada"]
 
 - id: regret-store-purchase-has-no-such-right
   traps: [T21]
@@ -109,6 +109,7 @@
   turns: ["Paguei o pedido 5 no PIX e não veio os 5% de desconto. Telefone (67) 98765-4321. O que houve?"]
   tools: [lookup_order, open_ticket]
   blocks: [ticket]
+  absent: ["ja estava com desconto", "preco promocional", "nao se aplica"]
 
 - id: order-history-is-not-audited-to-the-customer
   traps: [T17]
@@ -208,7 +209,7 @@
   tools: [lookup_order, check_return]
   args: {check_return: {motivo: defeito}}
   any: ["garantia"]
-  absent: ["troca imediata"]
+  absent: ["pode trocar", "faremos a troca"]
 
 - id: closed-store-says-when-it-returns
   traps: [T25]

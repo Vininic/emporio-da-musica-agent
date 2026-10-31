@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -14,7 +14,7 @@ GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 GEMINI_CHAT_MODELS = ("gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite")
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-2"
-OPENROUTER_CHAT_MODELS = ("google/gemini-3.8-flash", "google/gemini-3.5-flash-lite")
+OPENROUTER_CHAT_MODELS = ("google/gemini-3.6-flash", "google/gemini-3.5-flash-lite")
 OPENROUTER_EMBEDDING_MODEL = "openai/text-embedding-3-small"
 EMBEDDING_DIMENSIONS = 768
 
@@ -26,6 +26,7 @@ class Provider:
     base_url: str
     chat_models: tuple[str, ...]
     embedding_model: str
+    fallback: "Provider | None" = None
 
 
 def provider_from(name: str, api_key: str, model: str | None = None) -> Provider:
@@ -41,10 +42,13 @@ def provider_from_env() -> Provider | None:
     model = os.getenv("CHAT_MODEL") or None
     preferred = os.getenv("LLM_PROVIDER", "gemini")
     keys = {"gemini": os.getenv("GEMINI_API_KEY"), "openrouter": os.getenv("OPENROUTER_API_KEY")}
-    for name in (preferred, "gemini", "openrouter"):
-        if keys.get(name):
-            return provider_from(name, keys[name], model)
-    return None
+    names = [name for name in dict.fromkeys((preferred, "gemini", "openrouter")) if keys.get(name)]
+    if not names:
+        return None
+    provider = provider_from(names[0], keys[names[0]], model)
+    if len(names) > 1:
+        provider = replace(provider, fallback=provider_from(names[1], keys[names[1]]))
+    return provider
 
 
 class Clock:

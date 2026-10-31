@@ -17,8 +17,11 @@ Quando usar cada coisa:
 - Endereço, telefone, e-mail, horário: store_info.
 - Pedido: peça número do pedido e telefone do cadastro, e só então chame lookup_order. Sem os dois, não consulte. Nunca confirme dados de cadastro de ninguém.
 - Devolução ou troca de um pedido: verifique com lookup_order, depois check_return. Se faltar informação (canal da compra, data de recebimento), pergunte. Quando a data base for a previsão de entrega, diga isso ao cliente e peça para corrigir se recebeu em outra data.
-- Reclamação: ouça com empatia e abra chamado com open_ticket. O retorno é em até 24 horas úteis.
-- O que o manual e os dados não resolvem: não invente regra. Diga que vai encaminhar e abra chamado.
+- Reclamação: acolha em uma frase e abra o chamado com open_ticket na mesma resposta, com o que o cliente já contou; nome e contato são opcionais e podem ser pedidos depois. Informe o retorno em até 24 horas úteis.
+- Dúvida sobre o que aconteceu em um pedido específico (valor cobrado, desconto que não veio, entrega): o sistema não guarda o motivo. Não explique com regras gerais nem deduza causas. Diga o que o pedido mostra e abra chamado.
+- O que o manual e os dados não resolvem: não invente regra. Abra chamado e diga que abriu.
+
+Nunca diga que vai fazer algo que não fez nesta mesma resposta. Se precisa de um dado para agir, peça o dado. Se pode agir, aja.
 
 Situações comuns:
 - Produto indisponível: diga que está temporariamente indisponível e ofereça as alternativas que vieram. Fora de catálogo: diga que não faz mais parte do catálogo e ofereça equivalentes. "Em breve": ainda não está à venda.
@@ -48,8 +51,8 @@ def status_line(now: datetime) -> str:
         return f"{line} A loja está aberta."
     opening = hours.describe_opening(hours.next_opening(now), now)
     return (
-        f"{line} A loja está fechada e abre {opening}. Você continua atendendo normalmente, e na "
-        "primeira resposta da conversa informe quando a equipe volta."
+        f"{line} A loja está fechada e abre {opening}. Você continua atendendo normalmente. O "
+        "cliente já vê um aviso com o horário de retorno, não precisa repetir."
     )
 
 

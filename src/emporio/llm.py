@@ -15,7 +15,8 @@ log = logging.getLogger(__name__)
 
 EMBED_BATCH = 50
 RETRIES_PER_MODEL = 2
-FIRST_BYTE_TIMEOUT = 25.0
+FIRST_BYTE_TIMEOUT = 12.0
+FALLBACK_TIMEOUT = 30.0
 RATE_LIMIT_PAUSE = 15.0
 
 
@@ -68,59 +69,77 @@ def _is_retryable(error: Exception) -> bool:
     if isinstance(error, APITimeoutError | APIConnectionError):
         return True
     return isinstance(error, APIStatusError) and (
-        error.status_code in (408, 409, 429) or error.status_code >= 500
+        error.status_code in (400, 408, 409, 429) or error.status_code >= 500
     )
+
+
+def _is_rate_limit(error: Exception | None) -> bool:
+    return isinstance(error, APIStatusError) and error.status_code == 429
+
+
+def _describe(error: Exception | None) -> str:
+    if isinstance(error, APIStatusError):
+        return f"{error.status_code} {str(error.body)[:200]}"
+    return str(error)[:200]
 
 
 class OpenAICompatibleLLM:
     def __init__(
         self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT, patience: float = 0
     ):
-        self._client = OpenAI(
-            api_key=provider.api_key, base_url=provider.base_url, timeout=timeout, max_retries=0
-        )
-        self._models = provider.chat_models
+        self._routes = [(self._client(provider, timeout), provider.chat_models)]
+        if provider.fallback is not None:
+            self._routes.append(
+                (self._client(provider.fallback, FALLBACK_TIMEOUT), provider.fallback.chat_models)
+            )
         self._patience = patience
         self.waited = 0.0
+
+    @staticmethod
+    def _client(provider: Provider, timeout: float) -> OpenAI:
+        return OpenAI(
+            api_key=provider.api_key, base_url=provider.base_url, timeout=timeout, max_retries=0
+        )
 
     def stream(
         self, messages: list[dict], tools: list[dict]
     ) -> Iterator[TextDelta | ToolCalls | ModelUsed]:
         last_error: Exception | None = None
-        for model in self._models:
-            attempt = 0
-            waited_here = 0.0
-            while attempt < RETRIES_PER_MODEL:
-                emitted = False
-                try:
-                    for event in self._stream_once(model, messages, tools):
-                        emitted = True
-                        yield event
-                    return
-                except Exception as error:
-                    last_error = error
-                    if isinstance(error, APIStatusError) and error.status_code in (401, 403):
-                        raise LLMError("chave de API recusada", auth=True) from error
-                    if emitted or not _is_retryable(error):
-                        raise LLMError(str(error)[:300]) from error
-                    log.warning("%s attempt %d failed: %s", model, attempt + 1, str(error)[:200])
-                    if isinstance(error, APITimeoutError):
-                        break
-                    if (
-                        isinstance(error, APIStatusError)
-                        and error.status_code == 429
-                        and waited_here < self._patience
-                    ):
-                        time.sleep(RATE_LIMIT_PAUSE)
-                        waited_here += RATE_LIMIT_PAUSE
-                        self.waited += RATE_LIMIT_PAUSE
+        for client, models in self._routes:
+            for model in models:
+                attempt = 0
+                waited_here = 0.0
+                while attempt < RETRIES_PER_MODEL:
+                    started = time.perf_counter()
+                    emitted = False
+                    try:
+                        for event in self._stream_once(client, model, messages, tools):
+                            emitted = True
+                            yield event
+                        return
+                    except Exception as error:
+                        last_error = error
+                        if isinstance(error, APIStatusError) and error.status_code in (401, 403):
+                            raise LLMError("chave de API recusada", auth=True) from error
+                        if emitted or not _is_retryable(error):
+                            raise LLMError(_describe(error)) from error
+                        log.warning("%s failed: %s", model, _describe(error))
+
+                    elapsed = time.perf_counter() - started
+                    if waited_here < self._patience:
+                        pause = RATE_LIMIT_PAUSE if _is_rate_limit(last_error) else 1.0
+                        time.sleep(pause)
+                        waited_here += pause + elapsed
+                        self.waited += pause + elapsed
                         continue
+                    if isinstance(last_error, APITimeoutError) or _is_rate_limit(last_error):
+                        break
                     attempt += 1
-                    time.sleep(0.8 * attempt)
-        raise LLMError(f"provedor indisponível: {str(last_error)[:200]}")
+                    time.sleep(0.5)
+        raise LLMError(f"provedor indisponível: {_describe(last_error)}")
 
     def _stream_once(
-        self, model: str, messages: list[dict], tools: list[dict]
+        self, client: OpenAI, model: str, messages: list[dict], tools: list[dict]
     ) -> Iterator[TextDelta | ToolCalls | ModelUsed]:
         arguments = {"model": model, "messages": messages, "stream": True, "temperature": 0.4}
         if tools:
@@ -128,7 +147,7 @@ class OpenAICompatibleLLM:
 
         calls: dict[int, dict] = {}
         announced = False
-        for chunk in self._client.chat.completions.create(**arguments):
+        for chunk in client.chat.completions.create(**arguments):
             if not announced:
                 announced = True
                 yield ModelUsed(model)
