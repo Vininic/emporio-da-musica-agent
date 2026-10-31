@@ -106,7 +106,9 @@ def _block_line(block: dict) -> str | None:
     if kind == "order":
         return f"order {block['numero']}: {block['situacao']}, {block['total']}"
     if kind == "return":
-        return f"return, order {block['pedido']}: {block['resultado']}, {', '.join(block['secoes'])}"
+        return (
+            f"return, order {block['pedido']}: {block['resultado']}, {', '.join(block['secoes'])}"
+        )
     if kind == "quote":
         return f"quote: PIX {block['total_pix']}, {block['parcelamento']}"
     if kind == "ticket":
@@ -153,7 +155,9 @@ def main() -> None:
         data = record(conversation, runtime, provider)
         path: Path = json_dir / f"{conversation['name']}.json"
         path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-        (markdown_dir / f"{conversation['name']}.md").write_text(to_markdown(data), encoding="utf-8")
+        (markdown_dir / f"{conversation['name']}.md").write_text(
+            to_markdown(data), encoding="utf-8"
+        )
         print("recorded", conversation["name"], flush=True)
 
 

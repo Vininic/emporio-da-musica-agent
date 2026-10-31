@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import unsupported_claims
+from emporio.guard import unbacked_actions, unsupported_claims
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
@@ -24,9 +24,9 @@ PROVIDER_DOWN = (
     "pelo telefone (67) 3341-4444."
 )
 CORRECTION = (
-    "[verificação interna, não é mensagem do cliente] Sua última resposta citou {problems}, que não "
-    "veio de nenhuma ferramenta. Consulte a ferramenta certa ou retire a informação, e reescreva a "
-    "resposta inteira ao cliente sem mencionar esta verificação."
+    "[verificação interna, não é mensagem do cliente] Problemas na sua última resposta: {problems}. "
+    "Consulte a ferramenta certa, execute a ação ou retire a afirmação, e reescreva a resposta "
+    "inteira ao cliente sem mencionar esta verificação."
 )
 SENSITIVE_ARGS = {"telefone"}
 
@@ -161,12 +161,16 @@ class Agent:
         yield {"type": "done", "model": turn.model, "corrected": turn.corrected}
 
     def _check(self, messages: list[dict], turn: Turn) -> list[str]:
+        answer = strip_markers(turn.text)
+        if not answer:
+            return ["resposta vazia"]
         sources = [
             json.dumps(m["content"], ensure_ascii=False)
             for m in messages
             if m["role"] in ("user", "tool") and m.get("content")
         ]
-        return unsupported_claims(strip_markers(turn.text), sources, set(self._ctx.sections.keys()))
+        claims = unsupported_claims(answer, sources, set(self._ctx.sections.keys()))
+        return [*claims, *unbacked_actions(answer, turn.tools_called)]
 
     def _correct(self, messages: list[dict], turn: Turn, problems: list[str]) -> Iterator[dict]:
         rejected = messages.pop()

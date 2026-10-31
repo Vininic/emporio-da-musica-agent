@@ -83,6 +83,37 @@ def _describe(error: Exception | None) -> str:
     return str(error)[:200]
 
 
+class ToolCallCollector:
+    def __init__(self):
+        self._entries: list[dict] = []
+
+    def add(self, delta) -> None:
+        entry = self._find(delta)
+        entry["id"] = delta.id or entry["id"]
+        if delta.function:
+            entry["name"] = delta.function.name or entry["name"]
+            entry["arguments"] += delta.function.arguments or ""
+        extra = delta.model_dump().get("extra_content")
+        if extra:
+            entry["extra"] = extra
+
+    def _find(self, delta) -> dict:
+        for entry in self._entries:
+            if delta.id and entry["id"] == delta.id:
+                return entry
+            if not delta.id and delta.index is not None and entry["index"] == delta.index:
+                return entry
+        entry = {"id": "", "index": delta.index, "name": "", "arguments": "", "extra": None}
+        self._entries.append(entry)
+        return entry
+
+    @property
+    def calls(self) -> tuple[ToolCall, ...]:
+        return tuple(
+            ToolCall(e["id"], e["name"], e["arguments"] or "{}", e["extra"]) for e in self._entries
+        )
+
+
 class OpenAICompatibleLLM:
     def __init__(
         self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT, patience: float = 0
@@ -145,7 +176,7 @@ class OpenAICompatibleLLM:
         if tools:
             arguments["tools"] = tools
 
-        calls: dict[int, dict] = {}
+        collector = ToolCallCollector()
         announced = False
         for chunk in client.chat.completions.create(**arguments):
             if not announced:
@@ -157,24 +188,10 @@ class OpenAICompatibleLLM:
             if delta.content:
                 yield TextDelta(delta.content)
             for call in delta.tool_calls or []:
-                entry = calls.setdefault(
-                    call.index or 0, {"id": "", "name": "", "arguments": "", "extra": None}
-                )
-                entry["id"] = call.id or entry["id"]
-                if call.function:
-                    entry["name"] = call.function.name or entry["name"]
-                    entry["arguments"] += call.function.arguments or ""
-                extra = call.model_dump().get("extra_content")
-                if extra:
-                    entry["extra"] = extra
+                collector.add(call)
 
-        if calls:
-            yield ToolCalls(
-                tuple(
-                    ToolCall(c["id"], c["name"], c["arguments"] or "{}", c["extra"])
-                    for _, c in sorted(calls.items())
-                )
-            )
+        if collector.calls:
+            yield ToolCalls(collector.calls)
 
 
 def build_embedder(provider: Provider, cache_dir: Path) -> Embedder:

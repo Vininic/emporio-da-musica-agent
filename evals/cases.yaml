@@ -70,6 +70,7 @@
   blocks: [order]
   contains: ["brjl5544332br"]
   any: ["atras"]
+  absent: ["problema no transporte", "extravi"]
 
 - id: order-without-phone-is-not-looked-up
   traps: [T19]
