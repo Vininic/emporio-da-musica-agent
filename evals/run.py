@@ -147,7 +147,7 @@ def main() -> None:
     if provider is None:
         raise SystemExit("No API key: set GEMINI_API_KEY or OPENROUTER_API_KEY in .env")
     if args.model:
-        provider = replace(provider, chat_models=(args.model,))
+        provider = replace(provider, chat_models=(args.model,), fallback=None)
 
     shared = Runtime(journal=Journal())
 

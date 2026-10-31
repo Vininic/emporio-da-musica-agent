@@ -12,9 +12,9 @@ SNAPSHOT_DATE = date(2026, 3, 25)
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-GEMINI_CHAT_MODELS = ("gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite")
+GEMINI_CHAT_MODELS = ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite")
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-2"
-OPENROUTER_CHAT_MODELS = ("google/gemini-3.6-flash", "google/gemini-3.5-flash-lite")
+OPENROUTER_CHAT_MODELS = ("google/gemini-3.5-flash-lite", "google/gemini-3.6-flash")
 OPENROUTER_EMBEDDING_MODEL = "openai/text-embedding-3-small"
 EMBEDDING_DIMENSIONS = 768
 

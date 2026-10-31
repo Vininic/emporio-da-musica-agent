@@ -182,6 +182,7 @@ function App() {
   const [byok, setByok] = useState(() => read(KEY_KEY, null));
   const [history, setHistory] = useState(() => read(HISTORY_KEY, []));
   const [replaying, setReplaying] = useState(false);
+  const [restored, setRestored] = useState(false);
   const canvas = useRef(null);
   const robot = useRef(null);
   const scroller = useRef(null);
@@ -247,6 +248,7 @@ function App() {
     stick.current = true;
     setDraft("");
     setBusy(true);
+    setRestored(false);
     setTurns((current) => [...current, newBotTurn(question)]);
 
     let id = conversationId;
@@ -308,6 +310,7 @@ function App() {
   function startNew() {
     replayToken.current += 1;
     setReplaying(false);
+    setRestored(false);
     setTurns([]);
     setConversationId(null);
     stick.current = true;
@@ -328,6 +331,7 @@ function App() {
       return;
     }
     const data = await response.json();
+    setRestored(true);
     setTurns(turnsFromHistory(data.turns));
     setConversationId(id);
     stick.current = true;
@@ -336,6 +340,7 @@ function App() {
   async function replay(name) {
     const token = (replayToken.current += 1);
     const data = await (await fetch(`/api/demos/${name}`)).json();
+    setRestored(false);
     setConversationId(null);
     setTurns([]);
     setReplaying(true);
@@ -368,7 +373,7 @@ function App() {
         <p>Assistente virtual da Empório da Música</p>
         ${config
           ? html`<div class="status ${config.open ? "" : "closed"}">
-              <i></i>${config.open ? `Loja aberta até ${config.closes}` : `Loja fechada, abre ${config.opens}`}
+              <i></i>${config.open ? "Loja aberta" : "Loja fechada"}<span class="more">${config.open ? `até ${config.closes}` : `, abre ${config.opens}`}</span>
             </div>`
           : null}
       </div>
@@ -401,7 +406,7 @@ function App() {
           stick.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80;
         }}
       >
-        <div class="thread">
+        <div class="thread ${restored ? "instant" : ""}">
           ${empty
             ? html`<section class="empty">
                 <h2>Sua música começa aqui.</h2>
@@ -435,7 +440,7 @@ function App() {
             rows="1"
             maxlength="1000"
             value=${draft}
-            placeholder="Pergunte sobre instrumentos, preços ou seu pedido"
+            placeholder="Pergunte sobre instrumentos ou pedidos"
             aria-label="Sua mensagem"
             onInput=${(e) => setDraft(e.target.value)}
             onKeyDown=${(e) => {

@@ -9,6 +9,8 @@ from emporio.retrieval import HybridIndex
 from emporio.store import Store
 from emporio.tools import Session, ToolContext, catalog_documents
 
+UNSEARCHABLE = {"1.2"}
+
 
 class Runtime:
     def __init__(
@@ -31,7 +33,10 @@ class Runtime:
             embedder = build_embedder(provider, self._index_dir) if provider else None
             self._indexes[key] = (
                 HybridIndex(catalog_documents(self.store), embedder),
-                HybridIndex([s.as_document() for s in self.section_list], embedder),
+                HybridIndex(
+                    [s.as_document() for s in self.section_list if s.id not in UNSEARCHABLE],
+                    embedder,
+                ),
             )
         return self._indexes[key]
 

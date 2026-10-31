@@ -120,7 +120,12 @@ button {
   font-size: 13px;
 }
 
+.status span {
+  margin-left: -3px;
+}
+
 .status i {
+  flex: none;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -317,6 +322,10 @@ button {
   margin-top: 6px;
   color: var(--muted);
   font-size: 12.5px;
+}
+
+.instant * {
+  animation: none !important;
 }
 
 /* Blocks */
@@ -924,6 +933,10 @@ button.product:hover {
   .status {
     margin-top: 0;
     font-size: 12.5px;
+  }
+
+  .status .more {
+    display: none;
   }
 
   .new-chat,
