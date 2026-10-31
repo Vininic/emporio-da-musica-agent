@@ -2,6 +2,7 @@
 
 Source of truth for why this project is the way it is. Open this folder as an Obsidian vault, or read it on GitHub: links are plain Markdown so both work.
 
+- [Plan](plan.md): stages, what "done" means for each, current status
 - [Brief](brief.md): the challenge rules and the author's direction, in his own words
 - [Traps](traps.md): what the data audit found, each item tied to a decision and a test
 - [Workflow](workflow.md): how the work is done with a coding agent

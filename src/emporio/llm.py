@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 EMBED_BATCH = 50
 RETRIES_PER_MODEL = 2
+FIRST_BYTE_TIMEOUT = 25.0
 
 
 class LLMError(Exception):
@@ -71,7 +72,7 @@ def _is_retryable(error: Exception) -> bool:
 
 
 class OpenAICompatibleLLM:
-    def __init__(self, provider: Provider, timeout: float = 60):
+    def __init__(self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT):
         self._client = OpenAI(
             api_key=provider.api_key, base_url=provider.base_url, timeout=timeout, max_retries=0
         )
@@ -96,6 +97,8 @@ class OpenAICompatibleLLM:
                     if emitted or not _is_retryable(error):
                         raise LLMError(str(error)[:300]) from error
                     log.warning("%s attempt %d failed: %s", model, attempt + 1, str(error)[:200])
+                    if isinstance(error, APITimeoutError):
+                        break
                     time.sleep(0.8 * (attempt + 1))
         raise LLMError(f"provedor indisponível: {str(last_error)[:200]}")
 
@@ -150,8 +153,7 @@ def build_embedder(provider: Provider, cache_dir: Path) -> Embedder:
                 input=texts[start : start + EMBED_BATCH],
                 dimensions=EMBEDDING_DIMENSIONS,
             )
-            ordered = sorted(response.data, key=lambda item: item.index)
-            vectors.extend(item.embedding for item in ordered)
+            vectors.extend(item.embedding for item in response.data)
         return np.array(vectors, dtype=np.float32)
 
     def embed_query(texts: list[str]) -> np.ndarray:
