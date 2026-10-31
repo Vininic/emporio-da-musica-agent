@@ -1,0 +1,187 @@
+{
+ "title": "Pedido atrasado",
+ "summary": "Order tracking without the phone is refused; with it, a late delivery opens a ticket.",
+ "recorded_at": "2026-10-31 18:48",
+ "turns": [
+  {
+   "user": "Cadê meu pedido 8?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Prec"
+    },
+    {
+     "type": "text",
+     "text": "iso do número do seu pedido e do telefone cadastrado para consultar."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "(67) 99654-7821",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_644169",
+     "name": "lookup_order",
+     "args": {
+      "numero_pedido": 8,
+      "telefone": "•••7821"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "numero": 8,
+      "cliente": "Ana",
+      "data_pedido": "15/02/2026",
+      "situacao": "enviado",
+      "total": "R$ 349,90",
+      "pagamento": "cartão de débito",
+      "itens": [
+       "1x Kala KA-C Concert Mogno"
+      ],
+      "rastreamento": "BRJL5544332BR",
+      "previsao_entrega": "28/02/2026",
+      "atraso_dias": 25,
+      "nota": "Entrega atrasada. Peça desculpas e ofereça abrir um chamado.",
+      "status": "shipped"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_644169",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "text",
+     "text": "\nO seu pedido foi enviado, mas consta um"
+    },
+    {
+     "type": "text",
+     "text": " atraso na entrega. Vou abrir um chamado para verificarem o que aconteceu com a transportadora."
+    },
+    {
+     "type": "guard",
+     "problems": [
+      "disse que abriu ou abriria um chamado sem chamar open_ticket"
+     ]
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_380037",
+     "name": "open_ticket",
+     "args": {
+      "resumo": "Atraso na entrega do pedido 8 (Kala KA-C Concert Mogno) com 25 dias de atraso.",
+      "tipo": "reclamacao"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "ticket",
+      "chamado": 1,
+      "tipo": "reclamacao",
+      "retorno": "em até 24 horas úteis",
+      "resumo": "Atraso na entrega do pedido 8 (Kala KA-C Concert Mogno) com 25 dias de atraso."
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_380037",
+     "name": "open_ticket",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "thumbs"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "replace",
+     "text": "O seu pedido foi enviado, mas está com atraso na entrega. Abri um chamado para a nossa equipe verificar junto à transportadora. Você receberá um retorno em até 24 horas úteis."
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": true
+    }
+   ]
+  },
+  {
+   "user": "Já era pra ter chegado. Podem ver isso pra mim?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "O"
+    },
+    {
+     "type": "text",
+     "text": " chamado já está aberto e a equipe vai verificar o que aconteceu com a entrega. O"
+    },
+    {
+     "type": "text",
+     "text": " retorno será enviado em até 24 horas úteis. \n\nPrecisa de mais alguma coisa?"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

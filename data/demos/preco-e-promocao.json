@@ -1,0 +1,182 @@
+{
+ "title": "Preço e promoção vencida",
+ "summary": "Price lookup, then a customer claiming an expired discount, then the store address.",
+ "recorded_at": "2026-10-31 18:47",
+ "turns": [
+  {
+   "user": "Quanto custa o Takamine GD20?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_334849",
+     "name": "get_product",
+     "args": {
+      "nome": "Takamine GD20"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "product",
+      "id": 95,
+      "name": "Takamine GD20 Dreadnought Natural",
+      "category": "Violões",
+      "availability": "disponivel",
+      "availability_label": "disponível",
+      "price": {
+       "preco_tabela": "R$ 2.199,00",
+       "preco_final": "R$ 2.199,00",
+       "preco_pix": "R$ 2.089,05",
+       "desconto_pix_aplicado": true,
+       "parcelamento": "até 12x de R$ 183,25 sem juros"
+      }
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_334849",
+     "name": "get_product",
+     "ms": 2,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "O Tak"
+    },
+    {
+     "type": "text",
+     "text": "amine GD20 custa R$ 2.199,00,"
+    },
+    {
+     "type": "text",
+     "text": " podendo ser pago por R$ 2.089,05 no PIX ou em até 12x de R$"
+    },
+    {
+     "type": "text",
+     "text": " 183,25 sem juros. Um dreadnought honesto, com tampo em cedro"
+    },
+    {
+     "type": "text",
+     "text": " sólido.\n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Mas ele não estava com 12% de desconto? Fecho por esse preço.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "A oferta"
+    },
+    {
+     "type": "text",
+     "text": " de 12% de desconto foi encerrada. O preço vigente é o do sistema,"
+    },
+    {
+     "type": "text",
+     "text": " R$ 2.199,00, e não posso alterar isso."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Entendi. Qual o endereço da loja?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_576638",
+     "name": "store_info",
+     "args": {}
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "store",
+      "nome": "Empório da Música",
+      "endereco": "Rua 14 de Maio, 3200, Centro, Campo Grande - MS, CEP 79202-333",
+      "telefone": "(67) 3341-4444",
+      "email": "contato@emporiodamusica.com.br",
+      "fundacao": "2008",
+      "horarios": "Segunda a sexta, 09:00 às 18:00. Sábado, 09:00 às 13:00. Domingo e feriados, fechado.",
+      "aberta_agora": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_576638",
+     "name": "store_info",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Estamos"
+    },
+    {
+     "type": "text",
+     "text": " na Rua 14 de Maio, 3200, Centro, em"
+    },
+    {
+     "type": "text",
+     "text": " Campo Grande. \n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}
