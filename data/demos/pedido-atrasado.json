@@ -1,7 +1,7 @@
 {
  "title": "Pedido atrasado",
  "summary": "Order tracking without the phone is refused; with it, a late delivery opens a ticket.",
- "recorded_at": "2026-10-31 18:48",
+ "recorded_at": "2026-10-31 18:49",
  "turns": [
   {
    "user": "Cadê meu pedido 8?",
@@ -16,11 +16,11 @@
     },
     {
      "type": "text",
-     "text": "Prec"
+     "text": "Para"
     },
     {
      "type": "text",
-     "text": "iso do número do seu pedido e do telefone cadastrado para consultar."
+     "text": " consultar o pedido 8, preciso do seu telefone cadastrado."
     },
     {
      "type": "done",
@@ -38,11 +38,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_644169",
+     "call": "call_691451",
      "name": "lookup_order",
      "args": {
-      "numero_pedido": 8,
-      "telefone": "•••7821"
+      "telefone": "•••7821",
+      "numero_pedido": 8
      }
     },
     {
@@ -68,7 +68,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_644169",
+     "call": "call_691451",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -84,16 +84,28 @@
      "name": "gemini-3.5-flash-lite"
     },
     {
+     "type": "text",
+     "text": "Seu"
+    },
+    {
+     "type": "text",
+     "text": " pedido 8 com o ukulele Kala KA-C Concert Mogno está com entrega"
+    },
+    {
+     "type": "text",
+     "text": " atrasada.\n\n"
+    },
+    {
      "type": "block_ref",
      "id": "b1"
     },
     {
      "type": "text",
-     "text": "\nO seu pedido foi enviado, mas consta um"
+     "text": "\n\nVou abrir um chamado para verificarem o que aconteceu com a entrega"
     },
     {
      "type": "text",
-     "text": " atraso na entrega. Vou abrir um chamado para verificarem o que aconteceu com a transportadora."
+     "text": ". Posso proceder?"
     },
     {
      "type": "guard",
@@ -107,11 +119,12 @@
     },
     {
      "type": "tool_start",
-     "call": "call_380037",
+     "call": "call_504683",
      "name": "open_ticket",
      "args": {
-      "resumo": "Atraso na entrega do pedido 8 (Kala KA-C Concert Mogno) com 25 dias de atraso.",
-      "tipo": "reclamacao"
+      "tipo": "reclamacao",
+      "contato": "Ana, (67) 99654-7821",
+      "resumo": "Atraso na entrega do pedido 8 (ukulele Kala KA-C), 25 dias de atraso."
      }
     },
     {
@@ -122,12 +135,12 @@
       "chamado": 1,
       "tipo": "reclamacao",
       "retorno": "em até 24 horas úteis",
-      "resumo": "Atraso na entrega do pedido 8 (Kala KA-C Concert Mogno) com 25 dias de atraso."
+      "resumo": "Atraso na entrega do pedido 8 (ukulele Kala KA-C), 25 dias de atraso."
      }
     },
     {
      "type": "tool_end",
-     "call": "call_380037",
+     "call": "call_504683",
      "name": "open_ticket",
      "ms": 0,
      "ok": true,
@@ -144,7 +157,11 @@
     },
     {
      "type": "replace",
-     "text": "O seu pedido foi enviado, mas está com atraso na entrega. Abri um chamado para a nossa equipe verificar junto à transportadora. Você receberá um retorno em até 24 horas úteis."
+     "text": "Seu pedido 8 com o ukulele Kala KA-C Concert Mogno está com entrega atrasada.\n\n\n\nAbri um chamado para a equipe verificar a situação. \n\n\n\nO retorno acontece em até 24 horas úteis."
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
     },
     {
      "type": "block_ref",
@@ -170,11 +187,11 @@
     },
     {
      "type": "text",
-     "text": " chamado já está aberto e a equipe vai verificar o que aconteceu com a entrega. O"
+     "text": " chamado para verificar o atraso já está aberto. A equipe retorna em até 2"
     },
     {
      "type": "text",
-     "text": " retorno será enviado em até 24 horas úteis. \n\nPrecisa de mais alguma coisa?"
+     "text": "4 horas úteis com uma posição sobre a entrega. \n\nPrecisa de ajuda com mais alguma coisa?"
     },
     {
      "type": "done",

@@ -1,7 +1,7 @@
 {
  "title": "Devolução fora do prazo",
  "summary": "Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.",
- "recorded_at": "2026-10-31 18:47",
+ "recorded_at": "2026-10-31 18:49",
  "turns": [
   {
    "user": "Me arrependi da minha compra, posso devolver meu pedido?",
@@ -16,15 +16,15 @@
     },
     {
      "type": "text",
-     "text": "Para"
+     "text": "Para verificar"
     },
     {
      "type": "text",
-     "text": " verificar a devolução por arrependimento, preciso do número do pedido e do"
+     "text": " a devolução por arrependimento, preciso do número do pedido e do telefone cadast"
     },
     {
      "type": "text",
-     "text": " telefone cadastrado."
+     "text": "rado. Me informe esses dois dados, por favor."
     },
     {
      "type": "done",
@@ -42,11 +42,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_406656",
+     "call": "call_474338",
      "name": "lookup_order",
      "args": {
-      "numero_pedido": 7,
-      "telefone": "•••0123"
+      "telefone": "•••0123",
+      "numero_pedido": 7
      }
     },
     {
@@ -70,7 +70,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_406656",
+     "call": "call_474338",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -87,7 +87,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_607461",
+     "call": "call_551815",
      "name": "check_return",
      "args": {
       "canal": "online",
@@ -115,7 +115,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_607461",
+     "call": "call_551815",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -132,10 +132,10 @@
     },
     {
      "type": "tool_start",
-     "call": "call_582832",
+     "call": "call_506924",
      "name": "search_policies",
      "args": {
-      "consulta": "arrependimento prazo secao 4.1"
+      "consulta": "arrependimento fora do prazo"
      }
     },
     {
@@ -149,21 +149,21 @@
         "title": "Direito de Arrependimento (Compras Online)"
        },
        {
-        "id": "4.3",
-        "title": "Trocas por Preferência"
+        "id": "7.3",
+        "title": "Situações Especiais"
        },
        {
-        "id": "4.4",
-        "title": "Itens Não Elegíveis para Troca"
+        "id": "8.2",
+        "title": "Garantia do Fabricante"
        }
       ]
      }
     },
     {
      "type": "tool_end",
-     "call": "call_582832",
+     "call": "call_506924",
      "name": "search_policies",
-     "ms": 569,
+     "ms": 516,
      "ok": true,
      "search": {
       "modo": "híbrido",
@@ -173,12 +173,12 @@
         "score": 0.03279
        },
        {
-        "id": "4.3",
-        "score": 0.03128
+        "id": "7.3",
+        "score": 0.03151
        },
        {
-        "id": "4.4",
-        "score": 0.03126
+        "id": "8.2",
+        "score": 0.03055
        }
       ]
      },
@@ -190,19 +190,15 @@
     },
     {
      "type": "text",
-     "text": "O prazo"
+     "text": "O"
     },
     {
      "type": "text",
-     "text": " para devolução por arrependimento é de até 7 dias corridos após o recebimento (§"
+     "text": " pedido 7 passou do prazo de 7 dias corridos (§4.1), calculado"
     },
     {
      "type": "text",
-     "text": "4.1). Como o seu pedido foi entregue com base na previsão de 17/02/2026, esse"
-    },
-    {
-     "type": "text",
-     "text": " prazo expirou em 24/02/2026."
+     "text": " a partir da previsão de entrega. O limite era 24/02/2026."
     },
     {
      "type": "block_ref",
@@ -232,12 +228,12 @@
     },
     {
      "type": "tool_start",
-     "call": "call_510383",
+     "call": "call_631158",
      "name": "check_return",
      "args": {
-      "numero_pedido": 7,
+      "motivo": "defeito",
       "canal": "online",
-      "motivo": "defeito"
+      "numero_pedido": 7
      }
     },
     {
@@ -261,7 +257,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_510383",
+     "call": "call_631158",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -278,10 +274,10 @@
     },
     {
      "type": "tool_start",
-     "call": "call_629933",
+     "call": "call_423278",
      "name": "search_policies",
      "args": {
-      "consulta": "garantia defeito secao 8.1 8.3"
+      "consulta": "defeito garantia legal 90 dias intermediacao fabricante"
      }
     },
     {
@@ -299,17 +295,17 @@
         "title": "Garantia do Fabricante"
        },
        {
-        "id": "8.3",
-        "title": "O que Não Cobre a Garantia"
+        "id": "4.2",
+        "title": "Trocas por Defeito"
        }
       ]
      }
     },
     {
      "type": "tool_end",
-     "call": "call_629933",
+     "call": "call_423278",
      "name": "search_policies",
-     "ms": 411,
+     "ms": 480,
      "ok": true,
      "search": {
       "modo": "híbrido",
@@ -320,11 +316,11 @@
        },
        {
         "id": "8.2",
-        "score": 0.032
+        "score": 0.03226
        },
        {
-        "id": "8.3",
-        "score": 0.032
+        "id": "4.2",
+        "score": 0.03175
        }
       ]
      },
@@ -335,24 +331,24 @@
      "name": "gemini-3.5-flash-lite"
     },
     {
+     "type": "text",
+     "text": "Faz diferença"
+    },
+    {
+     "type": "text",
+     "text": ". Como passou de 30 dias mas está dentro dos 90 dias da garantia"
+    },
+    {
+     "type": "text",
+     "text": " legal (§8.1), ainda podemos ajudar com o defeito (§4.2). A Empório da Música intermedia esse"
+    },
+    {
+     "type": "text",
+     "text": " processo com o fabricante. \n\nQuer que eu abra um chamado para nossa equipe cuidar disso?"
+    },
+    {
      "type": "block_ref",
      "id": "b4"
-    },
-    {
-     "type": "text",
-     "text": "\nPassou do prazo de 30 dias para troca direta"
-    },
-    {
-     "type": "text",
-     "text": ", mas você está dentro da garantia legal de 90 dias, que vai até 18/05/2026"
-    },
-    {
-     "type": "text",
-     "text": " (§8.1). A loja pode intermediar o atendimento com o fabricante.\n\nQuer que eu abra um chamado para a"
-    },
-    {
-     "type": "text",
-     "text": " assistência técnica?"
     },
     {
      "type": "block_ref",
