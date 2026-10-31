@@ -327,3 +327,12 @@ def test_policy_chips_are_dropped_when_nothing_is_cited():
     llm = ScriptedLLM(call("search_policies", consulta="frete"), text("Depende da cidade."))
     events, _, _, _ = run(llm, "frete?")
     assert not of_type(events, "block_ref")
+
+
+def test_ticket_contact_never_reaches_the_trace():
+    llm = ScriptedLLM(
+        call("open_ticket", tipo="outro", resumo="x", contato="Ana (67) 99654-7821"),
+        text("Abri o chamado."),
+    )
+    events, _, _, _ = run(llm, "oi")
+    assert "99654" not in json.dumps(of_type(events, "tool_start"))

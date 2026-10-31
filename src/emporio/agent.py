@@ -28,7 +28,7 @@ CORRECTION = (
     "Consulte a ferramenta certa, execute a ação ou retire a afirmação, e reescreva a resposta "
     "inteira ao cliente sem mencionar esta verificação."
 )
-SENSITIVE_ARGS = {"telefone"}
+SENSITIVE_ARGS = {"telefone", "contato"}
 
 
 @dataclass

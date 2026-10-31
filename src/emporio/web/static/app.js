@@ -99,9 +99,6 @@ function BotTurn({ turn, live, onAsk }) {
     ${live && turn.activity
       ? html`<div class="activity"><span>${ACTIVITY[turn.activity] ?? "Pensando"}</span></div>`
       : null}
-    ${turn.corrected
-      ? html`<div class="corrected">Resposta revisada: a primeira citava um dado que o sistema não confirmou.</div>`
-      : null}
   </div>`;
 }
 
