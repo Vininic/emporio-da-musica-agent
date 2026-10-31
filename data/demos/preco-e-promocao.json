@@ -1,7 +1,7 @@
 {
  "title": "Preço e promoção vencida",
  "summary": "Price lookup, then a customer claiming an expired discount, then the store address.",
- "recorded_at": "2026-10-31 18:49",
+ "recorded_at": "2026-10-31 19:56",
  "turns": [
   {
    "user": "Quanto custa o Takamine GD20?",
@@ -16,7 +16,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_950042",
+     "call": "call_604311",
      "name": "get_product",
      "args": {
       "nome": "Takamine GD20"
@@ -43,7 +43,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_950042",
+     "call": "call_604311",
      "name": "get_product",
      "ms": 1,
      "ok": true,
@@ -60,19 +60,19 @@
     },
     {
      "type": "text",
-     "text": "O"
+     "text": "O Tak"
     },
     {
      "type": "text",
-     "text": " Takamine GD20 custa R$ 2.199,00"
+     "text": "amine GD20 custa R$ 2.199,00,"
     },
     {
      "type": "text",
-     "text": ", ou R$ 2.089,05 no PIX, e pode ser parcelado em até 12"
+     "text": " podendo ser parcelado em até 12x de R$ 183,25 sem juros, ou R"
     },
     {
      "type": "text",
-     "text": "x de R$ 183,25 sem juros. \n\n"
+     "text": "$ 2.089,05 no PIX.\n\n"
     },
     {
      "type": "block_ref",
@@ -80,11 +80,15 @@
     },
     {
      "type": "text",
-     "text": "\n\nEsse aí é honesto. Não vou elogiar mais do que isso, mas o tampo em cedro sólido"
+     "text": "\n\nÉ"
     },
     {
      "type": "text",
-     "text": " entrega um timbre bem definido."
+     "text": " um dreadnought decente, com tampo em cedro sólido. Timbre honesto. Precisa de mais alguma coisa"
+    },
+    {
+     "type": "text",
+     "text": "?"
     },
     {
      "type": "done",
@@ -102,19 +106,15 @@
     },
     {
      "type": "text",
-     "text": "Promo"
+     "text": "A oferta"
     },
     {
      "type": "text",
-     "text": "ção encerrada. O preço atual é o que está no sistema, não tenho"
+     "text": " com 12% de desconto encerrou. O preço vigente é o do sistema. "
     },
     {
      "type": "text",
-     "text": " como aplicar desconto por fora. \n\nQuer levar o Takamine GD20 por esse valor ou prefere olhar outro"
-    },
-    {
-     "type": "text",
-     "text": " violão?"
+     "text": "\n\nQuer fechar por esse valor ou prefere ver outro modelo?"
     },
     {
      "type": "done",
@@ -132,7 +132,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_402442",
+     "call": "call_469639",
      "name": "store_info",
      "args": {}
     },
@@ -152,7 +152,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_402442",
+     "call": "call_469639",
      "name": "store_info",
      "ms": 0,
      "ok": true,
@@ -165,15 +165,15 @@
     },
     {
      "type": "text",
-     "text": "F"
+     "text": "Estamos"
     },
     {
      "type": "text",
-     "text": "icamos na Rua 14 de Maio, 3200, Centro, em"
+     "text": " na Rua 14 de Maio, 3200, Centro, em"
     },
     {
      "type": "text",
-     "text": " Campo Grande. Estamos abertos agora.\n\n"
+     "text": " Campo Grande.\n\n"
     },
     {
      "type": "block_ref",
