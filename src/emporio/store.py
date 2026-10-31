@@ -302,10 +302,3 @@ class Store:
             notes=row["notes"],
             items=tuple(OrderItem(i["name"], i["quantity"]) for i in items),
         )
-
-    def customer_city_for_order(self, order: Order) -> str | None:
-        row = self._db.execute(
-            "SELECT cu.city FROM orders o JOIN customers cu ON cu.id = o.customer_id WHERE o.id = ?",
-            (order.id,),
-        ).fetchone()
-        return row["city"] if row else None
