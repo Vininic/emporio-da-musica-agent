@@ -272,13 +272,22 @@ class Store:
         return self._build_products(rows)
 
     def verified_order(self, order_id: int, phone: str) -> Order | None:
-        row = self._db.execute(
+        match = self._db.execute(
             """
-            SELECT o.*, cu.name AS customer_name FROM orders o
-            JOIN customers cu ON cu.id = o.customer_id
+            SELECT 1 FROM orders o JOIN customers cu ON cu.id = o.customer_id
             WHERE o.id = ? AND cu.phone_digits = ?
             """,
             (order_id, phone_digits(phone)),
+        ).fetchone()
+        return self.order_for_verified_session(order_id) if match else None
+
+    def order_for_verified_session(self, order_id: int) -> Order | None:
+        row = self._db.execute(
+            """
+            SELECT o.*, cu.name AS customer_name FROM orders o
+            JOIN customers cu ON cu.id = o.customer_id WHERE o.id = ?
+            """,
+            (order_id,),
         ).fetchone()
         if row is None:
             return None
