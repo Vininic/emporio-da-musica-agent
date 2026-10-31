@@ -14,6 +14,7 @@ import yaml
 from emporio.agent import strip_markers
 from emporio.config import TIMEZONE, Clock, provider_from_env
 from emporio.journal import Journal
+from emporio.llm import OpenAICompatibleLLM
 from emporio.runtime import Runtime
 from emporio.store import normalize_text
 from emporio.tools import Session
@@ -21,6 +22,7 @@ from emporio.tools import Session
 ROOT = Path(__file__).resolve().parent
 DEFAULT_NOW = datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)
 PAUSE_BETWEEN_CASES = 1.0
+RATE_LIMIT_PATIENCE = 120.0
 
 
 def load_cases() -> list[dict]:
@@ -66,7 +68,8 @@ def run_case(case: dict, runtime_for, provider) -> dict:
     now = case.get("now")
     clock = Clock(datetime.fromisoformat(now).replace(tzinfo=TIMEZONE) if now else DEFAULT_NOW)
     runtime = runtime_for(clock)
-    agent = runtime.agent(Session(case["id"]), provider)
+    llm = OpenAICompatibleLLM(provider, patience=RATE_LIMIT_PATIENCE)
+    agent = runtime.agent(Session(case["id"]), provider, llm)
 
     observed = {"tools": [], "calls": [], "answers": [], "blocks": []}
     messages: list[dict] = []
@@ -76,6 +79,7 @@ def run_case(case: dict, runtime_for, provider) -> dict:
 
     for question in case["turns"]:
         started = time.perf_counter()
+        waited_before = llm.waited
         first = None
         answer = ""
         emitted: dict[str, dict] = {}
@@ -102,8 +106,9 @@ def run_case(case: dict, runtime_for, provider) -> dict:
                 errors.append(event["detail"])
             elif kind == "done":
                 model = event["model"]
-        latencies.append(time.perf_counter() - started)
-        first_tokens.append(first or latencies[-1])
+        waited = llm.waited - waited_before
+        latencies.append(time.perf_counter() - started - waited)
+        first_tokens.append(max((first or latencies[-1]) - waited, 0))
         observed["answers"].append(strip_markers(answer))
         observed["blocks"] += [emitted[i] for i in referenced if i in emitted]
 

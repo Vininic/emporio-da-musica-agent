@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 EMBED_BATCH = 50
 RETRIES_PER_MODEL = 2
 FIRST_BYTE_TIMEOUT = 25.0
+RATE_LIMIT_PAUSE = 15.0
 
 
 class LLMError(Exception):
@@ -72,18 +73,24 @@ def _is_retryable(error: Exception) -> bool:
 
 
 class OpenAICompatibleLLM:
-    def __init__(self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT):
+    def __init__(
+        self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT, patience: float = 0
+    ):
         self._client = OpenAI(
             api_key=provider.api_key, base_url=provider.base_url, timeout=timeout, max_retries=0
         )
         self._models = provider.chat_models
+        self._patience = patience
+        self.waited = 0.0
 
     def stream(
         self, messages: list[dict], tools: list[dict]
     ) -> Iterator[TextDelta | ToolCalls | ModelUsed]:
         last_error: Exception | None = None
         for model in self._models:
-            for attempt in range(RETRIES_PER_MODEL):
+            attempt = 0
+            waited_here = 0.0
+            while attempt < RETRIES_PER_MODEL:
                 emitted = False
                 try:
                     for event in self._stream_once(model, messages, tools):
@@ -99,7 +106,17 @@ class OpenAICompatibleLLM:
                     log.warning("%s attempt %d failed: %s", model, attempt + 1, str(error)[:200])
                     if isinstance(error, APITimeoutError):
                         break
-                    time.sleep(0.8 * (attempt + 1))
+                    if (
+                        isinstance(error, APIStatusError)
+                        and error.status_code == 429
+                        and waited_here < self._patience
+                    ):
+                        time.sleep(RATE_LIMIT_PAUSE)
+                        waited_here += RATE_LIMIT_PAUSE
+                        self.waited += RATE_LIMIT_PAUSE
+                        continue
+                    attempt += 1
+                    time.sleep(0.8 * attempt)
         raise LLMError(f"provedor indisponível: {str(last_error)[:200]}")
 
     def _stream_once(
