@@ -1,0 +1,239 @@
+import json
+from datetime import datetime
+
+import pytest
+
+from emporio.agent import FALLBACK, Agent, MarkerFilter
+from emporio.config import TIMEZONE, Clock
+from emporio.guard import unsupported_claims
+from emporio.llm import LLMError, TextDelta, ToolCall, ToolCalls
+from emporio.runtime import Runtime
+from emporio.tools import Session, tool_schemas
+
+OPEN = datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)
+CLOSED = datetime(2026, 3, 25, 20, 0, tzinfo=TIMEZONE)
+
+
+class ScriptedLLM:
+    def __init__(self, *rounds):
+        self._rounds = list(rounds)
+        self.seen = []
+
+    def stream(self, messages, tools):
+        self.seen.append(list(messages))
+        round_ = self._rounds.pop(0)
+        if isinstance(round_, Exception):
+            raise round_
+        yield from round_
+
+
+def text(content):
+    return [TextDelta(content)]
+
+
+def call(name, **arguments):
+    return [ToolCalls((ToolCall(f"c{name}", name, json.dumps(arguments)),))]
+
+
+def run(llm, *questions, now=OPEN):
+    runtime = Runtime(clock=Clock(now))
+    session = Session("test")
+    agent = Agent(llm, runtime.context(session, None))
+    messages = []
+    events = []
+    for question in questions:
+        events += list(agent.run(messages, question))
+    return events, messages, session, runtime
+
+
+def of_type(events, kind):
+    return [event for event in events if event["type"] == kind]
+
+
+def spoken(events):
+    return "".join(event["text"] for event in of_type(events, "text"))
+
+
+def test_tools_have_clean_schemas():
+    schemas = tool_schemas()
+    assert len(schemas) == 11
+    for schema in schemas:
+        dumped = json.dumps(schema)
+        assert "anyOf" not in dumped
+        assert "$ref" not in dumped
+        assert "title" not in schema["function"]["parameters"]
+
+
+def test_price_comes_from_the_tool_and_passes_the_guard():
+    llm = ScriptedLLM(call("get_product", nome="Takamine GD20"), text("Sai por R$ 2.199,00."))
+    events, messages, _, _ = run(llm, "Quanto custa o Takamine GD20?")
+
+    assert spoken(events) == "Sai por R$ 2.199,00."
+    assert not of_type(events, "guard")
+    tool_message = next(m for m in messages if m["role"] == "tool")
+    assert "R$ 2.199,00" in tool_message["content"]
+
+
+def test_invented_price_triggers_a_correction():
+    llm = ScriptedLLM(
+        call("get_product", nome="Takamine GD20"),
+        text("Sai por R$ 1.500,00."),
+        text("Sai por R$ 2.199,00."),
+    )
+    events, messages, _, _ = run(llm, "Quanto custa o Takamine GD20?")
+
+    assert "valor R$ 1500.00" in of_type(events, "guard")[0]["problems"]
+    assert of_type(events, "replace")[0]["text"] == "Sai por R$ 2.199,00."
+    assert messages[-1]["content"] == "Sai por R$ 2.199,00."
+    assert not any("1.500" in str(m.get("content")) for m in messages)
+
+
+def test_price_without_any_tool_is_rejected_then_replaced_by_the_fallback():
+    llm = ScriptedLLM(text("Custa R$ 999,00."), text("Custa R$ 888,00."))
+    events, messages, _, _ = run(llm, "Quanto custa?")
+
+    assert of_type(events, "replace")[0]["text"] == FALLBACK
+    assert messages[-1]["content"] == FALLBACK
+
+
+def test_customer_stated_value_can_be_repeated():
+    llm = ScriptedLLM(
+        call("get_product", nome="Takamine GD20"), text("R$ 1.000,00 não, é R$ 2.199,00.")
+    )
+    events, _, _, _ = run(llm, "Vi por R$ 1.000,00, confere?")
+    assert not of_type(events, "guard")
+
+
+def test_t19_lookup_gate_is_in_the_code():
+    llm = ScriptedLLM(
+        call("lookup_order", numero_pedido=1, telefone="(67) 00000-0000"),
+        text("Não conferem."),
+    )
+    events, messages, session, _ = run(llm, "pedido 1")
+
+    tool_message = next(m for m in messages if m["role"] == "tool")
+    assert "Pedro" not in tool_message["content"]
+    assert "R$" not in tool_message["content"]
+    assert session.verified_orders == []
+    assert session.failed_verifications == 1
+
+
+def test_t19_check_return_refuses_an_unverified_order():
+    llm = ScriptedLLM(
+        call("check_return", numero_pedido=1, motivo="arrependimento", canal="online"),
+        text("Preciso verificar."),
+    )
+    _, messages, _, _ = run(llm, "devolver pedido 1")
+    assert '"verificado": false' in next(m for m in messages if m["role"] == "tool")["content"]
+
+
+def test_t19_lookups_lock_after_three_failures():
+    bad = call("lookup_order", numero_pedido=1, telefone="1")
+    llm = ScriptedLLM(bad, bad, bad, bad, text("Fala com a equipe."))
+    _, messages, _, _ = run(llm, "pedido")
+    last_tool = [m for m in messages if m["role"] == "tool"][-1]
+    assert '"bloqueado": true' in last_tool["content"]
+
+
+def test_verified_lookup_then_return_assessment():
+    llm = ScriptedLLM(
+        call("lookup_order", numero_pedido=1, telefone="(67) 98432-1098"),
+        call("check_return", numero_pedido=1, motivo="arrependimento", canal="online"),
+        text("Passou do prazo."),
+    )
+    events, messages, session, _ = run(llm, "pedido 1")
+
+    assert session.verified_orders == [1]
+    last_tool = [m for m in messages if m["role"] == "tool"][-1]
+    assert "nao_elegivel" in last_tool["content"]
+    assert {b["block"]["type"] for b in of_type(events, "block")} == {"order", "return"}
+
+
+def test_phone_never_reaches_the_trace():
+    llm = ScriptedLLM(
+        call("lookup_order", numero_pedido=1, telefone="(67) 98432-1098"), text("Achei.")
+    )
+    events, _, _, _ = run(llm, "pedido 1")
+    assert "98432" not in json.dumps(of_type(events, "tool_start"))
+
+
+def test_tool_errors_go_back_to_the_model_instead_of_crashing():
+    llm = ScriptedLLM(
+        call("nope"), call("get_product", wrong="x"), text("Vou tentar de outro jeito.")
+    )
+    events, messages, _, _ = run(llm, "oi")
+    contents = [m["content"] for m in messages if m["role"] == "tool"]
+    assert "não existe" in contents[0]
+    assert "Argumentos inválidos" in contents[1]
+    assert of_type(events, "done")
+
+
+def test_tool_loop_is_bounded():
+    llm = ScriptedLLM(*[call("catalog_overview") for _ in range(10)])
+    events, _, _, _ = run(llm, "loop")
+    assert of_type(events, "replace")[-1]["text"] == FALLBACK
+
+
+def test_block_markers_become_placement_events():
+    llm = ScriptedLLM(
+        call("get_product", nome="Takamine GD20"),
+        [TextDelta("Olha ele:\n[[blo"), TextDelta("co:b1]]\nHonesto.")],
+    )
+    events, _, _, _ = run(llm, "Takamine GD20")
+
+    assert "[[" not in spoken(events)
+    assert of_type(events, "block_ref") == [{"type": "block_ref", "id": "b1"}]
+    assert not [e for e in of_type(events, "block_ref") if e["id"] != "b1"]
+
+
+def test_unreferenced_block_is_appended_so_the_customer_still_sees_it():
+    llm = ScriptedLLM(call("get_product", nome="Takamine GD20"), text("Sai por R$ 2.199,00."))
+    events, _, _, _ = run(llm, "Takamine GD20")
+    assert of_type(events, "block_ref") == [{"type": "block_ref", "id": "b1"}]
+
+
+def test_t25_closed_store_shows_when_it_reopens_on_the_first_turn_only():
+    llm = ScriptedLLM(text("Oi."), text("Oi de novo."))
+    events, _, _, _ = run(llm, "oi", "oi", now=CLOSED)
+    closed = [b for b in of_type(events, "block") if b["block"]["type"] == "closed"]
+    assert len(closed) == 1
+    assert closed[0]["block"]["abre"] == "amanhã, 26/03, às 09:00"
+
+
+def test_provider_failure_is_a_message_not_a_crash_and_does_not_poison_history():
+    llm = ScriptedLLM(LLMError("503"), text("Voltei."))
+    events, messages, _, _ = run(llm, "oi", "oi de novo")
+    assert of_type(events, "provider_error")
+    assert messages[-1]["content"] == "Voltei."
+
+
+def test_ticket_is_persisted():
+    llm = ScriptedLLM(
+        call("open_ticket", tipo="reclamacao", resumo="Chegou amassado", contato="Ana"),
+        text("Registrei."),
+    )
+    _, _, _, runtime = run(llm, "chegou amassado")
+    assert runtime.journal.tickets()[0]["summary"] == "Chegou amassado"
+
+
+@pytest.mark.parametrize(
+    "chunks",
+    [["abc"], ["a[", "b"], ["[[bl", "oco:b1]]x"], ["x[[gesto:no]]"], ["preço [nota] fim"]],
+)
+def test_marker_filter_never_loses_text(chunks):
+    marker_filter = MarkerFilter()
+    pieces = [piece for chunk in chunks for piece in marker_filter.feed(chunk)]
+    pieces += list(marker_filter.flush())
+    joined = "".join(value for kind, value in pieces if kind == "text")
+    assert joined == "".join(chunks).replace("[[bloco:b1]]", "").replace("[[gesto:no]]", "")
+
+
+def test_guard_ignores_equal_values_written_differently():
+    assert unsupported_claims("R$ 2.199", ['"R$ 2.199,00"'], set()) == []
+
+
+def test_guard_catches_invented_contact_details_and_sections():
+    problems = unsupported_claims(
+        "Liga (67) 3333-3333, escreve a@b.com, veja §99 e 15%", ["nada"], {"4.1"}
+    )
+    assert len(problems) == 4

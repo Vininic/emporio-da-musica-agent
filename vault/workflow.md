@@ -1,6 +1,6 @@
 # Workflow
 
-Status: proposed by the assistant, awaiting the author's approval.
+Status: proposed by the assistant, approved by the author.
 
 The author directs and decides. Claude Code implements. The point is that every claim in the README can be traced back and checked.
 
