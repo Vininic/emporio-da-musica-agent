@@ -373,7 +373,7 @@ function App() {
         <p>Assistente virtual da Empório da Música</p>
         ${config
           ? html`<div class="status ${config.open ? "" : "closed"}">
-              <i></i>${config.open ? "Loja aberta" : "Loja fechada"}<span class="more">${config.open ? `até ${config.closes}` : `, abre ${config.opens}`}</span>
+              <i></i><span>${config.open ? "Loja aberta" : "Loja fechada"}<span class="more">${config.open ? ` até ${config.closes}` : `, abre ${config.opens}`}</span></span>
             </div>`
           : null}
       </div>

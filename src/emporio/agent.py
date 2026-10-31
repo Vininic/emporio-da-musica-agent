@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import unbacked_actions, unsupported_claims
+from emporio.guard import SECTION, unbacked_actions, unsupported_claims
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
@@ -281,7 +281,14 @@ class Agent:
     def _append_unreferenced(self, turn: Turn) -> Iterator[dict]:
         referenced = set(re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text))
         for block_id, block in turn.blocks.items():
-            if block_id in referenced:
-                continue
-            if block["type"] == "policy" or not referenced:
+            if block["type"] == "policy":
+                yield from self._cited_sections(block_id, block, turn)
+            elif block_id not in referenced and not referenced:
                 yield {"type": "block_ref", "id": block_id}
+
+    def _cited_sections(self, block_id: str, block: dict, turn: Turn) -> Iterator[dict]:
+        cited = set(SECTION.findall(turn.text))
+        sections = [section for section in block["sections"] if section["id"] in cited]
+        if sections:
+            yield {"type": "block", "id": block_id, "block": {**block, "sections": sections}}
+            yield {"type": "block_ref", "id": block_id}

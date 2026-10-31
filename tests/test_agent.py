@@ -309,3 +309,21 @@ def test_empty_answer_after_a_tool_is_retried():
     events, messages, _, _ = run(llm, "abrem que horas?")
     assert of_type(events, "replace")[0]["text"] == "Abrimos às 09:00."
     assert messages[-1]["content"] == "Abrimos às 09:00."
+
+
+def test_policy_chips_show_only_what_the_answer_cites():
+    llm = ScriptedLLM(
+        call("search_policies", consulta="arrependimento devolução"),
+        text("São 7 dias após o recebimento (§4.1)."),
+    )
+    events, _, _, _ = run(llm, "posso devolver?")
+
+    final_blocks = [b for b in of_type(events, "block") if b["block"]["type"] == "policy"]
+    assert [s["id"] for s in final_blocks[-1]["block"]["sections"]] == ["4.1"]
+    assert of_type(events, "block_ref")[-1]["id"] == final_blocks[-1]["id"]
+
+
+def test_policy_chips_are_dropped_when_nothing_is_cited():
+    llm = ScriptedLLM(call("search_policies", consulta="frete"), text("Depende da cidade."))
+    events, _, _, _ = run(llm, "frete?")
+    assert not of_type(events, "block_ref")
