@@ -2,7 +2,7 @@
 
 Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.
 
-Recorded 2026-11-01 17:11.
+Recorded 2026-11-01 17:22.
 
 **Customer:** I regret my purchase, can I return my order?
 
@@ -12,7 +12,7 @@ Recorded 2026-11-01 17:11.
 
 _Tools: lookup_order, check_return, search_policies_
 
-**Amadeus:** I checked your order: for online purchases you have 7 calendar days after delivery to change your mind, and going by the estimated delivery that deadline ended on Feb 24. Since we're past that window, we can't accept a return for regret .
+**Amadeus:** I checked your order for the Shelby soprano ukulele: for online purchases you have 7 days after delivery to change your mind, and going by the delivery date that ended on February 24.
 
 > Block: order 7: delivered, R$ 159.90
 > Block: return, order 7: nao_elegivel, deadline Feb 24, 2026
@@ -22,7 +22,7 @@ _Tools: lookup_order, check_return, search_policies_
 
 _Tools: check_return, search_policies_
 
-**Amadeus:** That does change things. Since it's a defect, we're past the 30-day exchange window, but you're still covered by the 90-day legal warranty against manufacturing defects . We can mediate with the manufacturer for you. If you'd like to proceed, I can open a ticket for our team to help sort this out.
+**Amadeus:** That changes things. Since it's past the 30-day store exchange window but still within the 90-day legal warranty, you are covered. Damage from misuse isn't covered, but for manufacturing defects, the store can help mediate the process with the manufacturer. Would you like me to open a ticket for our team to handle this?
 
 > Block: return, order 7: garantia, deadline May 18, 2026
-> Block: cited: 8.1 Legal Warranty
+> Block: cited: 4.2 Exchanges for Defects, 8.1 Legal Warranty

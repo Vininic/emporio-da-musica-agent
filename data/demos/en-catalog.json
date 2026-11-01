@@ -2,7 +2,7 @@
  "lang": "en",
  "title": "Acoustic guitars up to R$ 1000",
  "summary": "The catalog query in English: same data, English labels and prose.",
- "recorded_at": "2026-11-01 17:11",
+ "recorded_at": "2026-11-01 17:22",
  "turns": [
   {
    "user": "What acoustic guitars do you have for up to R$ 1000?",
@@ -17,11 +17,12 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1169053",
+     "call": "call_1323488",
      "name": "search_products",
      "args": {
       "max_price": 1000,
-      "category": "violões"
+      "category": "violões",
+      "strings": "nylon"
      }
     },
     {
@@ -29,7 +30,7 @@
      "id": "b1",
      "block": {
       "type": "product_list",
-      "total": 12,
+      "total": 5,
       "items": [
        {
         "type": "product",
@@ -71,48 +72,6 @@
          "each": 9198,
          "promo_percent": null,
          "promo_name": null
-        }
-       },
-       {
-        "type": "product",
-        "id": 89,
-        "name": "Shelby SN-100 Folk Aço Preto",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 5,
-        "price": {
-         "list": 54900,
-         "final": 54900,
-         "pix": 52155,
-         "pix_applies": true,
-         "count": 6,
-         "each": 9150,
-         "promo_percent": null,
-         "promo_name": null
-        }
-       },
-       {
-        "type": "product",
-        "id": 88,
-        "name": "Giannini GF-1R Aço Folk Sunburst",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 7,
-        "price": {
-         "list": 57990,
-         "final": 57990,
-         "pix": 55090,
-         "pix_applies": true,
-         "count": 6,
-         "each": 9665,
-         "promo_percent": null,
-         "promo_name": null
-        },
-        "image": {
-         "url": "https://ts1.mm.bing.net/th?id=OIP.aZYwB4VtdhpXCSURJK5ONQHaHa&pid=15.1",
-         "source": "https://www.lojaopenstage.com.br/violao-eletroacustico-folk-cutaway-aco-gf-1r-ceq-3-tone-sunburst-giannini-prod-4471.html"
         }
        },
        {
@@ -163,75 +122,6 @@
        },
        {
         "type": "product",
-        "id": 87,
-        "name": "Yamaha F310 Aço Natural",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 14,
-        "price": {
-         "list": 69990,
-         "final": 69990,
-         "pix": 66490,
-         "pix_applies": true,
-         "count": 6,
-         "each": 11665,
-         "promo_percent": null,
-         "promo_name": null
-        },
-        "image": {
-         "url": "https://ts3.mm.bing.net/th?id=OIP.VswMQyIxgl9-lP7UrngzWgHaHa&pid=15.1",
-         "source": "https://www.x5music.com.br/violao-yamaha-f310-folk-acustico-aco-natural/p"
-        }
-       },
-       {
-        "type": "product",
-        "id": 86,
-        "name": "Tagima Dallas Tuner Aço Natural",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 9,
-        "price": {
-         "list": 74900,
-         "final": 74900,
-         "pix": 71155,
-         "pix_applies": true,
-         "count": 7,
-         "each": 10700,
-         "promo_percent": null,
-         "promo_name": null
-        },
-        "image": {
-         "url": "https://ts2.mm.bing.net/th?id=OIP.wk9eZte117unMMtAYv5IPQHaHa&pid=15.1",
-         "source": "https://www.topmusical.com.br/violao-tagima-dallas-eletrico-gran-reserva-aco"
-        }
-       },
-       {
-        "type": "product",
-        "id": 107,
-        "name": "Shelby SGD-195E Elétrico Aço Sunburst",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 6,
-        "price": {
-         "list": 79900,
-         "final": 79900,
-         "pix": 75905,
-         "pix_applies": true,
-         "count": 7,
-         "each": 11414,
-         "promo_percent": null,
-         "promo_name": null
-        },
-        "image": {
-         "url": "https://ts2.mm.bing.net/th?id=OIP.xB4AfBM2Yd5TIT8-pu68bQHaJ_&pid=15.1",
-         "source": "https://ce.olx.com.br/fortaleza-e-regiao/instrumentos-musicais/violao-shelby-sgd195-eletrico-aco-folk-1451837639"
-        }
-       },
-       {
-        "type": "product",
         "id": 82,
         "name": "Yamaha C70 Nylon Natural",
         "category_id": 5,
@@ -252,51 +142,13 @@
          "url": "https://ts4.mm.bing.net/th?id=OIP.qL_uM9o7IlXJHwrjUOHKkAHaHa&pid=15.1",
          "source": "https://www.guitarshopce.com.br/violao-yamaha-c70ii-nylon-natural-acustico"
         }
-       },
-       {
-        "type": "product",
-        "id": 91,
-        "name": "Tagima Woodstock Dreadnought Natural",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 11,
-        "price": {
-         "list": 89900,
-         "final": 89900,
-         "pix": 85405,
-         "pix_applies": true,
-         "count": 8,
-         "each": 11238,
-         "promo_percent": null,
-         "promo_name": null
-        }
-       },
-       {
-        "type": "product",
-        "id": 112,
-        "name": "Tagima TW-7 7 Cordas Aço Natural",
-        "category_id": 5,
-        "category": "Acoustic guitars",
-        "availability": "disponivel",
-        "stock": 6,
-        "price": {
-         "list": 99900,
-         "final": 99900,
-         "pix": 94905,
-         "pix_applies": true,
-         "count": 9,
-         "each": 11100,
-         "promo_percent": null,
-         "promo_name": null
-        }
        }
       ]
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1169053",
+     "call": "call_1323488",
      "name": "search_products",
      "ms": 2,
      "ok": true,
@@ -308,6 +160,29 @@
      "name": "thumbs"
     },
     {
+     "type": "tool_start",
+     "call": "call_1323491",
+     "name": "search_products",
+     "args": {
+      "max_price": 1000,
+      "strings": "aço",
+      "category": "violões"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1323491",
+     "name": "search_products",
+     "ms": 1,
+     "ok": true,
+     "search": null,
+     "block": null
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
      "type": "model",
      "name": "gemini-3.5-flash-lite"
     },
@@ -317,11 +192,11 @@
     },
     {
      "type": "text",
-     "text": " a few good options under R$ 1000, covering both nylon and steel strings"
+     "text": " a few nylon-string acoustic guitars under one thousand reais, mostly reliable models for studying and"
     },
     {
      "type": "text",
-     "text": " depending on what you prefer to play. \n\n"
+     "text": " daily practice. \n\n"
     },
     {
      "type": "block_ref",
@@ -329,15 +204,11 @@
     },
     {
      "type": "text",
-     "text": "\n\nThe Yamaha C40 and"
+     "text": "\n\nThe Yamaha C40 is always a solid pick for anyone"
     },
     {
      "type": "text",
-     "text": " F310 are always reliable workhorses for starting out or practicing without fuss. If you want something with a bit more presence"
-    },
-    {
-     "type": "text",
-     "text": ", the Tagima and Giannini steel string models are worth a look."
+     "text": " starting out on the right foot."
     },
     {
      "type": "done",
@@ -354,107 +225,28 @@
      "name": "gemini-3.5-flash-lite"
     },
     {
-     "type": "tool_start",
-     "call": "call_843404",
-     "name": "search_policies",
-     "args": {
-      "query": "parcelamento pagamento"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b2",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "3.1",
-        "title": "Installment Rules",
-        "text": "Up to 3 installments: interest free, no minimum installment (except below R$ 50.00). 4 to 6 installments: interest free, minimum installment of R$ 80.00. 7 to 12 installments: interest free, minimum installment of R$ 100.00. Combining payment methods: allowed (e.g. PIX + card) for purchases above R$ 2,000.00."
-       },
-       {
-        "id": "3",
-        "title": "Payment Methods",
-        "text": "We accept the following payment methods for in-store and online purchases. PIX: paid in full, 5% discount on the list price. Debit card: paid in full, all card brands accepted. Credit card: up to 12 interest-free installments, minimum installment of R$ 100.00. Bank slip (boleto): paid in full, clears within 3 business days."
-       },
-       {
-        "id": "5.1",
-        "title": "Deliveries in the Campo Grande Metropolitan Area",
-        "text": "Free shipping for orders above R$ 500.00. For orders below R$ 500.00, a flat fee of R$ 35.00. Delivery time: 1 to 3 business days. Delivered by the store's own courier. The customer is called before delivery."
-       }
-      ]
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_843404",
-     "name": "search_policies",
-     "ms": 459,
-     "ok": true,
-     "search": {
-      "mode": "hybrid",
-      "top": [
-       {
-        "id": "3.1",
-        "score": 0.01639
-       },
-       {
-        "id": "3",
-        "score": 0.01613
-       },
-       {
-        "id": "5.1",
-        "score": 0.01587
-       }
-      ]
-     },
-     "block": "b2"
-    },
-    {
-     "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "type": "text",
+     "text": "The"
     },
     {
      "type": "text",
-     "text": "If"
+     "text": " Yamaha C40 is a classic choice for a reason, but if you can"
     },
     {
      "type": "text",
-     "text": " you are starting out, the Yamaha C40 is a safe bet for nylon strings, keeping"
+     "text": " stretch just a bit further to the Yamaha C70, you get better wood selection and improved tuning stability. Both are honest"
     },
     {
      "type": "text",
-     "text": " things gentle on the fingers while you build your calluses. If you prefer steel strings, the Yamaha F310 holds"
+     "text": " instruments that won't fight your hands while you learn.\n\nYes, you can pay in installments for all of them. The Tag"
     },
     {
      "type": "text",
-     "text": " its tuning well and treats a beginner right. \n\nYou can pay in credit card installments up to 12 times interest-free, as"
+     "text": "ima Memphis and Rozini go up to 5 times interest-free, the Yamaha C40 and Giannini go"
     },
     {
      "type": "text",
-     "text": " long as each monthly installment reaches at least R$ 100.00 "
-    },
-    {
-     "type": "text",
-     "text": "."
-    },
-    {
-     "type": "block",
-     "id": "b2",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "3.1",
-        "title": "Installment Rules",
-        "text": "Up to 3 installments: interest free, no minimum installment (except below R$ 50.00). 4 to 6 installments: interest free, minimum installment of R$ 80.00. 7 to 12 installments: interest free, minimum installment of R$ 100.00. Combining payment methods: allowed (e.g. PIX + card) for purchases above R$ 2,000.00."
-       }
-      ]
-     }
-    },
-    {
-     "type": "block_ref",
-     "id": "b2"
+     "text": " up to 6 times, and the Yamaha C70 goes up to 8 times without interest."
     },
     {
      "type": "done",

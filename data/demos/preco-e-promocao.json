@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Preço e promoção vencida",
  "summary": "Price lookup, then a customer claiming an expired discount, then the store address.",
- "recorded_at": "2026-11-01 17:09",
+ "recorded_at": "2026-11-01 17:20",
  "turns": [
   {
    "user": "Quanto custa o Takamine GD20?",
@@ -17,7 +17,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_768416",
+     "call": "call_900557",
      "name": "get_product",
      "args": {
       "name": "Takamine GD20"
@@ -61,9 +61,9 @@
     },
     {
      "type": "tool_end",
-     "call": "call_768416",
+     "call": "call_900557",
      "name": "get_product",
-     "ms": 2,
+     "ms": 1,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -78,23 +78,23 @@
     },
     {
      "type": "text",
-     "text": "O"
+     "text": "O Tak"
     },
     {
      "type": "text",
-     "text": " Takamine GD20 custa R$ 2.199,00"
+     "text": "amine GD20 Dreadnought Natural sai por R$ 2.199"
     },
     {
      "type": "text",
-     "text": " à vista no PIX por R$ 2.089,05, ou em até 12 vezes"
+     "text": ",00, com opção no PIX por R$ 2.089,05 ou em até 12x de"
     },
     {
      "type": "text",
-     "text": " de R$ 183,25 sem juros. É um dreadnought com tampo em cedro sólido"
+     "text": " R$ 183,25 sem juros. É um dreadnought com tampo sólido em cedro que"
     },
     {
      "type": "text",
-     "text": " que entrega um timbre bem quente e definido.\n\n"
+     "text": " entrega um timbre bem encorpado.\n\n"
     },
     {
      "type": "block_ref",
@@ -116,60 +116,60 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1038600",
-     "name": "get_product",
+     "call": "call_719491",
+     "name": "search_policies",
      "args": {
-      "name": "Takamine GD20"
+      "query": "promocao encerrada expirada preco anterior"
      }
     },
     {
      "type": "block",
      "id": "b2",
      "block": {
-      "type": "product",
-      "id": 95,
-      "name": "Takamine GD20 Dreadnought Natural",
-      "category_id": 5,
-      "category": "Violões",
-      "availability": "disponivel",
-      "stock": 5,
-      "price": {
-       "list": 219900,
-       "final": 219900,
-       "pix": 208905,
-       "pix_applies": true,
-       "count": 12,
-       "each": 18325,
-       "promo_percent": null,
-       "promo_name": null
-      },
-      "specs": {
-       "Tampo": "Cedro Sólido",
-       "Fundo e laterais": "Sapele",
-       "Braço": "Mogno",
-       "Cordas": "aço",
-       "Escala": "650mm",
-       "Eletrônica": "não",
-       "Cor": "Natural"
-      },
-      "image": {
-       "url": "https://ts4.explicit.bing.net/th?id=OIP.YsmWOJR9YapcoRRz8btdnQAAAA&pid=15.1",
-       "source": "https://damamuzik.com/621-takamine-gd20ns-dreadnought-akustik-gitar-naturel-saten.html"
-      }
+      "type": "policy",
+      "sections": [
+       {
+        "id": "7.3",
+        "title": "Situações Especiais",
+        "text": "Produto fora de estoque: informar que o produto está temporariamente indisponível e sugerir alternativas semelhantes que estejam disponíveis. Nunca confirmar disponibilidade sem verificar o estoque atual. Produto descontinuado: informar que o produto não faz mais parte do catálogo e oferecer modelos equivalentes ou sucessores. Promoção expirada: caso o cliente pergunte sobre uma promoção, verificar se ela encontra-se ativa no sistema. Se a promoção estiver vencida, informar com transparência e apresentar o preço atual. Nunca prometer um desconto que não está mais vigente. Reclamação: ouvir o cliente com empatia, registrar a reclamação e encaminhar para o responsável. Prazo de retorno: 24 horas úteis."
+       },
+       {
+        "id": "6.2",
+        "title": "Regras de Promoções",
+        "text": "Cumulatividade: promoções não são cumulativas. O desconto de PIX (5%) não se aplica sobre preços já promocionais. Estoque: promoções estão sujeitas à disponibilidade de estoque. Produtos esgotados durante a promoção não geram direito a rain check (reserva de preço). Comunicação: preços promocionais devem sempre ser apresentados junto ao preço original e o percentual de desconto, para total transparência ao cliente."
+       },
+       {
+        "id": "6.1",
+        "title": "Tipos de Promoção",
+        "text": "A Empório da Música realiza promoções periódicas ao longo do ano. As principais campanhas incluem: Aniversário da Loja (Agosto): descontos de 10% a 25% em itens selecionados. Black Friday (Novembro): descontos de 15% a 30% em todo o catálogo. Volta às Aulas (Fevereiro): descontos especiais em instrumentos para estudantes. Queima de Estoque: promoções pontuais para renovação de catálogo. Semana do Músico: promoções na semana do Dia do Músico (22 de novembro)."
+       }
+      ]
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1038600",
-     "name": "get_product",
-     "ms": 1,
+     "call": "call_719491",
+     "name": "search_policies",
+     "ms": 463,
      "ok": true,
-     "search": null,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "7.3",
+        "score": 0.03279
+       },
+       {
+        "id": "6.2",
+        "score": 0.03226
+       },
+       {
+        "id": "6.1",
+        "score": 0.03055
+       }
+      ]
+     },
      "block": "b2"
-    },
-    {
-     "type": "gesture",
-     "name": "yes"
     },
     {
      "type": "model",
@@ -177,15 +177,37 @@
     },
     {
      "type": "text",
-     "text": "Essa"
+     "text": "Essa oferta"
     },
     {
      "type": "text",
-     "text": " oferta de 12% já encerrou, o valor válido agora no"
+     "text": " especial de 12% já encerrou, e o que vale para"
     },
     {
      "type": "text",
-     "text": " sistema é o de R$ 2.199,00 mesmo. \n\n"
+     "text": " mim é o preço que está no sistema"
+    },
+    {
+     "type": "text",
+     "text": ". Por R$ 2.199,00,"
+    },
+    {
+     "type": "text",
+     "text": " levando em conta o tampo sólido em cedro, ainda acho um violão muito honesto pelo que entrega."
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "7.3",
+        "title": "Situações Especiais",
+        "text": "Produto fora de estoque: informar que o produto está temporariamente indisponível e sugerir alternativas semelhantes que estejam disponíveis. Nunca confirmar disponibilidade sem verificar o estoque atual. Produto descontinuado: informar que o produto não faz mais parte do catálogo e oferecer modelos equivalentes ou sucessores. Promoção expirada: caso o cliente pergunte sobre uma promoção, verificar se ela encontra-se ativa no sistema. Se a promoção estiver vencida, informar com transparência e apresentar o preço atual. Nunca prometer um desconto que não está mais vigente. Reclamação: ouvir o cliente com empatia, registrar a reclamação e encaminhar para o responsável. Prazo de retorno: 24 horas úteis."
+       }
+      ]
+     }
     },
     {
      "type": "block_ref",
@@ -207,7 +229,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1346826",
+     "call": "call_697233",
      "name": "store_info",
      "args": {}
     },
@@ -280,7 +302,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1346826",
+     "call": "call_697233",
      "name": "store_info",
      "ms": 0,
      "ok": true,
@@ -293,15 +315,19 @@
     },
     {
      "type": "text",
-     "text": "Estamos"
+     "text": "F"
     },
     {
      "type": "text",
-     "text": " na Rua 14 de Maio, 3200, no Centro de"
+     "text": "icamos na Rua 14 de Maio, 3200, no"
     },
     {
      "type": "text",
-     "text": " Campo Grande. Pode chegar quando quiser para conferir os instrumentos de perto.\n\n"
+     "text": " Centro de Campo Grande. Estamos abertos agora de segunda a sexta até as 18h e aos sábados até as"
+    },
+    {
+     "type": "text",
+     "text": " 13h. \n\n"
     },
     {
      "type": "block_ref",

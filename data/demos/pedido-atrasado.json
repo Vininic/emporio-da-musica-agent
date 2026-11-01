@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Pedido atrasado",
  "summary": "Order tracking without the phone is refused; with it, a late delivery opens a ticket.",
- "recorded_at": "2026-11-01 17:10",
+ "recorded_at": "2026-11-01 17:21",
  "turns": [
   {
    "user": "Cadê meu pedido 8?",
@@ -17,7 +17,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1171974",
+     "call": "call_1477894",
      "name": "lookup_order",
      "args": {
       "order_number": 8
@@ -25,7 +25,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1171974",
+     "call": "call_1477894",
      "name": "lookup_order",
      "ms": 0,
      "ok": false,
@@ -46,7 +46,7 @@
     },
     {
      "type": "text",
-     "text": " eu olhar como está o pedido 8, me passa o telefone que você usou no cadastro?"
+     "text": " eu olhar o pedido 8, me passa o telefone do cadastro?"
     },
     {
      "type": "done",
@@ -64,11 +64,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1367636",
+     "call": "call_1071567",
      "name": "lookup_order",
      "args": {
-      "phone": "•••7821",
-      "order_number": 8
+      "order_number": 8,
+      "phone": "•••7821"
      }
     },
     {
@@ -92,7 +92,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1367636",
+     "call": "call_1071567",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -109,11 +109,12 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1313834",
+     "call": "call_1216259",
      "name": "open_ticket",
      "args": {
+      "contact": "•••7821",
       "kind": "complaint",
-      "summary": "Pedido 8 com atraso na entrega"
+      "summary": "Pedido 8 com atraso na entrega (previsão 28/02/2026)"
      }
     },
     {
@@ -123,12 +124,12 @@
       "type": "ticket",
       "ticket": 1,
       "kind": "complaint",
-      "summary": "Pedido 8 com atraso na entrega"
+      "summary": "Pedido 8 com atraso na entrega (previsão 28/02/2026)"
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1313834",
+     "call": "call_1216259",
      "name": "open_ticket",
      "ms": 0,
      "ok": true,
@@ -149,15 +150,7 @@
     },
     {
      "type": "text",
-     "text": "\n\nO seu pedido 8 com o ukulele Kala KA-C foi"
-    },
-    {
-     "type": "text",
-     "text": " enviado, mas infelizmente está com atraso na entrega. Eu já abri um chamado com a nossa equipe para verific"
-    },
-    {
-     "type": "text",
-     "text": "arem o que aconteceu com a transportadora. \n\n"
+     "text": "\n\n"
     },
     {
      "type": "block_ref",
@@ -165,11 +158,15 @@
     },
     {
      "type": "text",
-     "text": "\nO retorno vem em até"
+     "text": "\nO"
     },
     {
      "type": "text",
-     "text": " 24 horas úteis."
+     "text": " pedido 8 está com atraso na entrega. Já abri um chamado para a equipe verificar o que aconteceu com a transportadora, e o"
+    },
+    {
+     "type": "text",
+     "text": " retorno vem em até 24 horas úteis."
     },
     {
      "type": "done",
@@ -187,19 +184,15 @@
     },
     {
      "type": "text",
-     "text": "O"
+     "text": "O chamado"
     },
     {
      "type": "text",
-     "text": " chamado já está aberto com a equipe desde a nossa última conversa para correrem atrás disso"
+     "text": " já está aberto com a equipe, Ana. Assim que tivermos a posição da transportadora, eles entram"
     },
     {
      "type": "text",
-     "text": " com a transportadora. O retorno vem em até 24 horas úteis, então logo eles te dão uma"
-    },
-    {
-     "type": "text",
-     "text": " posição exata de onde anda esse ukulele."
+     "text": " em contato com você em até 24 horas úteis."
     },
     {
      "type": "done",

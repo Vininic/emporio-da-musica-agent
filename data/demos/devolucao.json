@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Devolução fora do prazo",
  "summary": "Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.",
- "recorded_at": "2026-11-01 17:10",
+ "recorded_at": "2026-11-01 17:21",
  "turns": [
   {
    "user": "Me arrependi da minha compra, posso devolver meu pedido?",
@@ -17,7 +17,11 @@
     },
     {
      "type": "text",
-     "text": "Vamos ver. Me passa o número do pedido e o telefone do cadastro?"
+     "text": "Vamos"
+    },
+    {
+     "type": "text",
+     "text": " ver. Me passa o número do pedido e o telefone do cadastro?"
     },
     {
      "type": "done",
@@ -35,7 +39,7 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1583584",
+     "call": "call_719534",
      "name": "lookup_order",
      "args": {
       "order_number": 7,
@@ -62,7 +66,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1583584",
+     "call": "call_719534",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -79,11 +83,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_950174",
+     "call": "call_1366429",
      "name": "check_return",
      "args": {
-      "channel": "online",
       "order_number": 7,
+      "channel": "online",
       "reason": "regret",
       "received_on": "2026-02-17"
      }
@@ -107,7 +111,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_950174",
+     "call": "call_1366429",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -124,10 +128,10 @@
     },
     {
      "type": "tool_start",
-     "call": "call_824680",
+     "call": "call_1468920",
      "name": "search_policies",
      "args": {
-      "query": "prazo troca arrependimento"
+      "query": "prazo de arrependimento troca devolução 4.1"
      }
     },
     {
@@ -142,37 +146,37 @@
         "text": "O cliente pode solicitar a devolução em até 7 (sete) dias corridos após o recebimento do produto, sem necessidade de justificativa. O produto deve estar em sua embalagem original, sem sinais de uso, com todos os acessórios e manuais. O reembolso será realizado na mesma forma de pagamento original em até 10 dias úteis. O frete de devolução é por conta da loja em caso de arrependimento."
        },
        {
-        "id": "4.3",
-        "title": "Trocas por Preferência",
-        "text": "Trocas por preferência (cor, modelo, tamanho) são permitidas em até 7 dias, mediante disponibilidade do produto desejado. O produto deve estar em perfeito estado e na embalagem original. Diferenças de valor serão cobradas ou reembolsadas conforme o caso."
-       },
-       {
         "id": "4",
         "title": "Política de Trocas e Devoluções",
         "text": "A Empório da Música segue as diretrizes do Código de Defesa do Consumidor (Lei nº 8.078/90) e oferece condições claras para trocas e devoluções."
+       },
+       {
+        "id": "4.3",
+        "title": "Trocas por Preferência",
+        "text": "Trocas por preferência (cor, modelo, tamanho) são permitidas em até 7 dias, mediante disponibilidade do produto desejado. O produto deve estar em perfeito estado e na embalagem original. Diferenças de valor serão cobradas ou reembolsadas conforme o caso."
        }
       ]
      }
     },
     {
      "type": "tool_end",
-     "call": "call_824680",
+     "call": "call_1468920",
      "name": "search_policies",
-     "ms": 514,
+     "ms": 566,
      "ok": true,
      "search": {
       "mode": "hybrid",
       "top": [
        {
         "id": "4.1",
-        "score": 0.03252
-       },
-       {
-        "id": "4.3",
-        "score": 0.03227
+        "score": 0.03279
        },
        {
         "id": "4",
+        "score": 0.03175
+       },
+       {
+        "id": "4.3",
         "score": 0.03175
        }
       ]
@@ -189,15 +193,15 @@
     },
     {
      "type": "text",
-     "text": " seu pedido. Pelo site você tem até 7 dias corridos após receber"
+     "text": " seu pedido. Como você comprou pelo site, o prazo para desistir é"
     },
     {
      "type": "text",
-     "text": " para desistir, e como a entrega foi prevista para 17/02, esse prazo acabou em 24/0"
+     "text": " de até 7 dias corridos depois de receber, e pela previsão de entrega isso encerrou em 24"
     },
     {
      "type": "text",
-     "text": "2 "
+     "text": "/02"
     },
     {
      "type": "text",
@@ -245,13 +249,13 @@
     },
     {
      "type": "tool_start",
-     "call": "call_725571",
+     "call": "call_1031860",
      "name": "check_return",
      "args": {
       "received_on": "2026-02-17",
+      "order_number": 7,
       "channel": "online",
-      "reason": "defect",
-      "order_number": 7
+      "reason": "defect"
      }
     },
     {
@@ -274,7 +278,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_725571",
+     "call": "call_1031860",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -291,10 +295,10 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1245039",
+     "call": "call_1145144",
      "name": "search_policies",
      "args": {
-      "query": "garantia defeito prazo"
+      "query": "defeito garantia 8.1 8.3"
      }
     },
     {
@@ -304,14 +308,14 @@
       "type": "policy",
       "sections": [
        {
-        "id": "4.2",
-        "title": "Trocas por Defeito",
-        "text": "Produtos com defeito de fabricação podem ser trocados em até 30 (trinta) dias corridos após a compra. Após os 30 dias, o cliente deve acionar a garantia diretamente com o fabricante. A Empório da Música pode intermediar o processo mediante solicitação. Danos causados por mau uso, quedas, exposição a umidade excessiva ou modificações não autorizadas não são cobertos."
-       },
-       {
         "id": "8.1",
         "title": "Garantia Legal",
         "text": "Conforme o Código de Defesa do Consumidor, todos os produtos possuem garantia legal de 90 (noventa) dias contra defeitos de fabricação, contados a partir da data de recebimento pelo cliente."
+       },
+       {
+        "id": "8.3",
+        "title": "O que Não Cobre a Garantia",
+        "text": "Desgaste natural de peças (trastes, cordas, feltros, palhetas de sopro). Danos por mau uso, queda, exposição a condições climáticas extremas. Modificações ou reparos realizados por terceiros não autorizados. Danos estéticos que não afetem a funcionalidade do instrumento."
        },
        {
         "id": "8.2",
@@ -323,20 +327,20 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1245039",
+     "call": "call_1145144",
      "name": "search_policies",
-     "ms": 389,
+     "ms": 397,
      "ok": true,
      "search": {
       "mode": "hybrid",
       "top": [
        {
-        "id": "4.2",
-        "score": 0.03252
+        "id": "8.1",
+        "score": 0.03279
        },
        {
-        "id": "8.1",
-        "score": 0.03252
+        "id": "8.3",
+        "score": 0.03226
        },
        {
         "id": "8.2",
@@ -352,19 +356,27 @@
     },
     {
      "type": "text",
-     "text": "Faz diferença sim. Passou dos 30 dias para troca"
+     "text": "Faz"
     },
     {
      "type": "text",
-     "text": " direta, mas você está dentro da garantia legal de 90 dias que vai até 18/05 "
+     "text": " sim. O prazo de 7 dias é só para arrependimento, mas"
     },
     {
      "type": "text",
-     "text": ". Me conta qual é o defeito para eu abrir um chamado para a equipe"
+     "text": " para defeito você tem a garantia legal de 90 dias a partir do recebimento, o que nos dá marg"
     },
     {
      "type": "text",
-     "text": " cuidar disso."
+     "text": "em até 18/05"
+    },
+    {
+     "type": "text",
+     "text": ". Se o problema for de fabricação e não de"
+    },
+    {
+     "type": "text",
+     "text": " uso, a gente resolve. Quer abrir um chamado para a equipe analisar o caso do seu ukulelê?"
     },
     {
      "type": "block_ref",

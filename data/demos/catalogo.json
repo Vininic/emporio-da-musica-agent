@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Violões até R$ 1000",
  "summary": "Catalog query: only what can actually be sold, with a follow-up on one model.",
- "recorded_at": "2026-11-01 17:09",
+ "recorded_at": "2026-11-01 17:20",
  "turns": [
   {
    "user": "Quais opções de violões disponíveis custando até R$1000?",
@@ -17,11 +17,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_1340796",
+     "call": "call_1448411",
      "name": "search_products",
      "args": {
-      "max_price": 1000,
-      "category": "violões"
+      "category": "violões",
+      "max_price": 1000
      }
     },
     {
@@ -296,9 +296,9 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1340796",
+     "call": "call_1448411",
      "name": "search_products",
-     "ms": 2,
+     "ms": 1,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -313,31 +313,19 @@
     },
     {
      "type": "text",
-     "text": "T"
+     "text": "Sep"
     },
     {
      "type": "text",
-     "text": "emos várias opções de violões até R$ 1.000, desde modelos"
+     "text": "arei algumas opções de violões até R$ 1.000, desde"
     },
     {
      "type": "text",
-     "text": " de nylon mais em conta para estudo até opções em aço e com captação. O Yamaha C40, por exemplo, cust"
-    },
-    {
-     "type": "text",
-     "text": "a R$ 599,90 e é sempre uma escolha muito firme para quem está começando.\n\n"
+     "text": " modelos para estudo até alguns com timbre mais encorpado.\n\n"
     },
     {
      "type": "block_ref",
      "id": "b1"
-    },
-    {
-     "type": "text",
-     "text": "\n\nSe preferir focar em algum tipo específico de corda ou formato, me avisa que a gente filtra"
-    },
-    {
-     "type": "text",
-     "text": "."
     },
     {
      "type": "done",
@@ -359,23 +347,23 @@
     },
     {
      "type": "text",
-     "text": " começar do jeito certo, o Yamaha C40 por R$ 599"
+     "text": " quem está começando, o Yamaha C40 por R$ 599"
     },
     {
      "type": "text",
-     "text": ",90 é tiro certo se você quiser cordas de nylon. Ele segura bem a afinação e não judia"
+     "text": ",90 é um instrumento que nunca deixa na mão na hora de firmar a mão no braço e segurar a"
     },
     {
      "type": "text",
-     "text": " dos dedos de quem tá começando. Agora, se preferir o som de aço, o Yamaha F310 sai por R$ 6"
+     "text": " afinação. Se preferir cordas de aço para tocar com palheta, o Yamaha F310 sai por R$"
     },
     {
      "type": "text",
-     "text": "99,90 e entrega uma construção honesta.\n\nDá para parcelar sim, todas essas opções ace"
+     "text": " 699,90 e cumpre muito bem esse papel. \n\nSobre o parcelamento, todos eles"
     },
     {
      "type": "text",
-     "text": "itam parcelamento sem juros no cartão de crédito, variando de 5 a 9 vezes dependendo do modelo"
+     "text": " aceitam divisão no cartão sem juros, variando de 5 até 9 vezes dependendo do modelo que você escolher"
     },
     {
      "type": "text",
