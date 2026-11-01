@@ -1,11 +1,12 @@
+import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, ValidationError
 
-from emporio.config import Clock
+from emporio.config import ROOT, Clock
 from emporio.domain import hours, shipping
 from emporio.domain.money import to_cents
 from emporio.domain.pricing import COMBINED_PAYMENT_ABOVE_CENTS, max_installments
@@ -34,6 +35,13 @@ STORE_FACTS = {
     "email": "contato@emporiodamusica.com.br",
     "founded": "2008",
 }
+STORE_MAP = {"lat": -20.464, "lon": -54.6163}
+PRODUCT_IMAGES_FILE = ROOT / "data" / "product_images.json"
+PRODUCT_IMAGES = (
+    json.loads(PRODUCT_IMAGES_FILE.read_text(encoding="utf-8"))
+    if PRODUCT_IMAGES_FILE.exists()
+    else {}
+)
 
 
 @dataclass
@@ -193,6 +201,9 @@ def _product_block(product: Product, lang: Lang, with_specs: bool = False) -> di
         block["list_price"] = product.price_cents
     if with_specs:
         block["specs"] = _specs(product, lang)
+    image = PRODUCT_IMAGES.get(str(product.id))
+    if image:
+        block["image"] = {"url": image["url"], "source": image["source"]}
     return block
 
 
@@ -514,13 +525,27 @@ class StoreInfoArgs(BaseModel):
     pass
 
 
+def store_view(now: datetime, lang: Lang) -> dict:
+    is_open = hours.is_open(now)
+    data = {**STORE_FACTS, "hours": text(lang)["store_hours"], "open_now": is_open}
+    if not is_open:
+        data["opens"] = hours.describe_opening(hours.next_opening(now), now, lang)
+    return data
+
+
+def store_block(now: datetime, lang: Lang) -> dict:
+    return {
+        "type": "store",
+        **store_view(now, lang),
+        "schedule": hours.week_schedule(now, lang),
+        "holidays": hours.next_holidays(now),
+        "map": STORE_MAP,
+    }
+
+
 def store_info(ctx: ToolContext, args: StoreInfoArgs) -> ToolResult:
     now = ctx.clock.now()
-    is_open = hours.is_open(now)
-    data = {**STORE_FACTS, "hours": text(ctx.lang)["store_hours"], "open_now": is_open}
-    if not is_open:
-        data["opens"] = hours.describe_opening(hours.next_opening(now), now, ctx.lang)
-    return ToolResult(data, {"type": "store", **data, "weekday": now.weekday()})
+    return ToolResult(store_view(now, ctx.lang), store_block(now, ctx.lang))
 
 
 class LookupOrderArgs(BaseModel):

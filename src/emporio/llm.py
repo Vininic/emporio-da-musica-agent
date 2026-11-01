@@ -116,8 +116,13 @@ class ToolCallCollector:
 
 class OpenAICompatibleLLM:
     def __init__(
-        self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT, patience: float = 0
+        self,
+        provider: Provider,
+        timeout: float = FIRST_BYTE_TIMEOUT,
+        patience: float = 0,
+        effort: str | None = None,
     ):
+        self._effort = effort
         self._routes = [(self._client(provider, timeout), provider.chat_models)]
         if provider.fallback is not None:
             self._routes.append(
@@ -178,6 +183,8 @@ class OpenAICompatibleLLM:
         arguments = {"model": model, "messages": messages, "stream": True, "temperature": 0.4}
         if tools:
             arguments["tools"] = tools
+        if self._effort:
+            arguments["reasoning_effort"] = self._effort
 
         collector = ToolCallCollector()
         announced = False

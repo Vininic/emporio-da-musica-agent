@@ -82,11 +82,11 @@ def check(case: dict, observed: dict) -> list[str]:
     return failures
 
 
-def run_case(case: dict, runtime_for, provider) -> dict:
+def run_case(case: dict, runtime_for, provider, effort: str | None = None) -> dict:
     now = case.get("now")
     clock = Clock(datetime.fromisoformat(now).replace(tzinfo=TIMEZONE) if now else DEFAULT_NOW)
     runtime = runtime_for(clock)
-    llm = OpenAICompatibleLLM(provider, patience=RATE_LIMIT_PATIENCE)
+    llm = OpenAICompatibleLLM(provider, patience=RATE_LIMIT_PATIENCE, effort=effort)
     agent = runtime.agent(Session(case["id"]), provider, llm, case.get("lang", "pt"))
 
     observed = {"tools": [], "calls": [], "answers": [], "blocks": []}
@@ -156,6 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="Run on this model only, with no fallback")
     parser.add_argument("--case", action="append", help="Run only these case ids")
+    parser.add_argument("--effort", default="low", help="Reasoning effort, as the site defaults")
     parser.add_argument("--label", default="", help="Note for the history table")
     parser.add_argument("--no-save", action="store_true")
     args = parser.parse_args()
@@ -176,7 +177,7 @@ def main() -> None:
     cases = [c for c in load_cases() if not args.case or c["id"] in args.case]
     results = []
     for case in cases:
-        result = run_case(case, runtime_for, provider)
+        result = run_case(case, runtime_for, provider, args.effort)
         results.append(result)
         status = "PASS" if result["passed"] else "FAIL"
         print(f"{status}  {result['latency_s']:>6.1f}s  {case['id']}", flush=True)

@@ -9,6 +9,7 @@ import uuid
 import zlib
 from collections import defaultdict, deque
 from collections.abc import Iterator
+from dataclasses import replace
 from pathlib import Path
 from typing import Literal
 
@@ -17,12 +18,14 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from emporio.config import ROOT, Provider, provider_from, provider_from_env
+from emporio.config import EFFORTS, MODEL_CHOICES, ROOT, Provider, provider_from, provider_from_env
 from emporio.domain import hours
+from emporio.i18n import Lang
 from emporio.journal import Journal
-from emporio.llm import LLM
+from emporio.language import detect_language
+from emporio.llm import FALLBACK_TIMEOUT, FIRST_BYTE_TIMEOUT, LLM, OpenAICompatibleLLM
 from emporio.runtime import Runtime
-from emporio.tools import STORE_FACTS, Session
+from emporio.tools import STORE_FACTS, Session, store_block
 
 STATIC = Path(__file__).parent / "static"
 DEMOS = ROOT / "data" / "demos"
@@ -94,10 +97,14 @@ def create_app(
 
     def resolve_provider(name: str | None, key: str | None, model: str | None) -> Provider:
         if key:
-            return provider_from(name or "gemini", key, model)
-        if server_provider is not None:
-            return server_provider
-        raise HTTPException(401, "missing_api_key")
+            family = name if name in MODEL_CHOICES else "gemini"
+            return provider_from(family, key, model if model in MODEL_CHOICES[family] else None)
+        if server_provider is None:
+            raise HTTPException(401, "missing_api_key")
+        if model in MODEL_CHOICES.get(server_provider.name, ()):
+            others = tuple(m for m in server_provider.chat_models if m != model)
+            return replace(server_provider, chat_models=(model, *others))
+        return server_provider
 
     @app.get("/api/config")
     def config() -> dict:
@@ -114,8 +121,13 @@ def create_app(
                 for lang in ("pt", "en")
             },
             "phone": STORE_FACTS["phone"],
+            "models": MODEL_CHOICES,
             "demos": _demo_index(),
         }
+
+    @app.get("/api/store")
+    def store(lang: Lang = "pt") -> dict:
+        return store_block(runtime.clock.now(), lang)
 
     @app.get("/api/demos/{name}")
     def demo(name: str) -> dict:
@@ -131,6 +143,7 @@ def create_app(
         x_provider: str | None = Header(default=None),
         x_api_key: str | None = Header(default=None),
         x_model: str | None = Header(default=None),
+        x_effort: str | None = Header(default=None),
     ) -> StreamingResponse:
         provider = resolve_provider(x_provider, x_api_key, x_model)
         address = request.headers.get(
@@ -141,16 +154,28 @@ def create_app(
 
         state = codec.load(body.state) if body.state else {}
         conversation_id = state.get("session", {}).get("conversation_id") or uuid.uuid4().hex
-        llm: LLM | None = llm_factory(provider) if llm_factory else None
+        effort = x_effort if x_effort in EFFORTS else None
+        llm: LLM = (
+            llm_factory(provider)
+            if llm_factory
+            else OpenAICompatibleLLM(
+                provider,
+                timeout=FALLBACK_TIMEOUT if effort == "high" else FIRST_BYTE_TIMEOUT,
+                effort=effort,
+            )
+        )
+        lang = detect_language(body.message, body.lang)
 
         def stream() -> Iterator[str]:
+            if lang != body.lang:
+                yield _sse({"type": "lang", "lang": lang})
             session = (
                 Session.from_dict(state["session"])
                 if state.get("session")
                 else Session(conversation_id)
             )
             messages = state.get("messages", [])
-            agent = runtime.agent(session, provider, llm, body.lang)
+            agent = runtime.agent(session, provider, llm, lang)
             for event in agent.run(messages, body.message):
                 yield _sse(event)
             yield _sse(

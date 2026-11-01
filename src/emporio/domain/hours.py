@@ -48,6 +48,31 @@ def is_open(now: datetime) -> bool:
     return window is not None and window[0] <= now.time() < window[1]
 
 
+def week_schedule(now: datetime, lang: str = "pt") -> list[dict]:
+    rows = []
+    for weekday, name in enumerate(WEEKDAYS[lang]):
+        window = OPENING.get(weekday)
+        rows.append(
+            {
+                "day": name,
+                "opens": window[0].strftime("%H:%M") if window else None,
+                "closes": window[1].strftime("%H:%M") if window else None,
+                "today": weekday == now.weekday(),
+            }
+        )
+    return rows
+
+
+def next_holidays(now: datetime, count: int = 3) -> list[str]:
+    found = []
+    day = now.date()
+    while len(found) < count:
+        if is_holiday(day):
+            found.append(day.isoformat())
+        day += timedelta(days=1)
+    return found
+
+
 def next_opening(now: datetime) -> datetime:
     window = _window(now.date())
     if window is not None and now.time() < window[0]:

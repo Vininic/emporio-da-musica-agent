@@ -113,7 +113,7 @@ def record(conversation: dict, runtime: Runtime, provider) -> dict:
     agent = runtime.agent(
         Session(conversation["name"]),
         provider,
-        OpenAICompatibleLLM(provider, patience=120),
+        OpenAICompatibleLLM(provider, patience=120, effort="low"),
         conversation["lang"],
     )
     messages: list[dict] = []
