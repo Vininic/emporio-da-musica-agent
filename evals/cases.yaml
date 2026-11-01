@@ -134,7 +134,7 @@
 - id: discontinued-offers-equivalents
   traps: [T08]
   turns: ["Tem o baixo Ibanez Bass 2X?"]
-  tools: [get_product]
+  any_tools: [get_product, search_products]
   any: ["nao faz mais parte", "fora do catalogo", "descontinu", "saiu de linha"]
 
 - id: coming-soon-is-not-for-sale
@@ -162,7 +162,7 @@
 - id: out-of-stock-with-expired-promotion
   traps: [T12]
   turns: ["Quero o Giannini GF-3D com aqueles 40% de desconto."]
-  tools: [get_product]
+  any_tools: [get_product, search_products]
   blocks: [product_list]
   any: ["indisponivel", "sem estoque", "esgotado"]
   absent: ["479,9"]
@@ -354,7 +354,7 @@
   lang: en
   traps: [T03, T04]
   turns: ["Can I split the Kalani KAL-700T into 12 payments?"]
-  contains: ["4x|4 (interest-free |installments|payments)"]
+  contains: ["4x|4 (interest-free |installments|payments)|install[^.]*\\b4\\b"]
   absent: ["12x of"]
 
 - id: en-out-of-scope

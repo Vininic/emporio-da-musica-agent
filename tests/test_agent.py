@@ -354,3 +354,47 @@ def test_ticket_contact_never_reaches_the_trace():
     )
     events, _, _, _ = run(llm, "oi")
     assert "99654" not in json.dumps(of_type(events, "tool_start"))
+
+
+def test_marker_with_several_items_never_reaches_the_customer():
+    events, *_ = run(
+        ScriptedLLM(
+            call("search_policies", query="parcelamento"),
+            text("Dá em 4x [[fonte:3.1, bloco:b1]]."),
+        ),
+        "Parcela?",
+    )
+    assert "[[" not in spoken(events)
+    assert all("[[" not in event["text"] for event in of_type(events, "replace"))
+
+
+def test_order_block_shows_even_when_the_answer_only_places_another_block():
+    events, *_ = run(
+        ScriptedLLM(
+            call("lookup_order", order_number=8, phone="(67) 99654-7821"),
+            call("open_ticket", kind="complaint", summary="Atraso no pedido 8"),
+            text("Está atrasado. Abri um chamado. [[bloco:b2]]"),
+        ),
+        "Cadê meu pedido 8? (67) 99654-7821",
+    )
+    shown = {event["id"] for event in of_type(events, "block_ref")}
+    blocks = {event["id"]: event["block"]["type"] for event in of_type(events, "block")}
+    assert {blocks[block_id] for block_id in shown} >= {"order", "ticket"}
+
+
+def test_searching_a_discontinued_model_by_name_reports_it_instead_of_nothing():
+    events, messages, *_ = run(
+        ScriptedLLM(call("search_products", query="Ibanez Bass 2X"), text("Saiu de linha.")),
+        "Tem o Ibanez Bass 2X?",
+    )
+    tool_message = next(m for m in messages if m["role"] == "tool")
+    assert '"found": true' in tool_message["content"].lower()
+    assert of_type(events, "block")[0]["block"]["type"] == "product_list"
+
+
+def test_lookup_without_a_phone_does_not_burn_an_attempt():
+    _, _, session, _ = run(
+        ScriptedLLM(call("lookup_order", order_number=1, phone=""), text("Qual o telefone?")),
+        "Status do pedido 1?",
+    )
+    assert session.failed_verifications == 0

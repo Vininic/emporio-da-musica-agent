@@ -13,10 +13,9 @@ from emporio.tools import Session, ToolContext, run_tool, tool_schemas
 
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY_MESSAGES = 40
-MAX_MARKER_LENGTH = 24
-MARKER = re.compile(r"\[\[(bloco|gesto|fonte):([a-z0-9_.]+)\]\]")
-BLOCK_MARKER = re.compile(r"\[\[bloco:([a-z0-9_]+)\]\]")
-SOURCE_MARKER = re.compile(r"\[\[fonte:([0-9.]+)\]\]")
+MAX_MARKER_LENGTH = 80
+MARKER = re.compile(r"\[\[\s*((?:bloco|gesto|fonte)\s*:[^\[\]]*?)\s*\]\]")
+ALWAYS_SHOWN = {"order", "return", "quote", "ticket"}
 GESTURES = {"wave", "yes", "no", "thumbs", "dance"}
 SENSITIVE_ARGS = {"phone", "contact"}
 FALLBACK = AGENT_TEXT["pt"]["fallback"]
@@ -33,6 +32,27 @@ class Turn:
     sources: list[str] = field(default_factory=list)
 
 
+def _marker_items(body: str) -> Iterator[tuple[str, str]]:
+    kind = ""
+    for piece in body.split(","):
+        name, separator, value = piece.partition(":")
+        if separator:
+            kind = name.strip()
+        else:
+            value = name
+        if value.strip():
+            yield kind, value.strip()
+
+
+def _referenced(text: str, kind: str) -> list[str]:
+    return [
+        value
+        for body in MARKER.findall(text)
+        for found, value in _marker_items(body)
+        if found == kind
+    ]
+
+
 class MarkerFilter:
     def __init__(self):
         self._buffer = ""
@@ -46,7 +66,7 @@ class MarkerFilter:
             before = self._buffer[: match.start()]
             if before:
                 yield "text", before
-            yield match[1], match[2]
+            yield from _marker_items(match[1])
             self._buffer = self._buffer[match.end() :]
 
         hold = self._partial_marker_start()
@@ -190,7 +210,7 @@ class Agent:
             messages.extend(added)
 
         yield {"type": "replace", "text": strip_markers(turn.text)}
-        for block_id in BLOCK_MARKER.findall(turn.text):
+        for block_id in _referenced(turn.text, "bloco"):
             yield {"type": "block_ref", "id": block_id}
 
     def _respond(self, messages: list[dict], turn: Turn, stream: bool) -> Iterator[dict]:
@@ -275,15 +295,15 @@ class Agent:
             yield {"type": "gesture", "name": gesture}
 
     def _append_unreferenced(self, turn: Turn) -> Iterator[dict]:
-        referenced = set(BLOCK_MARKER.findall(turn.text))
+        referenced = set(_referenced(turn.text, "bloco"))
         for block_id, block in turn.blocks.items():
             if block["type"] == "policy":
                 yield from self._cited_sections(block_id, block, turn)
-            elif block_id not in referenced and not referenced:
+            elif block_id not in referenced and (not referenced or block["type"] in ALWAYS_SHOWN):
                 yield {"type": "block_ref", "id": block_id}
 
     def _cited_sections(self, block_id: str, block: dict, turn: Turn) -> Iterator[dict]:
-        cited = set(SOURCE_MARKER.findall(turn.text))
+        cited = set(_referenced(turn.text, "fonte"))
         sections = [section for section in block["sections"] if section["id"] in cited]
         if sections:
             yield {"type": "block", "id": block_id, "block": {**block, "sections": sections}}

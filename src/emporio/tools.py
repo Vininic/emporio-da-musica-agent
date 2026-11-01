@@ -24,7 +24,7 @@ from emporio.i18n import (
 from emporio.journal import Journal
 from emporio.policies import Section
 from emporio.retrieval import Document, HybridIndex, tokenize
-from emporio.store import Availability, Order, Product, Store, normalize_text
+from emporio.store import Availability, Order, Product, Store, normalize_text, phone_digits
 
 MAX_VERIFICATION_ATTEMPTS = 3
 MAX_TICKETS = 3
@@ -258,7 +258,23 @@ def _category(ctx: ToolContext, name: str | None) -> dict | None:
     return None
 
 
+def _named_unavailable(ctx: ToolContext, query: str) -> Product | None:
+    wanted = set(tokenize(query))
+    for product in ctx.store.all_products():
+        if product.availability is Availability.AVAILABLE:
+            continue
+        brand, *rest = tokenize(product.name)
+        models = [token for token in rest if any(char.isdigit() for char in token)]
+        if models and brand in wanted and wanted.issuperset(models):
+            return product
+    return None
+
+
 def search_products(ctx: ToolContext, args: SearchProductsArgs) -> ToolResult:
+    named = _named_unavailable(ctx, args.query) if args.query else None
+    if named is not None:
+        return get_product(ctx, GetProductArgs(name=named.name))
+
     category = _category(ctx, args.category)
     if category is not None and not category["available"]:
         name = CATEGORY_NAMES_EN[category["id"]] if ctx.lang == "en" else category["name"]
@@ -604,6 +620,9 @@ def lookup_order(ctx: ToolContext, args: LookupOrderArgs) -> ToolResult:
     if session.failed_verifications >= MAX_VERIFICATION_ATTEMPTS:
         return ToolResult({"verified": False, "locked": True, "note": words["locked"]})
 
+    if not phone_digits(args.phone):
+        return ToolResult({"verified": False, "note": words["phone_needed"]})
+
     order = ctx.store.verified_order(args.order_number, args.phone)
     if order is None:
         session.failed_verifications += 1
@@ -703,13 +722,13 @@ class Tool:
 TOOLS = (
     Tool(
         "search_products",
-        "Search the instrument catalog. Use for any question about options, price range or recommendations. Returns only what is on sale, with final price, PIX and installments.",
+        "Search the instrument catalog. Use for any question about options, price range or recommendations. Returns only what is on sale, with final price, PIX and installments. For a specific model named by the customer, use get_product.",
         SearchProductsArgs,
         search_products,
     ),
     Tool(
         "get_product",
-        "Details of a product by name: price, availability, current promotion, expired promotions, specs, and alternatives when unavailable.",
+        "Details of a product by name: price, availability, current promotion, expired promotions, specs, and alternatives when unavailable. Call this before saying a named model is not sold.",
         GetProductArgs,
         get_product,
     ),

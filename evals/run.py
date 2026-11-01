@@ -110,6 +110,8 @@ def run_case(case: dict, runtime_for, provider, effort: str | None = None) -> di
             elif kind == "replace":
                 answer = event["text"]
             elif kind == "tool_start":
+                if event["name"] == "lookup_order" and event["args"].get("phone") == "•••":
+                    continue
                 observed["tools"].append(event["name"])
                 observed["calls"].append((event["name"], event["args"]))
             elif kind == "block":

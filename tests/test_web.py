@@ -166,3 +166,21 @@ def test_unknown_demo_is_404():
     api = client()
     assert api.get("/api/demos/nope").status_code == 404
     assert api.get("/api/demos/..%2F..%2Fsecret").status_code == 404
+
+
+def test_store_endpoint_answers_without_a_key_or_a_model():
+    data = client(provider=None).get("/api/store", params={"lang": "en"}).json()
+    assert data["schedule"][2]["today"] is True
+    assert data["schedule"][0]["day"] == "Monday"
+    assert data["holidays"][0] == "2026-04-03"
+    assert data["phone"] == "(67) 3341-4444"
+
+
+def test_english_message_in_a_portuguese_chat_switches_the_language():
+    api = client([TextDelta("We do.")])
+    response = api.post("/api/chat", json={"message": "Do you have ukuleles?", "lang": "pt"})
+    assert events(response)[0] == {"type": "lang", "lang": "en"}
+
+
+def test_config_lists_the_models_the_server_accepts():
+    assert "gemini-3.5-flash-lite" in client().get("/api/config").json()["models"]["gemini"]
