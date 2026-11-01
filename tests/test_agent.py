@@ -398,3 +398,23 @@ def test_lookup_without_a_phone_does_not_burn_an_attempt():
         "Status do pedido 1?",
     )
     assert session.failed_verifications == 0
+
+
+@pytest.mark.parametrize(
+    ("chunks", "expected"),
+    [
+        (["acabou em 24/02 [[fonte:4.1]]."], "acabou em 24/02."),
+        (["acabou em 24/02 ", "[[fonte:4.1]]", "."], "acabou em 24/02."),
+        (["um [[gesto:no]] dois"], "um dois"),
+    ],
+)
+def test_removing_a_marker_leaves_no_stray_space(chunks, expected):
+    marker_filter = MarkerFilter()
+    pieces = [piece for chunk in chunks for piece in marker_filter.feed(chunk)]
+    pieces += list(marker_filter.flush())
+    assert "".join(value for kind, value in pieces if kind == "text") == expected
+
+
+def test_guard_reads_money_written_in_words():
+    assert unsupported_claims("Sai por 323 reais e 10 centavos.", ["R$ 500,00"])
+    assert not unsupported_claims("Sai por 323 reais e 10 centavos.", ["R$ 323,10"])

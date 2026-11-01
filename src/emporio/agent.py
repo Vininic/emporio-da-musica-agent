@@ -16,6 +16,7 @@ MAX_HISTORY_MESSAGES = 40
 MAX_MARKER_LENGTH = 80
 MARKER = re.compile(r"\[\[\s*((?:bloco|gesto|fonte)\s*:[^\[\]]*?)\s*\]\]")
 ALWAYS_SHOWN = {"order", "return", "quote", "ticket"}
+CLOSING_PUNCTUATION = ".,;:!?)\n"
 GESTURES = {"wave", "yes", "no", "thumbs", "dance"}
 SENSITIVE_ARGS = {"phone", "contact"}
 FALLBACK = AGENT_TEXT["pt"]["fallback"]
@@ -56,6 +57,11 @@ def _referenced(text: str, kind: str) -> list[str]:
 class MarkerFilter:
     def __init__(self):
         self._buffer = ""
+        self._space = False
+
+    def _spaced(self, text: str) -> str:
+        pending, self._space = self._space, False
+        return f" {text}" if pending and text[0] not in CLOSING_PUNCTUATION else text
 
     def feed(self, text: str) -> Iterator[tuple[str, str]]:
         self._buffer += text
@@ -64,15 +70,18 @@ class MarkerFilter:
             if match is None:
                 break
             before = self._buffer[: match.start()]
-            if before:
-                yield "text", before
+            stripped = before.rstrip(" ")
+            if stripped:
+                yield "text", self._spaced(stripped)
+            self._space = self._space or stripped != before
             yield from _marker_items(match[1])
             self._buffer = self._buffer[match.end() :]
 
         hold = self._partial_marker_start()
-        safe, self._buffer = self._buffer[:hold], self._buffer[hold:]
+        safe = self._buffer[:hold].rstrip(" ")
+        self._buffer = self._buffer[len(safe) :]
         if safe:
-            yield "text", safe
+            yield "text", self._spaced(safe)
 
     def _partial_marker_start(self) -> int:
         start = self._buffer.find("[[")
@@ -84,12 +93,12 @@ class MarkerFilter:
 
     def flush(self) -> Iterator[tuple[str, str]]:
         if self._buffer:
-            yield "text", self._buffer
+            yield "text", self._spaced(self._buffer)
             self._buffer = ""
 
 
 def strip_markers(text: str) -> str:
-    return MARKER.sub("", text).strip()
+    return re.sub(rf" *{MARKER.pattern}", "", text).strip()
 
 
 def _mask(arguments: dict) -> dict:

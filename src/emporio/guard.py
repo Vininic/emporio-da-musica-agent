@@ -16,6 +16,7 @@ TICKET_CLAIM = re.compile(
     re.IGNORECASE,
 )
 DECIMALS = re.compile(r"[.,](\d{1,2})$")
+MONEY_IN_WORDS = re.compile(r"(\d[\d.]*)\s+reais(?:\s+e\s+(\d{1,2})\s+centavos)?", re.IGNORECASE)
 
 
 def _to_cents(value: str) -> int:
@@ -26,7 +27,12 @@ def _to_cents(value: str) -> int:
 
 
 def _money_values(text: str) -> set[int]:
-    return {_to_cents(value) for value in MONEY.findall(text)}
+    written = {_to_cents(value) for value in MONEY.findall(text)}
+    spoken = {
+        int(whole.replace(".", "")) * 100 + int(cents or 0)
+        for whole, cents in MONEY_IN_WORDS.findall(text)
+    }
+    return written | spoken
 
 
 def _percents(text: str) -> set[str]:

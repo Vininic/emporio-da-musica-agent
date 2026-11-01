@@ -1,0 +1,212 @@
+{
+ "lang": "pt",
+ "title": "Pedido atrasado",
+ "summary": "Order tracking without the phone is refused; with it, a late delivery opens a ticket.",
+ "recorded_at": "2026-11-01 17:10",
+ "turns": [
+  {
+   "user": "Cadê meu pedido 8?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1171974",
+     "name": "lookup_order",
+     "args": {
+      "order_number": 8
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1171974",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": false,
+     "search": null,
+     "block": null
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Para"
+    },
+    {
+     "type": "text",
+     "text": " eu olhar como está o pedido 8, me passa o telefone que você usou no cadastro?"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "(67) 99654-7821",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1367636",
+     "name": "lookup_order",
+     "args": {
+      "phone": "•••7821",
+      "order_number": 8
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "number": 8,
+      "order_date": "2026-02-15",
+      "status": "shipped",
+      "total": 34990,
+      "payment": "debit",
+      "items": [
+       "1x Kala KA-C Concert Mogno"
+      ],
+      "tracking": "BRJL5544332BR",
+      "eta": "2026-02-28",
+      "note": null,
+      "days_late": 25
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1367636",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1313834",
+     "name": "open_ticket",
+     "args": {
+      "kind": "complaint",
+      "summary": "Pedido 8 com atraso na entrega"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "ticket",
+      "ticket": 1,
+      "kind": "complaint",
+      "summary": "Pedido 8 com atraso na entrega"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1313834",
+     "name": "open_ticket",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "thumbs"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "text",
+     "text": "\n\nO seu pedido 8 com o ukulele Kala KA-C foi"
+    },
+    {
+     "type": "text",
+     "text": " enviado, mas infelizmente está com atraso na entrega. Eu já abri um chamado com a nossa equipe para verific"
+    },
+    {
+     "type": "text",
+     "text": "arem o que aconteceu com a transportadora. \n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "text",
+     "text": "\nO retorno vem em até"
+    },
+    {
+     "type": "text",
+     "text": " 24 horas úteis."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Já era pra ter chegado. Podem ver isso pra mim?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "O"
+    },
+    {
+     "type": "text",
+     "text": " chamado já está aberto com a equipe desde a nossa última conversa para correrem atrás disso"
+    },
+    {
+     "type": "text",
+     "text": " com a transportadora. O retorno vem em até 24 horas úteis, então logo eles te dão uma"
+    },
+    {
+     "type": "text",
+     "text": " posição exata de onde anda esse ukulele."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

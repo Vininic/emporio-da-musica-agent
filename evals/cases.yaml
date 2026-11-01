@@ -36,7 +36,7 @@
   args: {check_return: {reason: regret, channel: online}}
   blocks: [return]
   contains: ["7 dias"]
-  any: ["passou", "fora do prazo", "expirou", "encerrou", "venceu", "ultrapass"]
+  any: ["passou", "fora do prazo", "expirou", "encerrou", "venceu", "ultrapass", "acabou"]
   absent: ["pode devolver sem", "esta dentro do prazo"]
 
 - id: regret-within-window-with-reported-date
@@ -182,7 +182,7 @@
 - id: installments-follow-the-tiers
   traps: [T03, T04]
   turns: ["Consigo parcelar o Kalani KAL-700T em 12x?"]
-  contains: ["4x"]
+  contains: ["4x|4 vezes"]
   absent: ["12x de"]
 
 - id: store-phone
@@ -322,7 +322,7 @@
   tools: [lookup_order, check_return]
   args: {check_return: {reason: regret, channel: online}}
   blocks: [return]
-  contains: ["7 days"]
+  contains: ["7 (calendar )?days"]
   any: ["past", "expired", "outside", "passed", "ended", "over"]
 
 - id: en-order-needs-phone

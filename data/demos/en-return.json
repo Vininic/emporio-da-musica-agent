@@ -1,0 +1,401 @@
+{
+ "lang": "en",
+ "title": "Return past the window",
+ "summary": "Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.",
+ "recorded_at": "2026-11-01 17:11",
+ "turns": [
+  {
+   "user": "I regret my purchase, can I return my order?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Let's see. Can you give me your"
+    },
+    {
+     "type": "text",
+     "text": " order number and the phone on file?"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Order 7, phone (67) 99789-0123. I bought it on the website.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1412982",
+     "name": "lookup_order",
+     "args": {
+      "order_number": 7,
+      "phone": "•••0123"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "number": 7,
+      "order_date": "2026-02-03",
+      "status": "delivered",
+      "total": 15990,
+      "payment": "credit_3x",
+      "items": [
+       "1x Shelby SU-21S Soprano Sunburst"
+      ],
+      "tracking": "BRKR1122334BR",
+      "eta": "2026-02-17",
+      "note": null
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1412982",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1471913",
+     "name": "check_return",
+     "args": {
+      "order_number": 7,
+      "reason": "regret",
+      "channel": "online"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "nao_elegivel",
+      "code": "regret_past_window",
+      "sections": [
+       "4.1",
+       "4.4"
+      ],
+      "deadline": "2026-02-24",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1471913",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1076736",
+     "name": "search_policies",
+     "args": {
+      "query": "4.1"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Right of Withdrawal (Online Purchases)",
+        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
+       },
+       {
+        "id": "4.4",
+        "title": "Items Not Eligible for Exchange",
+        "text": "Instruments with customization or made-to-order adjustments (setup, special regulation). Products bought in clearance promotions with an explicit \"final sale\" notice. Mouthpieces of wind instruments, for hygiene reasons."
+       },
+       {
+        "id": "3.1",
+        "title": "Installment Rules",
+        "text": "Up to 3 installments: interest free, no minimum installment (except below R$ 50.00). 4 to 6 installments: interest free, minimum installment of R$ 80.00. 7 to 12 installments: interest free, minimum installment of R$ 100.00. Combining payment methods: allowed (e.g. PIX + card) for purchases above R$ 2,000.00."
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1076736",
+     "name": "search_policies",
+     "ms": 512,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "4.1",
+        "score": 0.03279
+       },
+       {
+        "id": "4.4",
+        "score": 0.03175
+       },
+       {
+        "id": "3.1",
+        "score": 0.03128
+       }
+      ]
+     },
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "I checked your order: for online purchases you have 7 calendar days after delivery to change your mind, and going"
+    },
+    {
+     "type": "text",
+     "text": " by the estimated delivery that deadline ended on Feb 24. Since we're past that window, we can't accept"
+    },
+    {
+     "type": "text",
+     "text": " a return for regret "
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Right of Withdrawal (Online Purchases)",
+        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Oh. But it arrived with a defect, does that change anything?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_852175",
+     "name": "check_return",
+     "args": {
+      "reason": "defect",
+      "channel": "online",
+      "order_number": 7
+     }
+    },
+    {
+     "type": "block",
+     "id": "b4",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "garantia",
+      "code": "defect_legal_warranty",
+      "sections": [
+       "4.2",
+       "8.1",
+       "8.3"
+      ],
+      "deadline": "2026-05-18",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_852175",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b4"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1461336",
+     "name": "search_policies",
+     "args": {
+      "query": "8.1"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "8.1",
+        "title": "Legal Warranty",
+        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
+       },
+       {
+        "id": "8.2",
+        "title": "Manufacturer's Warranty",
+        "text": "Beyond the legal warranty, most manufacturers offer their own warranty, ranging from 6 months to 2 years. Specific terms and conditions are in the warranty certificate that comes with each product."
+       },
+       {
+        "id": "8.3",
+        "title": "What the Warranty Does Not Cover",
+        "text": "Natural wear of parts (frets, strings, felts, wind reeds). Damage from misuse, falls, or extreme weather conditions. Modifications or repairs by unauthorized third parties. Cosmetic damage that does not affect the instrument's function."
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1461336",
+     "name": "search_policies",
+     "ms": 409,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "8.1",
+        "score": 0.03279
+       },
+       {
+        "id": "8.2",
+        "score": 0.032
+       },
+       {
+        "id": "8.3",
+        "score": 0.032
+       }
+      ]
+     },
+     "block": "b5"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "That does change things. Since it's a defect, we're past the 3"
+    },
+    {
+     "type": "text",
+     "text": "0-day exchange window, but you're still covered by the 90-day legal warranty against manufacturing defects"
+    },
+    {
+     "type": "text",
+     "text": " "
+    },
+    {
+     "type": "text",
+     "text": ". We can mediate with the manufacturer for you. If you'd like to proceed, I can open a ticket"
+    },
+    {
+     "type": "text",
+     "text": " for our team to help sort this out."
+    },
+    {
+     "type": "block_ref",
+     "id": "b4"
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "8.1",
+        "title": "Legal Warranty",
+        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b5"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

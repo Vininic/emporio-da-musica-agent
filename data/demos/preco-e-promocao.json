@@ -1,0 +1,318 @@
+{
+ "lang": "pt",
+ "title": "Preço e promoção vencida",
+ "summary": "Price lookup, then a customer claiming an expired discount, then the store address.",
+ "recorded_at": "2026-11-01 17:09",
+ "turns": [
+  {
+   "user": "Quanto custa o Takamine GD20?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_768416",
+     "name": "get_product",
+     "args": {
+      "name": "Takamine GD20"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "product",
+      "id": 95,
+      "name": "Takamine GD20 Dreadnought Natural",
+      "category_id": 5,
+      "category": "Violões",
+      "availability": "disponivel",
+      "stock": 5,
+      "price": {
+       "list": 219900,
+       "final": 219900,
+       "pix": 208905,
+       "pix_applies": true,
+       "count": 12,
+       "each": 18325,
+       "promo_percent": null,
+       "promo_name": null
+      },
+      "specs": {
+       "Tampo": "Cedro Sólido",
+       "Fundo e laterais": "Sapele",
+       "Braço": "Mogno",
+       "Cordas": "aço",
+       "Escala": "650mm",
+       "Eletrônica": "não",
+       "Cor": "Natural"
+      },
+      "image": {
+       "url": "https://ts4.explicit.bing.net/th?id=OIP.YsmWOJR9YapcoRRz8btdnQAAAA&pid=15.1",
+       "source": "https://damamuzik.com/621-takamine-gd20ns-dreadnought-akustik-gitar-naturel-saten.html"
+      }
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_768416",
+     "name": "get_product",
+     "ms": 2,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "O"
+    },
+    {
+     "type": "text",
+     "text": " Takamine GD20 custa R$ 2.199,00"
+    },
+    {
+     "type": "text",
+     "text": " à vista no PIX por R$ 2.089,05, ou em até 12 vezes"
+    },
+    {
+     "type": "text",
+     "text": " de R$ 183,25 sem juros. É um dreadnought com tampo em cedro sólido"
+    },
+    {
+     "type": "text",
+     "text": " que entrega um timbre bem quente e definido.\n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Mas ele não estava com 12% de desconto? Fecho por esse preço.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1038600",
+     "name": "get_product",
+     "args": {
+      "name": "Takamine GD20"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "product",
+      "id": 95,
+      "name": "Takamine GD20 Dreadnought Natural",
+      "category_id": 5,
+      "category": "Violões",
+      "availability": "disponivel",
+      "stock": 5,
+      "price": {
+       "list": 219900,
+       "final": 219900,
+       "pix": 208905,
+       "pix_applies": true,
+       "count": 12,
+       "each": 18325,
+       "promo_percent": null,
+       "promo_name": null
+      },
+      "specs": {
+       "Tampo": "Cedro Sólido",
+       "Fundo e laterais": "Sapele",
+       "Braço": "Mogno",
+       "Cordas": "aço",
+       "Escala": "650mm",
+       "Eletrônica": "não",
+       "Cor": "Natural"
+      },
+      "image": {
+       "url": "https://ts4.explicit.bing.net/th?id=OIP.YsmWOJR9YapcoRRz8btdnQAAAA&pid=15.1",
+       "source": "https://damamuzik.com/621-takamine-gd20ns-dreadnought-akustik-gitar-naturel-saten.html"
+      }
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1038600",
+     "name": "get_product",
+     "ms": 1,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Essa"
+    },
+    {
+     "type": "text",
+     "text": " oferta de 12% já encerrou, o valor válido agora no"
+    },
+    {
+     "type": "text",
+     "text": " sistema é o de R$ 2.199,00 mesmo. \n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Entendi. Qual o endereço da loja?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1346826",
+     "name": "store_info",
+     "args": {}
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "store",
+      "name": "Empório da Música",
+      "address": "Rua 14 de Maio, 3200, Centro, Campo Grande - MS, 79202-333",
+      "phone": "(67) 3341-4444",
+      "email": "contato@emporiodamusica.com.br",
+      "founded": "2008",
+      "hours": "Segunda a sexta, 09:00 às 18:00. Sábado, 09:00 às 13:00. Domingo e feriados, fechado.",
+      "open_now": true,
+      "schedule": [
+       {
+        "day": "segunda",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "terça",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "quarta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": true
+       },
+       {
+        "day": "quinta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "sexta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "sábado",
+        "opens": "09:00",
+        "closes": "13:00",
+        "today": false
+       },
+       {
+        "day": "domingo",
+        "opens": null,
+        "closes": null,
+        "today": false
+       }
+      ],
+      "holidays": [
+       "2026-04-03",
+       "2026-04-21",
+       "2026-05-01"
+      ],
+      "map": {
+       "lat": -20.464,
+       "lon": -54.6163
+      }
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1346826",
+     "name": "store_info",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Estamos"
+    },
+    {
+     "type": "text",
+     "text": " na Rua 14 de Maio, 3200, no Centro de"
+    },
+    {
+     "type": "text",
+     "text": " Campo Grande. Pode chegar quando quiser para conferir os instrumentos de perto.\n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

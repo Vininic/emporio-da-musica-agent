@@ -1,0 +1,392 @@
+{
+ "lang": "pt",
+ "title": "Violões até R$ 1000",
+ "summary": "Catalog query: only what can actually be sold, with a follow-up on one model.",
+ "recorded_at": "2026-11-01 17:09",
+ "turns": [
+  {
+   "user": "Quais opções de violões disponíveis custando até R$1000?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1340796",
+     "name": "search_products",
+     "args": {
+      "max_price": 1000,
+      "category": "violões"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "product_list",
+      "total": 12,
+      "items": [
+       {
+        "type": "product",
+        "id": 83,
+        "name": "Tagima Memphis AC-39 Nylon Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 15,
+        "price": {
+         "list": 42990,
+         "final": 42990,
+         "pix": 40840,
+         "pix_applies": true,
+         "count": 5,
+         "each": 8598,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts2.mm.bing.net/th?id=OIP.eX6EeDHMdB54pDbDzQdJrwHaHa&pid=15.1",
+         "source": "https://www.brasiltronic.com.br/violao-acustico-tagima-ac39-memphis-nylon-natural-ac-39-nt"
+        }
+       },
+       {
+        "type": "product",
+        "id": 85,
+        "name": "Rozini RC-104 Nylon Estudante",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 10,
+        "price": {
+         "list": 45990,
+         "final": 45990,
+         "pix": 43690,
+         "pix_applies": true,
+         "count": 5,
+         "each": 9198,
+         "promo_percent": null,
+         "promo_name": null
+        }
+       },
+       {
+        "type": "product",
+        "id": 89,
+        "name": "Shelby SN-100 Folk Aço Preto",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 5,
+        "price": {
+         "list": 54900,
+         "final": 54900,
+         "pix": 52155,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9150,
+         "promo_percent": null,
+         "promo_name": null
+        }
+       },
+       {
+        "type": "product",
+        "id": 88,
+        "name": "Giannini GF-1R Aço Folk Sunburst",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 7,
+        "price": {
+         "list": 57990,
+         "final": 57990,
+         "pix": 55090,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9665,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts1.mm.bing.net/th?id=OIP.aZYwB4VtdhpXCSURJK5ONQHaHa&pid=15.1",
+         "source": "https://www.lojaopenstage.com.br/violao-eletroacustico-folk-cutaway-aco-gf-1r-ceq-3-tone-sunburst-giannini-prod-4471.html"
+        }
+       },
+       {
+        "type": "product",
+        "id": 81,
+        "name": "Yamaha C40 Nylon Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 12,
+        "price": {
+         "list": 59990,
+         "final": 59990,
+         "pix": 56990,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9998,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts3.mm.bing.net/th?id=OIP.cAQUjF1A_jM_v6QlcqmRxQHaHa&pid=15.1",
+         "source": "https://www.akusticamusical.com.br/produto/violao-yamaha-c40ii-c-cx-series-acustico-nylon-natural-1133627"
+        }
+       },
+       {
+        "type": "product",
+        "id": 84,
+        "name": "Giannini GN-15 Nylon Cedr Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 6,
+        "price": {
+         "list": 68900,
+         "final": 68900,
+         "pix": 65455,
+         "pix_applies": true,
+         "count": 6,
+         "each": 11483,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.fXVJB03ZzTrzzdiq3kjzkQHaHa&pid=15.1",
+         "source": "https://www.ajoiamusical.com.br/violao-nylon-giannini-gn-15-natural-n"
+        }
+       },
+       {
+        "type": "product",
+        "id": 87,
+        "name": "Yamaha F310 Aço Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 14,
+        "price": {
+         "list": 69990,
+         "final": 69990,
+         "pix": 66490,
+         "pix_applies": true,
+         "count": 6,
+         "each": 11665,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts3.mm.bing.net/th?id=OIP.VswMQyIxgl9-lP7UrngzWgHaHa&pid=15.1",
+         "source": "https://www.x5music.com.br/violao-yamaha-f310-folk-acustico-aco-natural/p"
+        }
+       },
+       {
+        "type": "product",
+        "id": 86,
+        "name": "Tagima Dallas Tuner Aço Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 9,
+        "price": {
+         "list": 74900,
+         "final": 74900,
+         "pix": 71155,
+         "pix_applies": true,
+         "count": 7,
+         "each": 10700,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts2.mm.bing.net/th?id=OIP.wk9eZte117unMMtAYv5IPQHaHa&pid=15.1",
+         "source": "https://www.topmusical.com.br/violao-tagima-dallas-eletrico-gran-reserva-aco"
+        }
+       },
+       {
+        "type": "product",
+        "id": 107,
+        "name": "Shelby SGD-195E Elétrico Aço Sunburst",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 6,
+        "price": {
+         "list": 79900,
+         "final": 79900,
+         "pix": 75905,
+         "pix_applies": true,
+         "count": 7,
+         "each": 11414,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts2.mm.bing.net/th?id=OIP.xB4AfBM2Yd5TIT8-pu68bQHaJ_&pid=15.1",
+         "source": "https://ce.olx.com.br/fortaleza-e-regiao/instrumentos-musicais/violao-shelby-sgd195-eletrico-aco-folk-1451837639"
+        }
+       },
+       {
+        "type": "product",
+        "id": 82,
+        "name": "Yamaha C70 Nylon Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 8,
+        "price": {
+         "list": 84900,
+         "final": 84900,
+         "pix": 80655,
+         "pix_applies": true,
+         "count": 8,
+         "each": 10613,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.qL_uM9o7IlXJHwrjUOHKkAHaHa&pid=15.1",
+         "source": "https://www.guitarshopce.com.br/violao-yamaha-c70ii-nylon-natural-acustico"
+        }
+       },
+       {
+        "type": "product",
+        "id": 91,
+        "name": "Tagima Woodstock Dreadnought Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 11,
+        "price": {
+         "list": 89900,
+         "final": 89900,
+         "pix": 85405,
+         "pix_applies": true,
+         "count": 8,
+         "each": 11238,
+         "promo_percent": null,
+         "promo_name": null
+        }
+       },
+       {
+        "type": "product",
+        "id": 112,
+        "name": "Tagima TW-7 7 Cordas Aço Natural",
+        "category_id": 5,
+        "category": "Violões",
+        "availability": "disponivel",
+        "stock": 6,
+        "price": {
+         "list": 99900,
+         "final": 99900,
+         "pix": 94905,
+         "pix_applies": true,
+         "count": 9,
+         "each": 11100,
+         "promo_percent": null,
+         "promo_name": null
+        }
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1340796",
+     "name": "search_products",
+     "ms": 2,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "thumbs"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "T"
+    },
+    {
+     "type": "text",
+     "text": "emos várias opções de violões até R$ 1.000, desde modelos"
+    },
+    {
+     "type": "text",
+     "text": " de nylon mais em conta para estudo até opções em aço e com captação. O Yamaha C40, por exemplo, cust"
+    },
+    {
+     "type": "text",
+     "text": "a R$ 599,90 e é sempre uma escolha muito firme para quem está começando.\n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "text",
+     "text": "\n\nSe preferir focar em algum tipo específico de corda ou formato, me avisa que a gente filtra"
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Sou iniciante. Qual desses você levaria, e dá pra parcelar?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Para"
+    },
+    {
+     "type": "text",
+     "text": " começar do jeito certo, o Yamaha C40 por R$ 599"
+    },
+    {
+     "type": "text",
+     "text": ",90 é tiro certo se você quiser cordas de nylon. Ele segura bem a afinação e não judia"
+    },
+    {
+     "type": "text",
+     "text": " dos dedos de quem tá começando. Agora, se preferir o som de aço, o Yamaha F310 sai por R$ 6"
+    },
+    {
+     "type": "text",
+     "text": "99,90 e entrega uma construção honesta.\n\nDá para parcelar sim, todas essas opções ace"
+    },
+    {
+     "type": "text",
+     "text": "itam parcelamento sem juros no cartão de crédito, variando de 5 a 9 vezes dependendo do modelo"
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}
