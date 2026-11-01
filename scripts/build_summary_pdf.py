@@ -5,7 +5,7 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
-from reportlab.platypus import ListFlowable, ListItem, Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import ListFlowable, ListItem, Paragraph, SimpleDocTemplate
 
 from emporio.config import ROOT
 

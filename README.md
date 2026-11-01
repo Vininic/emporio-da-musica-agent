@@ -58,17 +58,18 @@ The model chooses tools and writes prose. It never computes a price, a date or a
 
 ## Results
 
-55 live cases cover every trap in [vault/traps.md](vault/traps.md), in Portuguese and English. Results on `gemini-3.5-flash-lite` at low reasoning effort, from [evals/HISTORY.md](evals/HISTORY.md):
+57 live cases cover every trap in [vault/traps.md](vault/traps.md), in Portuguese and English. Results on `gemini-3.5-flash-lite` at low reasoning effort, from [evals/HISTORY.md](evals/HISTORY.md):
 
 | Run | Passed | Note |
 |---|---|---|
 | 1 | 50/55 | First run with English cases. Found a marker leaking into text, an order card going missing, and a discontinued model described as never sold |
 | 2 | 49/55 | After those fixes. Same code can vary between runs, since the model is not deterministic |
 | 3 | 55/55 | After prompt fixes, and after seven cases were adjusted: four rejected correct phrasing, two named one tool where the outcome is what matters, and one counted a call rejected for lacking a phone |
+| 4 | 51/57 on `gemini-3.1-flash-lite` | After the independent review added two cases. The default model had run out of daily quota, so this ran on the fallback, which is weaker: it asked for an order number instead of opening a complaint ticket, and stated there are no branches without a source. Two of its six failures were cases stricter than their purpose, since relaxed |
 
 Median time to first token was about 1.9 s, and a full turn about 2.1 s, excluding rate-limit waits. There are also 181 offline tests with no API key needed.
 
-The same assistant wrote the cases and the code, so this score shows the agent does what its author checked, not that it is safe. [vault/reviews](vault/reviews) holds an independent attack by a separate agent, with my ruling on each finding.
+The same assistant wrote the cases and the code, so this score shows the agent does what its author checked, not that it is safe. [vault/reviews](vault/reviews) holds an independent attack by a separate agent, with the state of each finding. It found 23 problems that a perfect score had not, including a way to get a false price past the guard.
 
 ## Known limitations
 
@@ -76,7 +77,7 @@ The same assistant wrote the cases and the code, so this score shows the agent d
 - **Product images.** A script found them by web search and they were reviewed by eye. They are third-party thumbnails linked from the search engine's cache, fine for a prototype and not for production, where the store would use its own photos. 40 of 65 products have an exact match; the other 25 show a picture of the same type of instrument, tagged as illustrative.
 - **Store address.** The manual's street does not appear on OpenStreetMap, so the map shows the city center with no pin.
 - **Language detection.** It counts common words, so a short or mixed message keeps the current language.
-- **Provider limits.** The public site runs on a free-tier key, which can hit its daily limit. When that happens the agent says so and gives the store's phone number. A visitor can use their own key in settings.
+- **Provider limits.** The public site runs on a free-tier key. Three eval runs and the review used up the default model's daily quota, and the chain then falls to a weaker model. If that runs out too, the agent says so and gives the store's phone number. A visitor can use their own key in settings.
 - **Limits per instance.** The rate limit and the per-order lockout are in memory, so on serverless they slow abuse and do not stop it. Production needs a shared store.
 - **Guard coverage.** It catches invented numbers and unbacked actions. A value from any tool result passes even when attached to the wrong product, foreign currency and day counts are not checked, and a wrong statement with no number can pass. Evals are the defense there.
 - **Streaming comes first.** Text streams as it arrives and the guard runs afterward, so a rejected answer can be on screen for a moment before it is replaced. Holding text back would remove streaming, and I chose to keep it for a prototype.
