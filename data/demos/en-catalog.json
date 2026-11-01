@@ -2,7 +2,7 @@
  "lang": "en",
  "title": "Acoustic guitars up to R$ 1000",
  "summary": "The catalog query in English: same data, English labels and prose.",
- "recorded_at": "2026-11-01 17:22",
+ "recorded_at": "2026-11-01 19:07",
  "turns": [
   {
    "user": "What acoustic guitars do you have for up to R$ 1000?",
@@ -13,16 +13,16 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1323488",
+     "call": "call_1230381",
      "name": "search_products",
      "args": {
       "max_price": 1000,
-      "category": "violões",
-      "strings": "nylon"
+      "electric": false,
+      "category": "violões"
      }
     },
     {
@@ -30,7 +30,7 @@
      "id": "b1",
      "block": {
       "type": "product_list",
-      "total": 5,
+      "total": 11,
       "items": [
        {
         "type": "product",
@@ -51,8 +51,9 @@
          "promo_name": null
         },
         "image": {
-         "url": "https://ts2.mm.bing.net/th?id=OIP.eX6EeDHMdB54pDbDzQdJrwHaHa&pid=15.1",
-         "source": "https://www.brasiltronic.com.br/violao-acustico-tagima-ac39-memphis-nylon-natural-ac-39-nt"
+         "url": "https://ts3.mm.bing.net/th?id=OIP.HvluKg8KckLXJy_NT2qG9AHaHa&pid=15.1&w=480&h=480",
+         "source": "https://shopee.com.br/Violão-clássico-Tagima-Memphis-AC-39-para-destros-preta-verniz-brilhante-i.489746259.22593695860",
+         "illustrative": true
         }
        },
        {
@@ -72,6 +73,59 @@
          "each": 9198,
          "promo_percent": null,
          "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.PxUP-2YS8qyE-KBAqwNZXQHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.magazineluiza.com.br/kit-violao-de-nylon-estudante-class-cl100-br-natural-classico-acustico-com-acessorios/p/ba31f4kf4f/im/isvi/",
+         "illustrative": true
+        }
+       },
+       {
+        "type": "product",
+        "id": 89,
+        "name": "Shelby SN-100 Folk Aço Preto",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 5,
+        "price": {
+         "list": 54900,
+         "final": 54900,
+         "pix": 52155,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9150,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts3.explicit.bing.net/th?id=OIP.L6e9jkeW9y3OU2y6NpKQcAHaG1&pid=15.1&w=480&h=480",
+         "source": "https://www.mercadolivre.com.br/violao-shelby-sga-194c-eletrico-natural-fosco/up/MLBU1595275324",
+         "illustrative": true
+        }
+       },
+       {
+        "type": "product",
+        "id": 88,
+        "name": "Giannini GF-1R Aço Folk Sunburst",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 7,
+        "price": {
+         "list": 57990,
+         "final": 57990,
+         "pix": 55090,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9665,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts1.mm.bing.net/th?id=OIP.ncsboNwVn5uP90fWbK6aoQAAAA&pid=15.1&w=480&h=480",
+         "source": "https://www.inovamusic.com.br/produto/violao-giannini-folk-cutaway-eletroacustico-sunburst-gf1rceq3ts-21857-87762",
+         "illustrative": false
         }
        },
        {
@@ -93,8 +147,9 @@
          "promo_name": null
         },
         "image": {
-         "url": "https://ts3.mm.bing.net/th?id=OIP.cAQUjF1A_jM_v6QlcqmRxQHaHa&pid=15.1",
-         "source": "https://www.akusticamusical.com.br/produto/violao-yamaha-c40ii-c-cx-series-acustico-nylon-natural-1133627"
+         "url": "https://ts4.explicit.bing.net/th?id=OIP.O41SxFYfIciLiRZ689j3LAAAAA&pid=15.1&w=480&h=480",
+         "source": "https://www.mercadolivre.com.br/violao-acustico-classico-nylon-yamaha-c40-mii-natural-c-bag/up/MLBU1372849065",
+         "illustrative": false
         }
        },
        {
@@ -116,8 +171,57 @@
          "promo_name": null
         },
         "image": {
-         "url": "https://ts4.mm.bing.net/th?id=OIP.fXVJB03ZzTrzzdiq3kjzkQHaHa&pid=15.1",
-         "source": "https://www.ajoiamusical.com.br/violao-nylon-giannini-gn-15-natural-n"
+         "url": "https://ts4.explicit.bing.net/th?id=OIP.BSgEWV8vmqJZp39InjBe0gHaG4&pid=15.1&w=480&h=480",
+         "source": "https://produto.mercadolivre.com.br/MLB-1215077861-violo-nylon-giannini-gn15-natural-serie-estudo-_JM",
+         "illustrative": false
+        }
+       },
+       {
+        "type": "product",
+        "id": 87,
+        "name": "Yamaha F310 Aço Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 14,
+        "price": {
+         "list": 69990,
+         "final": 69990,
+         "pix": 66490,
+         "pix_applies": true,
+         "count": 6,
+         "each": 11665,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts3.mm.bing.net/th?id=OIP.amUFeeUIdy0NmJJ77LeRXgHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.musicacenter.com.br/cordas/violoes/folk/violao-yamaha-fx-f310-folk-aco-natural",
+         "illustrative": false
+        }
+       },
+       {
+        "type": "product",
+        "id": 86,
+        "name": "Tagima Dallas Tuner Aço Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 9,
+        "price": {
+         "list": 74900,
+         "final": 74900,
+         "pix": 71155,
+         "pix_applies": true,
+         "count": 7,
+         "each": 10700,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.bfs5JJ5AIfHV5nHWcvwAKwHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.tangomusic.com.br/violao-tagima-dallas-tuner-aco-na-natural-136373-p6828",
+         "illustrative": false
         }
        },
        {
@@ -139,8 +243,57 @@
          "promo_name": null
         },
         "image": {
-         "url": "https://ts4.mm.bing.net/th?id=OIP.qL_uM9o7IlXJHwrjUOHKkAHaHa&pid=15.1",
-         "source": "https://www.guitarshopce.com.br/violao-yamaha-c70ii-nylon-natural-acustico"
+         "url": "https://ts2.mm.bing.net/th?id=OIP.kIIiqTHUoY-Y02h_GOBK0wHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.carneiromusic.com.br/cordas/violao/acusticos/violao-yamaha-c70-classico-nylon-acustico-natural",
+         "illustrative": false
+        }
+       },
+       {
+        "type": "product",
+        "id": 91,
+        "name": "Tagima Woodstock Dreadnought Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 11,
+        "price": {
+         "list": 89900,
+         "final": 89900,
+         "pix": 85405,
+         "pix_applies": true,
+         "count": 8,
+         "each": 11238,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.mFM5QpcCYsjapmcMMQW4uQHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.megasom.com.br/cordas/violao/violao-tagima-vegas-nylon-com-afinador-mahogany",
+         "illustrative": true
+        }
+       },
+       {
+        "type": "product",
+        "id": 112,
+        "name": "Tagima TW-7 7 Cordas Aço Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 6,
+        "price": {
+         "list": 99900,
+         "final": 99900,
+         "pix": 94905,
+         "pix_applies": true,
+         "count": 9,
+         "each": 11100,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.bfs5JJ5AIfHV5nHWcvwAKwHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.tangomusic.com.br/violao-tagima-dallas-tuner-aco-na-natural-136373-p6828",
+         "illustrative": true
         }
        }
       ]
@@ -148,9 +301,9 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1323488",
+     "call": "call_1230381",
      "name": "search_products",
-     "ms": 2,
+     "ms": 1,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -160,43 +313,20 @@
      "name": "thumbs"
     },
     {
-     "type": "tool_start",
-     "call": "call_1323491",
-     "name": "search_products",
-     "args": {
-      "max_price": 1000,
-      "strings": "aço",
-      "category": "violões"
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_1323491",
-     "name": "search_products",
-     "ms": 1,
-     "ok": true,
-     "search": null,
-     "block": null
-    },
-    {
-     "type": "gesture",
-     "name": "no"
-    },
-    {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "We have"
+     "text": "For acoustic guitars under R$ 100"
     },
     {
      "type": "text",
-     "text": " a few nylon-string acoustic guitars under one thousand reais, mostly reliable models for studying and"
+     "text": "0, we have a good variety of entry-level and intermediate instruments, both with nylon and steel strings. Here are the"
     },
     {
      "type": "text",
-     "text": " daily practice. \n\n"
+     "text": " models currently available:\n\n"
     },
     {
      "type": "block_ref",
@@ -204,15 +334,19 @@
     },
     {
      "type": "text",
-     "text": "\n\nThe Yamaha C40 is always a solid pick for anyone"
+     "text": "\n\nThe Yamaha C40 and C70 are solid"
     },
     {
      "type": "text",
-     "text": " starting out on the right foot."
+     "text": " choices if you're looking for that classic nylon sound, while the Tagima and Giannini models offer some interesting"
+    },
+    {
+     "type": "text",
+     "text": " options if you prefer steel strings or a different body shape like the Folk or Dreadnought."
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]
@@ -222,35 +356,35 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "The"
+     "text": "For a beginner, I"
     },
     {
      "type": "text",
-     "text": " Yamaha C40 is a classic choice for a reason, but if you can"
+     "text": " always lean towards the Yamaha C40. It is a reliable instrument, well-built, and it won't fight"
     },
     {
      "type": "text",
-     "text": " stretch just a bit further to the Yamaha C70, you get better wood selection and improved tuning stability. Both are honest"
+     "text": " you while you're learning the basics. It's a standard for a reason. If you prefer steel strings, the Yamaha"
     },
     {
      "type": "text",
-     "text": " instruments that won't fight your hands while you learn.\n\nYes, you can pay in installments for all of them. The Tag"
+     "text": " F310 is the equivalent in that category and just as dependable.\n\nRegarding installments, yes, all the models"
     },
     {
      "type": "text",
-     "text": "ima Memphis and Rozini go up to 5 times interest-free, the Yamaha C40 and Giannini go"
+     "text": " I showed can be paid in installments without interest. The number of installments varies by model, as you can see in the list"
     },
     {
      "type": "text",
-     "text": " up to 6 times, and the Yamaha C70 goes up to 8 times without interest."
+     "text": " I sent, but they all offer that flexibility."
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]

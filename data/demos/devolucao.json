@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Devolução fora do prazo",
  "summary": "Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.",
- "recorded_at": "2026-11-01 17:21",
+ "recorded_at": "2026-11-01 19:06",
  "turns": [
   {
    "user": "Me arrependi da minha compra, posso devolver meu pedido?",
@@ -13,19 +13,23 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "Vamos"
+     "text": "Para eu ver como está a situação do seu pedido e te orient"
     },
     {
      "type": "text",
-     "text": " ver. Me passa o número do pedido e o telefone do cadastro?"
+     "text": "ar, preciso que você me passe o número do pedido e o telefone que está no cadastro. Com isso, eu consigo"
+    },
+    {
+     "type": "text",
+     "text": " checar o que dá para fazer."
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]
@@ -35,15 +39,15 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_719534",
+     "call": "call_1411565",
      "name": "lookup_order",
      "args": {
-      "order_number": 7,
-      "phone": "•••0123"
+      "phone": "•••0123",
+      "order_number": 7
      }
     },
     {
@@ -66,9 +70,9 @@
     },
     {
      "type": "tool_end",
-     "call": "call_719534",
+     "call": "call_1411565",
      "name": "lookup_order",
-     "ms": 0,
+     "ms": 1,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -79,17 +83,17 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1366429",
+     "call": "call_685184",
      "name": "check_return",
      "args": {
-      "order_number": 7,
+      "received_on": "2026-02-17",
       "channel": "online",
-      "reason": "regret",
-      "received_on": "2026-02-17"
+      "order_number": 7,
+      "reason": "regret"
      }
     },
     {
@@ -111,7 +115,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1366429",
+     "call": "call_685184",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -124,88 +128,27 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
-    },
-    {
-     "type": "tool_start",
-     "call": "call_1468920",
-     "name": "search_policies",
-     "args": {
-      "query": "prazo de arrependimento troca devolução 4.1"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b3",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.1",
-        "title": "Direito de Arrependimento (Compras Online)",
-        "text": "O cliente pode solicitar a devolução em até 7 (sete) dias corridos após o recebimento do produto, sem necessidade de justificativa. O produto deve estar em sua embalagem original, sem sinais de uso, com todos os acessórios e manuais. O reembolso será realizado na mesma forma de pagamento original em até 10 dias úteis. O frete de devolução é por conta da loja em caso de arrependimento."
-       },
-       {
-        "id": "4",
-        "title": "Política de Trocas e Devoluções",
-        "text": "A Empório da Música segue as diretrizes do Código de Defesa do Consumidor (Lei nº 8.078/90) e oferece condições claras para trocas e devoluções."
-       },
-       {
-        "id": "4.3",
-        "title": "Trocas por Preferência",
-        "text": "Trocas por preferência (cor, modelo, tamanho) são permitidas em até 7 dias, mediante disponibilidade do produto desejado. O produto deve estar em perfeito estado e na embalagem original. Diferenças de valor serão cobradas ou reembolsadas conforme o caso."
-       }
-      ]
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_1468920",
-     "name": "search_policies",
-     "ms": 566,
-     "ok": true,
-     "search": {
-      "mode": "hybrid",
-      "top": [
-       {
-        "id": "4.1",
-        "score": 0.03279
-       },
-       {
-        "id": "4",
-        "score": 0.03175
-       },
-       {
-        "id": "4.3",
-        "score": 0.03175
-       }
-      ]
-     },
-     "block": "b3"
-    },
-    {
-     "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "Olhei"
+     "text": "Olhei aqui no sistema, Letícia. Pelo site, o prazo para desistir da compra por arrependimento"
     },
     {
      "type": "text",
-     "text": " seu pedido. Como você comprou pelo site, o prazo para desistir é"
+     "text": " é de 7 dias após o recebimento, e como a entrega foi prevista para 17/02,"
     },
     {
      "type": "text",
-     "text": " de até 7 dias corridos depois de receber, e pela previsão de entrega isso encerrou em 24"
+     "text": " esse prazo encerrou no dia 24/02.\n\nComo já passou desse período, não consigo seguir"
     },
     {
      "type": "text",
-     "text": "/02"
+     "text": " com a devolução automática. Se você ainda quiser conversar sobre isso, posso abrir um chamado para a equipe avaliar, mas não"
     },
     {
      "type": "text",
-     "text": "."
+     "text": " consigo garantir nada por aqui. Quer que eu abra?"
     },
     {
      "type": "block_ref",
@@ -216,26 +159,8 @@
      "id": "b2"
     },
     {
-     "type": "block",
-     "id": "b3",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.1",
-        "title": "Direito de Arrependimento (Compras Online)",
-        "text": "O cliente pode solicitar a devolução em até 7 (sete) dias corridos após o recebimento do produto, sem necessidade de justificativa. O produto deve estar em sua embalagem original, sem sinais de uso, com todos os acessórios e manuais. O reembolso será realizado na mesma forma de pagamento original em até 10 dias úteis. O frete de devolução é por conta da loja em caso de arrependimento."
-       }
-      ]
-     }
-    },
-    {
-     "type": "block_ref",
-     "id": "b3"
-    },
-    {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]
@@ -245,22 +170,22 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1031860",
+     "call": "call_1091775",
      "name": "check_return",
      "args": {
-      "received_on": "2026-02-17",
       "order_number": 7,
-      "channel": "online",
-      "reason": "defect"
+      "received_on": "2026-02-17",
+      "reason": "defect",
+      "channel": "online"
      }
     },
     {
      "type": "block",
-     "id": "b4",
+     "id": "b3",
      "block": {
       "type": "return",
       "order": 7,
@@ -278,12 +203,12 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1031860",
+     "call": "call_1091775",
      "name": "check_return",
      "ms": 0,
      "ok": true,
      "search": null,
-     "block": "b4"
+     "block": "b3"
     },
     {
      "type": "gesture",
@@ -291,118 +216,27 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
-    },
-    {
-     "type": "tool_start",
-     "call": "call_1145144",
-     "name": "search_policies",
-     "args": {
-      "query": "defeito garantia 8.1 8.3"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b5",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "8.1",
-        "title": "Garantia Legal",
-        "text": "Conforme o Código de Defesa do Consumidor, todos os produtos possuem garantia legal de 90 (noventa) dias contra defeitos de fabricação, contados a partir da data de recebimento pelo cliente."
-       },
-       {
-        "id": "8.3",
-        "title": "O que Não Cobre a Garantia",
-        "text": "Desgaste natural de peças (trastes, cordas, feltros, palhetas de sopro). Danos por mau uso, queda, exposição a condições climáticas extremas. Modificações ou reparos realizados por terceiros não autorizados. Danos estéticos que não afetem a funcionalidade do instrumento."
-       },
-       {
-        "id": "8.2",
-        "title": "Garantia do Fabricante",
-        "text": "Além da garantia legal, a maioria dos fabricantes oferece garantia própria que pode variar de 6 meses a 2 anos. Os prazos e condições específicos estão detalhados no certificado de garantia que acompanha cada produto."
-       }
-      ]
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_1145144",
-     "name": "search_policies",
-     "ms": 397,
-     "ok": true,
-     "search": {
-      "mode": "hybrid",
-      "top": [
-       {
-        "id": "8.1",
-        "score": 0.03279
-       },
-       {
-        "id": "8.3",
-        "score": 0.03226
-       },
-       {
-        "id": "8.2",
-        "score": 0.03175
-       }
-      ]
-     },
-     "block": "b5"
-    },
-    {
-     "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "Faz"
+     "text": "Faz diferença, sim. Como passou dos 30 dias,"
     },
     {
      "type": "text",
-     "text": " sim. O prazo de 7 dias é só para arrependimento, mas"
+     "text": " a gente entra na garantia legal de 90 dias. A loja pode intermediar esse contato com o fabricante para resolver"
     },
     {
      "type": "text",
-     "text": " para defeito você tem a garantia legal de 90 dias a partir do recebimento, o que nos dá marg"
-    },
-    {
-     "type": "text",
-     "text": "em até 18/05"
-    },
-    {
-     "type": "text",
-     "text": ". Se o problema for de fabricação e não de"
-    },
-    {
-     "type": "text",
-     "text": " uso, a gente resolve. Quer abrir um chamado para a equipe analisar o caso do seu ukulelê?"
+     "text": " o problema do defeito.\n\nQuer que eu abra um chamado agora para a nossa equipe cuidar disso para você?"
     },
     {
      "type": "block_ref",
-     "id": "b4"
-    },
-    {
-     "type": "block",
-     "id": "b5",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "8.1",
-        "title": "Garantia Legal",
-        "text": "Conforme o Código de Defesa do Consumidor, todos os produtos possuem garantia legal de 90 (noventa) dias contra defeitos de fabricação, contados a partir da data de recebimento pelo cliente."
-       }
-      ]
-     }
-    },
-    {
-     "type": "block_ref",
-     "id": "b5"
+     "id": "b3"
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]

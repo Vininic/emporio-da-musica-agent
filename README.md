@@ -73,7 +73,7 @@ The same assistant wrote the cases and the code, so this score shows the agent d
 ## Known limitations
 
 - **Lite model.** Facts hold because of tools and the guard, but the prose is less graceful than a larger model's, and behavior varies between runs: the same suite scored 49 and 55. It sometimes opens a ticket for a late order before the customer asks, as in one recorded conversation.
-- **Product images.** A script found them by web search and they were reviewed by eye. They are third-party thumbnails linked from the search engine's cache, fine for a prototype and not for production, where the store would use its own photos. 41 of 65 products have one; the rest show a category icon rather than risk a wrong picture.
+- **Product images.** A script found them by web search and they were reviewed by eye. They are third-party thumbnails linked from the search engine's cache, fine for a prototype and not for production, where the store would use its own photos. 40 of 65 products have an exact match; the other 25 show a picture of the same type of instrument, tagged as illustrative.
 - **Store address.** The manual's street does not appear on OpenStreetMap, so the map shows the city center with no pin.
 - **Language detection.** It counts common words, so a short or mixed message keeps the current language.
 - **Provider limits.** The public site runs on a free-tier key, which can hit its daily limit. When that happens the agent says so and gives the store's phone number. A visitor can use their own key in settings.

@@ -2,7 +2,7 @@
  "lang": "en",
  "title": "Return past the window",
  "summary": "Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.",
- "recorded_at": "2026-11-01 17:22",
+ "recorded_at": "2026-11-01 19:07",
  "turns": [
   {
    "user": "I regret my purchase, can I return my order?",
@@ -13,15 +13,19 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "Let's see. Can you give me your order number and the phone on file?"
+     "text": "I can help you with that. To check the status of your return, I need the order number and the phone number you used when"
+    },
+    {
+     "type": "text",
+     "text": " you made the purchase."
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]
@@ -31,15 +35,15 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_884752",
+     "call": "call_1153364",
      "name": "lookup_order",
      "args": {
-      "order_number": 7,
-      "phone": "•••0123"
+      "phone": "•••0123",
+      "order_number": 7
      }
     },
     {
@@ -62,7 +66,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_884752",
+     "call": "call_1153364",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -75,17 +79,16 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1189664",
+     "call": "call_1438853",
      "name": "check_return",
      "args": {
-      "received_on": "2026-02-17",
       "order_number": 7,
-      "channel": "online",
-      "reason": "regret"
+      "reason": "regret",
+      "channel": "online"
      }
     },
     {
@@ -102,12 +105,12 @@
       ],
       "deadline": "2026-02-24",
       "days_passed": 36,
-      "estimated": false
+      "estimated": true
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1189664",
+     "call": "call_1438853",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -120,80 +123,19 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
-    },
-    {
-     "type": "tool_start",
-     "call": "call_1350779",
-     "name": "search_policies",
-     "args": {
-      "query": "7 days"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b3",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.3",
-        "title": "Preference Exchanges",
-        "text": "Exchanges for preference (color, model, size) are allowed within 7 days, subject to availability of the desired product. The product must be in perfect condition and in its original packaging. Price differences are charged or refunded as applicable."
-       },
-       {
-        "id": "4.1",
-        "title": "Right of Withdrawal (Online Purchases)",
-        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
-       },
-       {
-        "id": "7.2",
-        "title": "Standard Service Flow",
-        "text": "Greeting: greet the customer by name (if available) and ask how to help. Understanding: identify the customer's need (product search, question, tracking, complaint). Lookup: search the system for the relevant information (product, stock, promotion, order). Answer: present the options clearly and objectively, with prices and conditions. Closing: confirm whether the customer needs anything else and close courteously."
-       }
-      ]
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_1350779",
-     "name": "search_policies",
-     "ms": 492,
-     "ok": true,
-     "search": {
-      "mode": "hybrid",
-      "top": [
-       {
-        "id": "4.3",
-        "score": 0.03279
-       },
-       {
-        "id": "4.1",
-        "score": 0.03226
-       },
-       {
-        "id": "7.2",
-        "score": 0.03125
-       }
-      ]
-     },
-     "block": "b3"
-    },
-    {
-     "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "I"
+     "text": "I checked your order, but unfortunately, it's no longer eligible for a return due to regret. For"
     },
     {
      "type": "text",
-     "text": " checked your order for the Shelby soprano ukulele: for online purchases you have 7 days after delivery"
+     "text": " online purchases, you have 7 days after delivery to change your mind, and that window closed on February 24"
     },
     {
      "type": "text",
-     "text": " to change your mind, and going by the delivery date that ended on February 24"
+     "text": ", 2026. Since our system doesn't record the exact date of receipt, we count from the estimated delivery date"
     },
     {
      "type": "text",
@@ -208,26 +150,8 @@
      "id": "b2"
     },
     {
-     "type": "block",
-     "id": "b3",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.1",
-        "title": "Right of Withdrawal (Online Purchases)",
-        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
-       }
-      ]
-     }
-    },
-    {
-     "type": "block_ref",
-     "id": "b3"
-    },
-    {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]
@@ -237,22 +161,21 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1062072",
+     "call": "call_999307",
      "name": "check_return",
      "args": {
-      "received_on": "2026-02-17",
-      "order_number": 7,
       "reason": "defect",
+      "order_number": 7,
       "channel": "online"
      }
     },
     {
      "type": "block",
-     "id": "b4",
+     "id": "b3",
      "block": {
       "type": "return",
       "order": 7,
@@ -265,17 +188,17 @@
       ],
       "deadline": "2026-05-18",
       "days_passed": 36,
-      "estimated": false
+      "estimated": true
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1062072",
+     "call": "call_999307",
      "name": "check_return",
      "ms": 0,
      "ok": true,
      "search": null,
-     "block": "b4"
+     "block": "b3"
     },
     {
      "type": "gesture",
@@ -283,123 +206,35 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.5-flash-lite"
-    },
-    {
-     "type": "tool_start",
-     "call": "call_1091531",
-     "name": "search_policies",
-     "args": {
-      "query": "defect 30 90 warranty"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b5",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.2",
-        "title": "Exchanges for Defects",
-        "text": "Products with manufacturing defects may be exchanged within 30 (thirty) calendar days after purchase. After 30 days, the customer must claim the warranty directly with the manufacturer. Empório da Música may mediate the process on request. Damage caused by misuse, falls, excessive humidity or unauthorized modifications is not covered."
-       },
-       {
-        "id": "8.1",
-        "title": "Legal Warranty",
-        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
-       },
-       {
-        "id": "8.2",
-        "title": "Manufacturer's Warranty",
-        "text": "Beyond the legal warranty, most manufacturers offer their own warranty, ranging from 6 months to 2 years. Specific terms and conditions are in the warranty certificate that comes with each product."
-       }
-      ]
-     }
-    },
-    {
-     "type": "tool_end",
-     "call": "call_1091531",
-     "name": "search_policies",
-     "ms": 356,
-     "ok": true,
-     "search": {
-      "mode": "hybrid",
-      "top": [
-       {
-        "id": "4.2",
-        "score": 0.03252
-       },
-       {
-        "id": "8.1",
-        "score": 0.03252
-       },
-       {
-        "id": "8.2",
-        "score": 0.03175
-       }
-      ]
-     },
-     "block": "b5"
-    },
-    {
-     "type": "model",
-     "name": "gemini-3.5-flash-lite"
+     "name": "gemini-3.1-flash-lite"
     },
     {
      "type": "text",
-     "text": "That changes"
+     "text": "That is a different situation. Since it has a defect, you are outside the 30-day window for a"
     },
     {
      "type": "text",
-     "text": " things. Since it's past the 30-day store exchange window but still within"
+     "text": " direct exchange, but you are still covered by the 90-day legal warranty. We can mediate this process with the manufacturer for you"
     },
     {
      "type": "text",
-     "text": " the 90-day legal warranty, you are covered"
+     "text": ".\n\nIf you would like me to start"
     },
     {
      "type": "text",
-     "text": "."
+     "text": " this, I can open a ticket for our team to assist you with the warranty claim. Would you like me to do that"
     },
     {
      "type": "text",
-     "text": " Damage from misuse isn't covered, but for manufacturing defects, the store can help mediate the process with the manufacturer"
-    },
-    {
-     "type": "text",
-     "text": ". Would you like me to open a ticket for our team to handle this?"
+     "text": "?"
     },
     {
      "type": "block_ref",
-     "id": "b4"
-    },
-    {
-     "type": "block",
-     "id": "b5",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.2",
-        "title": "Exchanges for Defects",
-        "text": "Products with manufacturing defects may be exchanged within 30 (thirty) calendar days after purchase. After 30 days, the customer must claim the warranty directly with the manufacturer. Empório da Música may mediate the process on request. Damage caused by misuse, falls, excessive humidity or unauthorized modifications is not covered."
-       },
-       {
-        "id": "8.1",
-        "title": "Legal Warranty",
-        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
-       }
-      ]
-     }
-    },
-    {
-     "type": "block_ref",
-     "id": "b5"
+     "id": "b3"
     },
     {
      "type": "done",
-     "model": "gemini-3.5-flash-lite",
+     "model": "gemini-3.1-flash-lite",
      "corrected": false
     }
    ]

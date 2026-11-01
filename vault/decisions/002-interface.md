@@ -19,7 +19,7 @@ The structure comes from the chat products the author named: ChatGPT, Claude, Ja
 
 The robot is the CC0 RobotExpressive model with a conductor skin built in code. It conducts while text streams, looks down while tools run, and gestures occasionally when idle. Nothing depends on it.
 
-Product images come from a script that searches the web and accepts a result only when brand and model are in its title. Results were then reviewed by eye. A product with no reliable image shows a category icon, because a wrong picture in a store is worse than none.
+Product images come from a script that searches the web and accepts a result only when brand and model are in its title. It scores candidates for a clean background and a whole instrument, and results were reviewed by eye. A product with no exact match shows a picture of the same type of instrument, tagged as illustrative.
 
 ## Constraints
 

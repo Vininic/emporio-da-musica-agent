@@ -2,27 +2,29 @@
 
 Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.
 
-Recorded 2026-11-01 17:21.
+Recorded 2026-11-01 19:06.
 
 **Cliente:** Me arrependi da minha compra, posso devolver meu pedido?
 
-**Amadeus:** Vamos ver. Me passa o número do pedido e o telefone do cadastro?
+**Amadeus:** Para eu ver como está a situação do seu pedido e te orientar, preciso que você me passe o número do pedido e o telefone que está no cadastro. Com isso, eu consigo checar o que dá para fazer.
 
 **Cliente:** Pedido 7, telefone (67) 99789-0123. Comprei pelo site.
 
-_Tools: lookup_order, check_return, search_policies_
+_Tools: lookup_order, check_return_
 
-**Amadeus:** Olhei seu pedido. Como você comprou pelo site, o prazo para desistir é de até 7 dias corridos depois de receber, e pela previsão de entrega isso encerrou em 24/02.
+**Amadeus:** Olhei aqui no sistema, Letícia. Pelo site, o prazo para desistir da compra por arrependimento é de 7 dias após o recebimento, e como a entrega foi prevista para 17/02, esse prazo encerrou no dia 24/02.
+
+Como já passou desse período, não consigo seguir com a devolução automática. Se você ainda quiser conversar sobre isso, posso abrir um chamado para a equipe avaliar, mas não consigo garantir nada por aqui. Quer que eu abra?
 
 > Block: order 7: delivered, R$ 159,90
 > Block: return, order 7: nao_elegivel, deadline 24/02/2026
-> Block: cited: 4.1 Direito de Arrependimento (Compras Online)
 
 **Cliente:** Poxa. Mas recebi com um defeito, faz diferença?
 
-_Tools: check_return, search_policies_
+_Tools: check_return_
 
-**Amadeus:** Faz sim. O prazo de 7 dias é só para arrependimento, mas para defeito você tem a garantia legal de 90 dias a partir do recebimento, o que nos dá margem até 18/05. Se o problema for de fabricação e não de uso, a gente resolve. Quer abrir um chamado para a equipe analisar o caso do seu ukulelê?
+**Amadeus:** Faz diferença, sim. Como passou dos 30 dias, a gente entra na garantia legal de 90 dias. A loja pode intermediar esse contato com o fabricante para resolver o problema do defeito.
+
+Quer que eu abra um chamado agora para a nossa equipe cuidar disso para você?
 
 > Block: return, order 7: garantia, deadline 18/05/2026
-> Block: cited: 8.1 Garantia Legal
