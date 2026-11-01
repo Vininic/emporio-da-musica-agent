@@ -57,8 +57,8 @@ def test_keyword_search_finds_policy_sections():
         "garantia legal": "8.1",
     }
     for query, expected in cases.items():
-        result = search_policies(ctx, SearchPoliciesArgs(consulta=query))
-        assert f"§{expected}" in [t["secao"] for t in result.data["trechos"]], query
+        result = search_policies(ctx, SearchPoliciesArgs(query=query))
+        assert expected in [t["section"] for t in result.data["excerpts"]], query
 
 
 def fake_embedder(tmp_path, vectors):
@@ -108,7 +108,7 @@ def test_query_embedding_failure_degrades_to_keywords(tmp_path):
 
 def test_t07_search_respects_the_hard_filters():
     result = search_products(
-        keyword_context(), SearchProductsArgs(categoria="violões", preco_maximo=1000)
+        keyword_context(), SearchProductsArgs(category="violões", max_price=1000)
     )
     assert result.data["total"] == 12
     assert result.block["type"] == "product_list"
@@ -118,83 +118,123 @@ def test_t07_search_respects_the_hard_filters():
 def test_ranking_never_escapes_the_filters():
     result = search_products(
         keyword_context(),
-        SearchProductsArgs(
-            consulta="martin taylor profissional", categoria="violões", preco_maximo=800
-        ),
+        SearchProductsArgs(query="martin taylor profissional", category="violões", max_price=800),
     )
-    assert all("Martin" not in p["nome"] for p in result.data["produtos"])
+    assert all("Martin" not in p["name"] for p in result.data["products"])
 
 
 def test_t05_empty_category_says_so():
-    result = search_products(keyword_context(), SearchProductsArgs(categoria="Cordas Orquestrais"))
+    result = search_products(keyword_context(), SearchProductsArgs(category="Cordas Orquestrais"))
     assert result.data["total"] == 0
-    assert "não diga que não vende" in result.data["nota"]
+    assert "não diga que não vende" in result.data["note"]
 
 
 def test_t11_expired_promotion_is_listed_as_expired_and_price_is_current():
-    result = get_product(keyword_context(), GetProductArgs(nome="Takamine GD20"))
-    product = result.data["produto"]
-    assert product["preco_final"] == "R$ 2.199,00"
-    assert "promocao" not in product
-    assert product["promocoes_encerradas"] == ["Oferta Especial (12%)"]
+    result = get_product(keyword_context(), GetProductArgs(name="Takamine GD20"))
+    product = result.data["product"]
+    assert product["final_price"] == "R$ 2.199,00"
+    assert "promotion" not in product
+    assert product["expired_promotions"] == ["Oferta Especial (12%)"]
 
 
 def test_t12_unavailable_product_comes_with_available_alternatives():
-    result = get_product(keyword_context(), GetProductArgs(nome="Giannini GF-3D"))
-    assert result.data["produto"]["situacao"] == "temporariamente indisponível"
-    assert len(result.data["alternativas"]) == 3
-    assert all(a["situacao"] == "disponível" for a in result.data["alternativas"])
+    result = get_product(keyword_context(), GetProductArgs(name="Giannini GF-3D"))
+    assert result.data["product"]["status"] == "temporariamente indisponível"
+    assert len(result.data["alternatives"]) == 3
+    assert all(a["status"] == "disponível" for a in result.data["alternatives"])
 
 
 def test_t08_discontinued_shows_no_price_to_sell():
-    result = get_product(keyword_context(), GetProductArgs(nome="Ibanez Bass 2X"))
-    assert result.data["produto"]["situacao"] == "fora do catálogo"
-    assert "preco_final" not in result.data["produto"]
+    result = get_product(keyword_context(), GetProductArgs(name="Ibanez Bass 2X"))
+    assert result.data["product"]["status"] == "fora do catálogo"
+    assert "final_price" not in result.data["product"]
 
 
 def test_ambiguous_name_asks_instead_of_guessing():
-    result = get_product(keyword_context(), GetProductArgs(nome="Takamine"))
-    assert not result.data["encontrado"]
-    assert len(result.data["parecidos"]) > 1
+    result = get_product(keyword_context(), GetProductArgs(name="Takamine"))
+    assert not result.data["found"]
+    assert len(result.data["similar"]) > 1
 
 
 def test_t14_promotional_price_carries_original_and_percent():
-    result = get_product(keyword_context(), GetProductArgs(nome="Ohana CK-20"))
-    product = result.data["produto"]
-    assert product["preco_tabela"] == brl(54900)
-    assert product["preco_final"] == brl(43920)
-    assert product["promocao"] == "20% off, Desconto Exclusivo"
-    assert not product["desconto_pix_aplicado"]
+    result = get_product(keyword_context(), GetProductArgs(name="Ohana CK-20"))
+    product = result.data["product"]
+    assert product["list_price"] == brl(54900)
+    assert product["final_price"] == brl(43920)
+    assert product["promotion"] == "20% off, Desconto Exclusivo"
+    assert not product["pix_discount_applied"]
 
 
 def test_cart_mixes_promotional_and_regular_items():
     result = quote_purchase(
         keyword_context(),
         QuotePurchaseArgs(
-            itens=[CartItem(produto_id=121), CartItem(produto_id=95, quantidade=2)],
-            cidade="Campo Grande",
+            items=[CartItem(product_id=121), CartItem(product_id=95, quantity=2)],
+            city="Campo Grande",
         ),
     )
-    assert result.data["total_cartao_debito_boleto"] == brl(43920 + 439800)
+    assert result.data["total_card_debit_boleto"] == brl(43920 + 439800)
     assert result.data["total_pix"] == brl(43920 + 417810)
-    assert result.data["frete"]["valor_frete"] == "grátis"
+    assert result.data["shipping"]["cost"] == "grátis"
 
 
 def test_cart_refuses_unavailable_and_over_stock():
     ctx = keyword_context()
-    assert "erro" in quote_purchase(ctx, QuotePurchaseArgs(itens=[CartItem(produto_id=96)])).data
-    over = quote_purchase(ctx, QuotePurchaseArgs(itens=[CartItem(produto_id=93, quantidade=3)]))
-    assert over.data["disponivel"] == 2
+    assert "error" in quote_purchase(ctx, QuotePurchaseArgs(items=[CartItem(product_id=96)])).data
+    over = quote_purchase(ctx, QuotePurchaseArgs(items=[CartItem(product_id=93, quantity=3)]))
+    assert over.data["available"] == 2
 
 
 def test_t01_store_phone_is_a_fixed_fact():
     data = store_info(keyword_context(), None).data
-    assert data["telefone"] == "(67) 3341-4444"
-    assert data["aberta_agora"] is True
+    assert data["phone"] == "(67) 3341-4444"
+    assert data["open_now"] is True
 
 
 def test_t25_store_info_when_closed():
     ctx = keyword_context(datetime(2026, 3, 28, 14, 0, tzinfo=TIMEZONE))
     data = store_info(ctx, None).data
-    assert data["aberta_agora"] is False
-    assert data["abre"] == "segunda, 30/03, às 09:00"
+    assert data["open_now"] is False
+    assert data["opens"] == "segunda, 30/03, às 09:00"
+
+
+def test_english_manual_has_the_same_sections():
+    pt = {s.id for s in load_sections(ROOT / "data" / "policies.md")}
+    en = {s.id for s in load_sections(ROOT / "data" / "policies.en.md")}
+    assert pt == en
+
+
+def test_company_details_section_is_not_searchable():
+    ctx = keyword_context()
+    result = search_policies(ctx, SearchPoliciesArgs(query="CNPJ razão social"))
+    assert "1.2" not in [t["section"] for t in result.data["excerpts"]]
+
+
+def test_english_context_formats_money_and_labels():
+    runtime = Runtime(
+        clock=Clock(datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)), journal=Journal()
+    )
+    ctx = runtime.context(Session("test"), None, "en")
+    result = get_product(ctx, GetProductArgs(name="Ohana CK-20"))
+    product = result.data["product"]
+    assert product["final_price"] == "R$ 439.20"
+    assert product["category"] == "Ukuleles"
+    assert "interest free" in product["installments"]
+    assert product["status"] == "available"
+    assert result.block["price"]["final"] == 43920
+
+
+def test_blocks_carry_numbers_not_formatted_text():
+    result = get_product(keyword_context(), GetProductArgs(name="Takamine GD20"))
+    price = result.block["price"]
+    assert price == {
+        "list": 219900,
+        "final": 219900,
+        "pix": 208905,
+        "pix_applies": True,
+        "count": 12,
+        "each": 18325,
+        "promo_percent": None,
+        "promo_name": None,
+    }
+    assert result.block["specs"]

@@ -137,3 +137,8 @@ def test_t24_defect_has_three_stages():
 
     manufacturer = assess(Reason.DEFECT, "delivered", TODAY, date(2025, 10, 15), date(2025, 10, 25))
     assert manufacturer.outcome is Outcome.MANUFACTURER
+
+
+def test_describe_opening_in_english():
+    now = datetime(2026, 3, 28, 14, 0)
+    assert hours.describe_opening(hours.next_opening(now), now, "en") == "Monday, Mar 30, at 09:00"

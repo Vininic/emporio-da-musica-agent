@@ -35,8 +35,8 @@ def text(content):
     return [TextDelta(content)]
 
 
-def call(name, **arguments):
-    return [ToolCalls((ToolCall(f"c{name}", name, json.dumps(arguments)),))]
+def call(tool, /, **arguments):
+    return [ToolCalls((ToolCall(f"c{tool}", tool, json.dumps(arguments)),))]
 
 
 def run(llm, *questions, now=OPEN):
@@ -69,7 +69,7 @@ def test_tools_have_clean_schemas():
 
 
 def test_price_comes_from_the_tool_and_passes_the_guard():
-    llm = ScriptedLLM(call("get_product", nome="Takamine GD20"), text("Sai por R$ 2.199,00."))
+    llm = ScriptedLLM(call("get_product", name="Takamine GD20"), text("Sai por R$ 2.199,00."))
     events, messages, _, _ = run(llm, "Quanto custa o Takamine GD20?")
 
     assert spoken(events) == "Sai por R$ 2.199,00."
@@ -80,13 +80,13 @@ def test_price_comes_from_the_tool_and_passes_the_guard():
 
 def test_invented_price_triggers_a_correction():
     llm = ScriptedLLM(
-        call("get_product", nome="Takamine GD20"),
+        call("get_product", name="Takamine GD20"),
         text("Sai por R$ 1.500,00."),
         text("Sai por R$ 2.199,00."),
     )
     events, messages, _, _ = run(llm, "Quanto custa o Takamine GD20?")
 
-    assert "valor R$ 1500.00" in of_type(events, "guard")[0]["problems"]
+    assert "R$ 1500.00" in of_type(events, "guard")[0]["problems"]
     assert of_type(events, "replace")[0]["text"] == "Sai por R$ 2.199,00."
     assert messages[-1]["content"] == "Sai por R$ 2.199,00."
     assert not any("1.500" in str(m.get("content")) for m in messages)
@@ -102,7 +102,7 @@ def test_price_without_any_tool_is_rejected_then_replaced_by_the_fallback():
 
 def test_customer_stated_value_can_be_repeated():
     llm = ScriptedLLM(
-        call("get_product", nome="Takamine GD20"), text("R$ 1.000,00 não, é R$ 2.199,00.")
+        call("get_product", name="Takamine GD20"), text("R$ 1.000,00 não, é R$ 2.199,00.")
     )
     events, _, _, _ = run(llm, "Vi por R$ 1.000,00, confere?")
     assert not of_type(events, "guard")
@@ -110,7 +110,7 @@ def test_customer_stated_value_can_be_repeated():
 
 def test_t19_lookup_gate_is_in_the_code():
     llm = ScriptedLLM(
-        call("lookup_order", numero_pedido=1, telefone="(67) 00000-0000"),
+        call("lookup_order", order_number=1, phone="(67) 00000-0000"),
         text("Não conferem."),
     )
     events, messages, session, _ = run(llm, "pedido 1")
@@ -124,25 +124,25 @@ def test_t19_lookup_gate_is_in_the_code():
 
 def test_t19_check_return_refuses_an_unverified_order():
     llm = ScriptedLLM(
-        call("check_return", numero_pedido=1, motivo="arrependimento", canal="online"),
+        call("check_return", order_number=1, reason="regret", channel="online"),
         text("Preciso verificar."),
     )
     _, messages, _, _ = run(llm, "devolver pedido 1")
-    assert '"verificado": false' in next(m for m in messages if m["role"] == "tool")["content"]
+    assert '"verified": false' in next(m for m in messages if m["role"] == "tool")["content"]
 
 
 def test_t19_lookups_lock_after_three_failures():
-    bad = call("lookup_order", numero_pedido=1, telefone="1")
+    bad = call("lookup_order", order_number=1, phone="1")
     llm = ScriptedLLM(bad, bad, bad, bad, text("Fala com a equipe."))
     _, messages, _, _ = run(llm, "pedido")
     last_tool = [m for m in messages if m["role"] == "tool"][-1]
-    assert '"bloqueado": true' in last_tool["content"]
+    assert '"locked": true' in last_tool["content"]
 
 
 def test_verified_lookup_then_return_assessment():
     llm = ScriptedLLM(
-        call("lookup_order", numero_pedido=1, telefone="(67) 98432-1098"),
-        call("check_return", numero_pedido=1, motivo="arrependimento", canal="online"),
+        call("lookup_order", order_number=1, phone="(67) 98432-1098"),
+        call("check_return", order_number=1, reason="regret", channel="online"),
         text("Passou do prazo."),
     )
     events, messages, session, _ = run(llm, "pedido 1")
@@ -154,9 +154,7 @@ def test_verified_lookup_then_return_assessment():
 
 
 def test_phone_never_reaches_the_trace():
-    llm = ScriptedLLM(
-        call("lookup_order", numero_pedido=1, telefone="(67) 98432-1098"), text("Achei.")
-    )
+    llm = ScriptedLLM(call("lookup_order", order_number=1, phone="(67) 98432-1098"), text("Achei."))
     events, _, _, _ = run(llm, "pedido 1")
     assert "98432" not in json.dumps(of_type(events, "tool_start"))
 
@@ -180,7 +178,7 @@ def test_tool_loop_is_bounded():
 
 def test_block_markers_become_placement_events():
     llm = ScriptedLLM(
-        call("get_product", nome="Takamine GD20"),
+        call("get_product", name="Takamine GD20"),
         [TextDelta("Olha ele:\n[[blo"), TextDelta("co:b1]]\nHonesto.")],
     )
     events, _, _, _ = run(llm, "Takamine GD20")
@@ -191,7 +189,7 @@ def test_block_markers_become_placement_events():
 
 
 def test_unreferenced_block_is_appended_so_the_customer_still_sees_it():
-    llm = ScriptedLLM(call("get_product", nome="Takamine GD20"), text("Sai por R$ 2.199,00."))
+    llm = ScriptedLLM(call("get_product", name="Takamine GD20"), text("Sai por R$ 2.199,00."))
     events, _, _, _ = run(llm, "Takamine GD20")
     assert of_type(events, "block_ref") == [{"type": "block_ref", "id": "b1"}]
 
@@ -201,7 +199,7 @@ def test_t25_closed_store_shows_when_it_reopens_on_the_first_turn_only():
     events, _, _, _ = run(llm, "oi", "oi", now=CLOSED)
     closed = [b for b in of_type(events, "block") if b["block"]["type"] == "closed"]
     assert len(closed) == 1
-    assert closed[0]["block"]["abre"] == "amanhã, 26/03, às 09:00"
+    assert closed[0]["block"]["opens"] == "amanhã, 26/03, às 09:00"
 
 
 def test_provider_failure_is_a_message_not_a_crash_and_does_not_poison_history():
@@ -213,7 +211,7 @@ def test_provider_failure_is_a_message_not_a_crash_and_does_not_poison_history()
 
 def test_ticket_is_persisted():
     llm = ScriptedLLM(
-        call("open_ticket", tipo="reclamacao", resumo="Chegou amassado", contato="Ana"),
+        call("open_ticket", kind="complaint", summary="Chegou amassado", contact="Ana"),
         text("Registrei."),
     )
     _, _, _, runtime = run(llm, "chegou amassado")
@@ -233,14 +231,34 @@ def test_marker_filter_never_loses_text(chunks):
 
 
 def test_guard_ignores_equal_values_written_differently():
-    assert unsupported_claims("R$ 2.199", ['"R$ 2.199,00"'], set()) == []
+    assert unsupported_claims("R$ 2.199", ['"R$ 2.199,00"']) == []
+    assert unsupported_claims("R$ 2,199.00", ['"R$ 2.199,00"']) == []
 
 
-def test_guard_catches_invented_contact_details_and_sections():
-    problems = unsupported_claims(
-        "Liga (67) 3333-3333, escreve a@b.com, veja §99 e 15%", ["nada"], {"4.1"}
-    )
+def test_guard_catches_invented_contact_details_and_section_numbers():
+    problems = unsupported_claims("Liga (67) 3333-3333, escreve a@b.com, veja §4.1 e 15%", ["nada"])
     assert len(problems) == 4
+
+
+def test_section_numbers_in_the_text_trigger_a_correction():
+    llm = ScriptedLLM(text("Conforme a seção 4.1, são 7 dias."), text("São 7 dias."))
+    events, _, _, _ = run(llm, "devolver?")
+    assert of_type(events, "guard")
+    assert of_type(events, "replace")[0]["text"] == "São 7 dias."
+
+
+def test_english_turn_uses_english_tool_text_and_fallback():
+    runtime = Runtime(clock=Clock(OPEN))
+    llm = ScriptedLLM(call("get_product", name="Takamine GD20"), text("It costs R$ 2,199.00."))
+    agent = Agent(llm, runtime.context(Session("test"), None, "en"))
+    messages = []
+    events = list(agent.run(messages, "How much is the Takamine GD20?"))
+
+    assert not of_type(events, "guard")
+    tool = next(m for m in messages if m["role"] == "tool")["content"]
+    assert "R$ 2,199.00" in tool
+    assert "available" in tool
+    assert "Dreadnought" in tool
 
 
 def _delta(call_id, index, name, arguments):
@@ -274,7 +292,7 @@ def test_parallel_tool_calls_all_run_and_keep_their_results():
         [
             ToolCalls(
                 (
-                    ToolCall("a", "get_product", '{"nome": "Takamine GD20"}'),
+                    ToolCall("a", "get_product", '{"name": "Takamine GD20"}'),
                     ToolCall("b", "list_promotions", "{}"),
                 )
             )
@@ -288,7 +306,7 @@ def test_parallel_tool_calls_all_run_and_keep_their_results():
 def test_promising_a_ticket_without_opening_one_triggers_a_correction():
     llm = ScriptedLLM(
         text("Vou abrir um chamado agora mesmo."),
-        call("open_ticket", tipo="reclamacao", resumo="Chegou quebrado"),
+        call("open_ticket", kind="complaint", summary="Chegou quebrado"),
         text("Abri o chamado. Retorno em até 24 horas úteis."),
     )
     events, _, _, runtime = run(llm, "chegou quebrado")
@@ -313,8 +331,8 @@ def test_empty_answer_after_a_tool_is_retried():
 
 def test_policy_chips_show_only_what_the_answer_cites():
     llm = ScriptedLLM(
-        call("search_policies", consulta="arrependimento devolução"),
-        text("São 7 dias após o recebimento (§4.1)."),
+        call("search_policies", query="arrependimento devolução"),
+        text("São 7 dias depois de receber.\n[[fonte:4.1]]"),
     )
     events, _, _, _ = run(llm, "posso devolver?")
 
@@ -324,14 +342,14 @@ def test_policy_chips_show_only_what_the_answer_cites():
 
 
 def test_policy_chips_are_dropped_when_nothing_is_cited():
-    llm = ScriptedLLM(call("search_policies", consulta="frete"), text("Depende da cidade."))
+    llm = ScriptedLLM(call("search_policies", query="frete"), text("Depende da cidade."))
     events, _, _, _ = run(llm, "frete?")
     assert not of_type(events, "block_ref")
 
 
 def test_ticket_contact_never_reaches_the_trace():
     llm = ScriptedLLM(
-        call("open_ticket", tipo="outro", resumo="x", contato="Ana (67) 99654-7821"),
+        call("open_ticket", kind="other", summary="x", contact="Ana (67) 99654-7821"),
         text("Abri o chamado."),
     )
     events, _, _, _ = run(llm, "oi")

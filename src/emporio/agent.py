@@ -5,7 +5,8 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import SECTION, unbacked_actions, unsupported_claims
+from emporio.guard import unbacked_actions, unsupported_claims
+from emporio.i18n import AGENT_TEXT
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
@@ -13,22 +14,12 @@ from emporio.tools import Session, ToolContext, run_tool, tool_schemas
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY_MESSAGES = 40
 MAX_MARKER_LENGTH = 24
-MARKER = re.compile(r"\[\[(bloco|gesto):([a-z0-9_]+)\]\]")
+MARKER = re.compile(r"\[\[(bloco|gesto|fonte):([a-z0-9_.]+)\]\]")
+BLOCK_MARKER = re.compile(r"\[\[bloco:([a-z0-9_]+)\]\]")
+SOURCE_MARKER = re.compile(r"\[\[fonte:([0-9.]+)\]\]")
 GESTURES = {"wave", "yes", "no", "thumbs", "dance"}
-FALLBACK = (
-    "Não consegui confirmar essa informação no sistema e prefiro não chutar. "
-    "A equipe da loja resolve isso pelo telefone (67) 3341-4444."
-)
-PROVIDER_DOWN = (
-    "Estou sem acesso ao sistema neste momento. Tenta de novo em instantes, ou fala com a equipe "
-    "pelo telefone (67) 3341-4444."
-)
-CORRECTION = (
-    "[verificação interna, não é mensagem do cliente] Problemas na sua última resposta: {problems}. "
-    "Consulte a ferramenta certa, execute a ação ou retire a afirmação, e reescreva a resposta "
-    "inteira ao cliente sem mencionar esta verificação."
-)
-SENSITIVE_ARGS = {"telefone", "contato"}
+SENSITIVE_ARGS = {"phone", "contact"}
+FALLBACK = AGENT_TEXT["pt"]["fallback"]
 
 
 @dataclass
@@ -97,18 +88,16 @@ def _trim(messages: list[dict]) -> list[dict]:
     return trimmed
 
 
-def _gesture_after_tool(name: str, data: dict) -> str | None:
+def _gesture_after_tool(name: str, data: dict, block: dict | None) -> str | None:
     if name == "lookup_order":
-        return "yes" if data.get("verificado") else "no"
+        return "yes" if data.get("verified") else "no"
     if name == "get_product":
-        if not data.get("encontrado"):
-            return "no"
-        return "yes" if data["produto"].get("situacao") == "disponível" else "no"
+        return "yes" if block and block.get("availability") == "disponivel" else "no"
     if name == "search_products":
         return "thumbs" if data.get("total") else "no"
     if name == "check_return":
-        return "yes" if data.get("resultado") == "elegivel" else "no"
-    if name == "open_ticket" and "chamado" in data:
+        return "yes" if data.get("outcome") == "elegivel" else "no"
+    if name == "open_ticket" and "ticket" in data:
         return "thumbs"
     return None
 
@@ -118,6 +107,7 @@ class Agent:
         self._llm = llm
         self._ctx = ctx
         self._tools = tool_schemas()
+        self._words = AGENT_TEXT[ctx.lang]
 
     @property
     def session(self) -> Session:
@@ -139,7 +129,9 @@ class Agent:
                     "id": "closed",
                     "block": {
                         "type": "closed",
-                        "abre": hours.describe_opening(hours.next_opening(now), now),
+                        "opens": hours.describe_opening(
+                            hours.next_opening(now), now, self._ctx.lang
+                        ),
                     },
                 }
 
@@ -151,7 +143,7 @@ class Agent:
                 yield from self._correct(messages, turn, problems)
         except LLMError as error:
             yield {"type": "provider_error", "auth": error.auth, "detail": str(error)}
-            message = "A chave de API foi recusada." if error.auth else PROVIDER_DOWN
+            message = self._words["bad_key"] if error.auth else self._words["provider_down"]
             messages.pop() if messages and messages[-1]["role"] == "user" else None
             yield {"type": "replace", "text": message}
             yield {"type": "done", "model": None, "corrected": False}
@@ -163,21 +155,25 @@ class Agent:
     def _check(self, messages: list[dict], turn: Turn) -> list[str]:
         answer = strip_markers(turn.text)
         if not answer:
-            return ["resposta vazia"]
+            return [self._words["empty"]]
         sources = [
             json.dumps(m["content"], ensure_ascii=False)
             for m in messages
             if m["role"] in ("user", "tool") and m.get("content")
         ]
-        claims = unsupported_claims(answer, sources, set(self._ctx.sections.keys()))
-        return [*claims, *unbacked_actions(answer, turn.tools_called)]
+        claims = unsupported_claims(answer, sources)
+        actions = unbacked_actions(answer, turn.tools_called, self._words["ticket_claim"])
+        return [*claims, *actions]
 
     def _correct(self, messages: list[dict], turn: Turn, problems: list[str]) -> Iterator[dict]:
         rejected = messages.pop()
         attempt = [
             *messages,
             rejected,
-            {"role": "user", "content": CORRECTION.format(problems=", ".join(problems))},
+            {
+                "role": "user",
+                "content": self._words["correction"].format(problems=", ".join(problems)),
+            },
         ]
         start = len(attempt)
         turn.text = ""
@@ -188,17 +184,17 @@ class Agent:
 
         added = attempt[start:]
         if turn.gave_up or not strip_markers(turn.text) or self._check(messages + added, turn):
-            turn.text = FALLBACK
-            messages.append({"role": "assistant", "content": FALLBACK})
+            turn.text = self._words["fallback"]
+            messages.append({"role": "assistant", "content": turn.text})
         else:
             messages.extend(added)
 
         yield {"type": "replace", "text": strip_markers(turn.text)}
-        for block_id in re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text):
+        for block_id in BLOCK_MARKER.findall(turn.text):
             yield {"type": "block_ref", "id": block_id}
 
     def _respond(self, messages: list[dict], turn: Turn, stream: bool) -> Iterator[dict]:
-        system = {"role": "system", "content": system_prompt(self._ctx.clock.now())}
+        system = {"role": "system", "content": system_prompt(self._ctx.clock.now(), self._ctx.lang)}
         for _ in range(MAX_TOOL_ROUNDS):
             text, calls = "", ()
             marker_filter = MarkerFilter()
@@ -226,10 +222,10 @@ class Agent:
             for call in calls:
                 yield from self._run_call(messages, turn, call)
 
-        turn.text = FALLBACK
+        turn.text = self._words["fallback"]
         turn.gave_up = True
-        messages.append({"role": "assistant", "content": FALLBACK})
-        yield {"type": "replace", "text": FALLBACK}
+        messages.append({"role": "assistant", "content": turn.text})
+        yield {"type": "replace", "text": turn.text}
 
     def _marker_events(self, pieces: Iterator[tuple[str, str]]) -> Iterator[dict]:
         for kind, value in pieces:
@@ -253,12 +249,12 @@ class Agent:
         elapsed = round((time.perf_counter() - started) * 1000)
 
         data = dict(result.data)
-        search_trace = data.pop("_busca", None)
+        search_trace = data.pop("_search", None)
         block_id = None
         if result.block is not None:
             block_id = f"b{self.session.next_block}"
             self.session.next_block += 1
-            data["bloco"] = block_id
+            data["block"] = block_id
             turn.blocks[block_id] = result.block
             yield {"type": "block", "id": block_id, "block": result.block}
 
@@ -270,16 +266,16 @@ class Agent:
             "call": call.id,
             "name": call.name,
             "ms": elapsed,
-            "ok": "erro" not in data,
+            "ok": "error" not in data,
             "search": search_trace,
             "block": block_id,
         }
-        gesture = _gesture_after_tool(call.name, data)
+        gesture = _gesture_after_tool(call.name, data, result.block)
         if gesture:
             yield {"type": "gesture", "name": gesture}
 
     def _append_unreferenced(self, turn: Turn) -> Iterator[dict]:
-        referenced = set(re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text))
+        referenced = set(BLOCK_MARKER.findall(turn.text))
         for block_id, block in turn.blocks.items():
             if block["type"] == "policy":
                 yield from self._cited_sections(block_id, block, turn)
@@ -287,7 +283,7 @@ class Agent:
                 yield {"type": "block_ref", "id": block_id}
 
     def _cited_sections(self, block_id: str, block: dict, turn: Turn) -> Iterator[dict]:
-        cited = set(SECTION.findall(turn.text))
+        cited = set(SOURCE_MARKER.findall(turn.text))
         sections = [section for section in block["sections"] if section["id"] in cited]
         if sections:
             yield {"type": "block", "id": block_id, "block": {**block, "sections": sections}}

@@ -136,7 +136,7 @@ class OpenAICompatibleLLM:
         self, messages: list[dict], tools: list[dict]
     ) -> Iterator[TextDelta | ToolCalls | ModelUsed]:
         last_error: Exception | None = None
-        for client, models in self._routes:
+        for route, (client, models) in enumerate(self._routes):
             for model in models:
                 attempt = 0
                 waited_here = 0.0
@@ -151,7 +151,10 @@ class OpenAICompatibleLLM:
                     except Exception as error:
                         last_error = error
                         if isinstance(error, APIStatusError) and error.status_code in (401, 403):
-                            raise LLMError("chave de API recusada", auth=True) from error
+                            if route == 0:
+                                raise LLMError("chave de API recusada", auth=True) from error
+                            log.warning("fallback key rejected: %s", _describe(error))
+                            break
                         if emitted or not _is_retryable(error):
                             raise LLMError(_describe(error)) from error
                         log.warning("%s failed: %s", model, _describe(error))
