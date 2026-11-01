@@ -1,20 +1,24 @@
 import json
+import logging
 import re
 import time
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import unbacked_actions, unsupported_claims
+from emporio.guard import customer_price_overrides_system, unbacked_actions, unsupported_claims
 from emporio.i18n import AGENT_TEXT
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
 
+log = logging.getLogger(__name__)
+
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY_MESSAGES = 40
 MAX_MARKER_LENGTH = 80
-MARKER = re.compile(r"\[\[\s*((?:bloco|gesto|fonte)\s*:[^\[\]]*?)\s*\]\]")
+MARKER = re.compile(r"\[\[\s*([a-z]+\s*:[^\[\]]*?)\s*\]\]")
+MARKER_KINDS = {"block": "bloco", "source": "fonte", "gesture": "gesto"}
 ALWAYS_SHOWN = {"order", "return", "quote", "ticket"}
 CLOSING_PUNCTUATION = " .,;:!?)\n"
 GESTURES = {"wave", "yes", "no", "thumbs", "dance"}
@@ -38,7 +42,7 @@ def _marker_items(body: str) -> Iterator[tuple[str, str]]:
     for piece in body.split(","):
         name, separator, value = piece.partition(":")
         if separator:
-            kind = name.strip()
+            kind = MARKER_KINDS.get(name.strip(), name.strip())
         else:
             value = name
         if value.strip():
@@ -108,7 +112,7 @@ def _mask(arguments: dict) -> dict:
     }
 
 
-def _trim(messages: list[dict]) -> list[dict]:
+def trim_history(messages: list[dict]) -> list[dict]:
     if len(messages) <= MAX_HISTORY_MESSAGES:
         return messages
     trimmed = messages[-MAX_HISTORY_MESSAGES:]
@@ -145,6 +149,9 @@ class Agent:
     def run(self, messages: list[dict], user_text: str) -> Iterator[dict]:
         first_turn = not messages
         messages.append({"role": "user", "content": user_text})
+        self._ctx.customer_text = " ".join(
+            m["content"] for m in messages if m["role"] == "user" and isinstance(m["content"], str)
+        )
         turn = Turn()
         now = self._ctx.clock.now()
 
@@ -177,6 +184,12 @@ class Agent:
             yield {"type": "replace", "text": message}
             yield {"type": "done", "model": None, "corrected": False}
             return
+        except Exception:
+            log.exception("turn failed")
+            messages.pop() if messages and messages[-1]["role"] == "user" else None
+            yield {"type": "replace", "text": self._words["fallback"]}
+            yield {"type": "done", "model": turn.model, "corrected": False}
+            return
 
         yield from self._append_unreferenced(turn)
         yield {"type": "done", "model": turn.model, "corrected": turn.corrected}
@@ -190,9 +203,25 @@ class Agent:
             for m in messages
             if m["role"] in ("user", "tool") and m.get("content")
         ]
+        tool_sources = [
+            json.dumps(m["content"], ensure_ascii=False)
+            for m in messages
+            if m["role"] == "tool" and m.get("content")
+        ]
         claims = unsupported_claims(answer, sources)
-        actions = unbacked_actions(answer, turn.tools_called, self._words["ticket_claim"])
+        if customer_price_overrides_system(answer, tool_sources, turn.blocks.values()):
+            claims.append(self._words["customer_price"])
+        backed = turn.tools_called
+        if self.session.tickets_opened:
+            backed = [*backed, "open_ticket"]
+        actions = unbacked_actions(answer, backed, self._words["ticket_claim"])
         return [*claims, *actions]
+
+    def _fallback_text(self, turn: Turn) -> str:
+        for block in turn.blocks.values():
+            if block["type"] == "ticket":
+                return self._words["ticket_fallback"].format(ticket=block["ticket"])
+        return self._words["fallback"]
 
     def _correct(self, messages: list[dict], turn: Turn, problems: list[str]) -> Iterator[dict]:
         rejected = messages.pop()
@@ -213,7 +242,7 @@ class Agent:
 
         added = attempt[start:]
         if turn.gave_up or not strip_markers(turn.text) or self._check(messages + added, turn):
-            turn.text = self._words["fallback"]
+            turn.text = self._fallback_text(turn)
             messages.append({"role": "assistant", "content": turn.text})
         else:
             messages.extend(added)
@@ -227,7 +256,7 @@ class Agent:
         for _ in range(MAX_TOOL_ROUNDS):
             text, calls = "", ()
             marker_filter = MarkerFilter()
-            for event in self._llm.stream([system, *_trim(messages)], self._tools):
+            for event in self._llm.stream([system, *trim_history(messages)], self._tools):
                 if isinstance(event, ModelUsed):
                     turn.model = event.name
                     yield {"type": "model", "name": event.name}
@@ -244,6 +273,11 @@ class Agent:
                 turn.text += text
                 messages.append({"role": "assistant", "content": text})
                 return
+
+            if text:
+                turn.text += f"{text}\n\n"
+                if stream:
+                    yield {"type": "text", "text": "\n\n"}
 
             assistant = {"role": "assistant", "content": text or None}
             assistant["tool_calls"] = [call.as_message() for call in calls]
@@ -270,12 +304,15 @@ class Agent:
             arguments = json.loads(call.arguments or "{}")
         except json.JSONDecodeError:
             arguments = {}
+        if not isinstance(arguments, dict):
+            arguments = {}
 
-        turn.tools_called.append(call.name)
         yield {"type": "tool_start", "call": call.id, "name": call.name, "args": _mask(arguments)}
         started = time.perf_counter()
         result = run_tool(self._ctx, call.name, arguments)
         elapsed = round((time.perf_counter() - started) * 1000)
+        if "error" not in result.data:
+            turn.tools_called.append(call.name)
 
         data = dict(result.data)
         search_trace = data.pop("_search", None)
@@ -285,7 +322,8 @@ class Agent:
             self.session.next_block += 1
             data["block"] = block_id
             turn.blocks[block_id] = result.block
-            yield {"type": "block", "id": block_id, "block": result.block}
+            if result.block["type"] != "policy":
+                yield {"type": "block", "id": block_id, "block": result.block}
 
         content = json.dumps(data, ensure_ascii=False)
         messages.append({"role": "tool", "tool_call_id": call.id, "content": content})

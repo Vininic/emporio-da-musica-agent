@@ -1,4 +1,6 @@
 import json
+import time
+from collections import Counter, defaultdict, deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -27,6 +29,9 @@ from emporio.retrieval import Document, HybridIndex, tokenize
 from emporio.store import Availability, Order, Product, Store, normalize_text, phone_digits
 
 MAX_VERIFICATION_ATTEMPTS = 3
+ORDER_ATTEMPT_LIMIT = 5
+ORDER_ATTEMPT_WINDOW = 900.0
+MANUAL_WHATSAPP = "(67) 3321-4500"
 MAX_TICKETS = 3
 STORE_FACTS = {
     "name": "Empório da Música",
@@ -72,6 +77,26 @@ class ToolResult:
     block: dict | None = None
 
 
+class VerificationAttempts:
+    def __init__(self):
+        self._failures: dict[int, deque[float]] = defaultdict(deque)
+
+    def _recent(self, order_number: int) -> deque[float]:
+        failures = self._failures[order_number]
+        while failures and time.monotonic() - failures[0] > ORDER_ATTEMPT_WINDOW:
+            failures.popleft()
+        return failures
+
+    def locked(self, order_number: int) -> bool:
+        return len(self._recent(order_number)) >= ORDER_ATTEMPT_LIMIT
+
+    def record_failure(self, order_number: int) -> None:
+        self._recent(order_number).append(time.monotonic())
+
+    def clear(self, order_number: int) -> None:
+        self._failures.pop(order_number, None)
+
+
 @dataclass
 class ToolContext:
     store: Store
@@ -82,6 +107,8 @@ class ToolContext:
     journal: Journal
     session: Session
     lang: Lang = "pt"
+    attempts: VerificationAttempts = field(default_factory=VerificationAttempts)
+    customer_text: str | None = None
 
 
 def catalog_documents(store: Store) -> list[Document]:
@@ -410,6 +437,9 @@ def quote_purchase(ctx: ToolContext, args: QuotePurchaseArgs) -> ToolResult:
     lines, block_lines = [], []
     final, pix, list_total = 0, 0, 0
     category_id = None
+    wanted = Counter()
+    for item in args.items:
+        wanted[item.product_id] += item.quantity
     for item in args.items:
         product = ctx.store.product(item.product_id)
         if product is None:
@@ -419,7 +449,7 @@ def quote_purchase(ctx: ToolContext, args: QuotePurchaseArgs) -> ToolResult:
             return ToolResult(
                 {"error": words["cannot_quote"].format(name=product.name, state=state)}
             )
-        if item.quantity > product.stock:
+        if wanted[item.product_id] > product.stock:
             return ToolResult(
                 {
                     "error": words["short_stock"].format(name=product.name),
@@ -522,9 +552,15 @@ class SearchPoliciesArgs(BaseModel):
 def search_policies(ctx: ToolContext, args: SearchPoliciesArgs) -> ToolResult:
     hits = ctx.policy_index.search(args.query, top_k=3)
     sections = [ctx.sections[hit.id] for hit in hits]
+
+    def public_text(section: Section) -> str:
+        return section.text.replace(MANUAL_WHATSAPP, STORE_FACTS["phone"])
+
     return ToolResult(
         {
-            "excerpts": [{"section": s.id, "title": s.title, "text": s.text} for s in sections],
+            "excerpts": [
+                {"section": s.id, "title": s.title, "text": public_text(s)} for s in sections
+            ],
             "_search": {
                 "mode": "hybrid" if ctx.policy_index.uses_vectors else "keyword",
                 "top": [{"id": hit.id, "score": hit.score} for hit in hits],
@@ -532,7 +568,7 @@ def search_policies(ctx: ToolContext, args: SearchPoliciesArgs) -> ToolResult:
         },
         {
             "type": "policy",
-            "sections": [{"id": s.id, "title": s.title, "text": s.text} for s in sections],
+            "sections": [{"id": s.id, "title": s.title, "text": public_text(s)} for s in sections],
         },
     )
 
@@ -597,7 +633,7 @@ def _order_view(order: Order, today: date, lang: Lang) -> tuple[dict, dict]:
         "items": view["items"],
         "tracking": order.tracking_code,
         "eta": order.estimated_delivery,
-        "note": order.notes,
+        "note": order.notes if lang == "pt" else None,
     }
     if order.tracking_code:
         view["tracking_code"] = order.tracking_code
@@ -617,17 +653,22 @@ def _order_view(order: Order, today: date, lang: Lang) -> tuple[dict, dict]:
 def lookup_order(ctx: ToolContext, args: LookupOrderArgs) -> ToolResult:
     session = ctx.session
     words = text(ctx.lang)
-    if session.failed_verifications >= MAX_VERIFICATION_ATTEMPTS:
+    locked = session.failed_verifications >= MAX_VERIFICATION_ATTEMPTS
+    if locked or ctx.attempts.locked(args.order_number):
         return ToolResult({"verified": False, "locked": True, "note": words["locked"]})
 
-    if not phone_digits(args.phone):
+    digits = phone_digits(args.phone)
+    told = ctx.customer_text is None or digits[-8:] in phone_digits(ctx.customer_text)
+    if not digits or not told:
         return ToolResult({"verified": False, "note": words["phone_needed"]})
 
     order = ctx.store.verified_order(args.order_number, args.phone)
     if order is None:
         session.failed_verifications += 1
+        ctx.attempts.record_failure(args.order_number)
         return ToolResult({"verified": False, "note": words["mismatch"]})
 
+    ctx.attempts.clear(args.order_number)
     if order.id not in session.verified_orders:
         session.verified_orders.append(order.id)
     view, block = _order_view(order, ctx.clock.today(), ctx.lang)
@@ -656,6 +697,9 @@ def check_return(ctx: ToolContext, args: CheckReturnArgs) -> ToolResult:
 
     order = ctx.store.order_for_verified_session(args.order_number)
     received = date.fromisoformat(args.received_on) if args.received_on else None
+    ordered = date.fromisoformat(order.order_date)
+    if received is not None and not ordered <= received <= ctx.clock.today():
+        return ToolResult({"note": words["bad_received_date"]})
     result = assess(
         REASONS[args.reason],
         order.status,
@@ -849,3 +893,5 @@ def run_tool(ctx: ToolContext, name: str, raw_args: dict) -> ToolResult:
         return tool.run(ctx, args)
     except ValueError as error:
         return ToolResult({"error": str(error)})
+    except (ArithmeticError, OverflowError, TypeError):
+        return ToolResult({"error": words["bad_args"]})

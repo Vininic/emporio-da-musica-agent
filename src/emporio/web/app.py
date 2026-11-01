@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import secrets
 import time
@@ -18,6 +19,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from emporio.agent import trim_history
 from emporio.config import EFFORTS, MODEL_CHOICES, ROOT, Provider, provider_from, provider_from_env
 from emporio.domain import hours
 from emporio.i18n import Lang
@@ -27,14 +29,19 @@ from emporio.llm import FALLBACK_TIMEOUT, FIRST_BYTE_TIMEOUT, LLM, OpenAICompati
 from emporio.runtime import Runtime
 from emporio.tools import STORE_FACTS, Session, store_block
 
+logger = logging.getLogger(__name__)
+
 STATIC = Path(__file__).parent / "static"
 DEMOS = ROOT / "data" / "demos"
 MAX_MESSAGE_LENGTH = 1000
 RATE_LIMIT_WINDOW = 60.0
+MAX_TRACKED_ADDRESSES = 10_000
+MAX_STATE_LENGTH = 200_000
+STATE_LIFETIME = 86_400
 
 
 class ChatRequest(BaseModel):
-    state: str | None = None
+    state: str | None = Field(default=None, max_length=MAX_STATE_LENGTH)
     message: str = Field(min_length=1, max_length=MAX_MESSAGE_LENGTH)
     lang: Literal["pt", "en"] = "pt"
 
@@ -47,14 +54,18 @@ class StateCodec:
         return hmac.new(self._secret, payload, hashlib.sha256).hexdigest()
 
     def dump(self, state: dict) -> str:
-        payload = base64.urlsafe_b64encode(zlib.compress(json.dumps(state).encode()))
+        stamped = {**state, "expires": time.time() + STATE_LIFETIME}
+        payload = base64.urlsafe_b64encode(zlib.compress(json.dumps(stamped).encode()))
         return f"{self._sign(payload)}.{payload.decode()}"
 
     def load(self, token: str) -> dict:
         signature, _, payload = token.partition(".")
-        if not hmac.compare_digest(signature, self._sign(payload.encode())):
+        if not hmac.compare_digest(signature.encode(), self._sign(payload.encode()).encode()):
             raise HTTPException(400, "invalid_state")
-        return json.loads(zlib.decompress(base64.urlsafe_b64decode(payload)))
+        state = json.loads(zlib.decompress(base64.urlsafe_b64decode(payload)))
+        if state.get("expires", 0) < time.time():
+            raise HTTPException(400, "expired_state")
+        return state
 
 
 class RateLimiter:
@@ -64,6 +75,8 @@ class RateLimiter:
 
     def allow(self, key: str) -> bool:
         now = time.monotonic()
+        if len(self._hits) > MAX_TRACKED_ADDRESSES:
+            self._hits.clear()
         hits = self._hits[key]
         while hits and now - hits[0] > RATE_LIMIT_WINDOW:
             hits.popleft()
@@ -89,9 +102,11 @@ def create_app(
     llm_factory=None,
     rate_limit: int | None = None,
 ) -> FastAPI:
-    app = FastAPI(title="Empório da Música", docs_url=None, redoc_url=None)
+    app = FastAPI(title="Empório da Música", docs_url=None, redoc_url=None, openapi_url=None)
     runtime = runtime or Runtime(journal=_default_journal())
     server_provider = server_provider or provider_from_env()
+    if os.getenv("VERCEL") and not os.getenv("STATE_SECRET"):
+        raise RuntimeError("STATE_SECRET must be set: tokens must survive between instances")
     codec = StateCodec(os.getenv("STATE_SECRET") or secrets.token_hex(32))
     limiter = RateLimiter(rate_limit or int(os.getenv("RATE_LIMIT_PER_MINUTE", "20")))
 
@@ -147,7 +162,7 @@ def create_app(
     ) -> StreamingResponse:
         provider = resolve_provider(x_provider, x_api_key, x_model)
         address = request.headers.get(
-            "x-forwarded-for", request.client.host if request.client else ""
+            "x-vercel-forwarded-for", request.client.host if request.client else ""
         )
         if not x_api_key and not limiter.allow(address.split(",")[0].strip()):
             raise HTTPException(429, "rate_limited")
@@ -177,11 +192,15 @@ def create_app(
             messages = state.get("messages", [])
             agent = runtime.agent(session, provider, llm, lang)
             for event in agent.run(messages, body.message):
+                if event["type"] == "provider_error":
+                    logger.warning("provider error: %s", event.pop("detail", ""))
                 yield _sse(event)
             yield _sse(
                 {
                     "type": "state",
-                    "token": codec.dump({"session": session.to_dict(), "messages": messages}),
+                    "token": codec.dump(
+                        {"session": session.to_dict(), "messages": trim_history(messages)}
+                    ),
                 }
             )
 

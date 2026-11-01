@@ -35,3 +35,7 @@ def test_portuguese_message_switches_an_english_chat(message):
 def test_short_or_ambiguous_message_keeps_the_chat_language(message):
     assert detect_language(message, "pt") == "pt"
     assert detect_language(message, "en") == "en"
+
+
+def test_everyday_portuguese_does_not_flip_to_english():
+    assert detect_language("tô atrás do preço do Takamine GD20", "pt") == "pt"

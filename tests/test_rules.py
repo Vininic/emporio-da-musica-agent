@@ -157,3 +157,8 @@ def test_next_holidays_include_movable_good_friday():
         "2026-04-21",
         "2026-05-01",
     ]
+
+
+@pytest.mark.parametrize("city", ["Campo Grande - MS", "Campo Grande/MS", "Campo Grande, MS"])
+def test_city_with_state_counts_as_metro(city):
+    assert shipping.estimate(city, 100_000).region == "metropolitana"

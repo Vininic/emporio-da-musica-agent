@@ -8,8 +8,9 @@ from emporio.llm import LLM, OpenAICompatibleLLM, build_embedder
 from emporio.policies import load_sections
 from emporio.retrieval import HybridIndex
 from emporio.store import Store
-from emporio.tools import Session, ToolContext, catalog_documents
+from emporio.tools import Session, ToolContext, VerificationAttempts, catalog_documents
 
+MAX_CACHED_INDEXES = 8
 UNSEARCHABLE = {"1.2"}
 MANUALS = {"pt": "policies.md", "en": "policies.en.md"}
 
@@ -29,12 +30,15 @@ class Runtime:
         }
         self._index_dir = data_dir / "index"
         self._indexes: dict[str, tuple[HybridIndex, HybridIndex]] = {}
+        self._attempts = VerificationAttempts()
 
     def indexes(
         self, provider: Provider | None, lang: Lang = "pt"
     ) -> tuple[HybridIndex, HybridIndex]:
         key = f"{lang}:{provider.name}:{provider.api_key}" if provider else f"{lang}:keyword"
         if key not in self._indexes:
+            while len(self._indexes) >= MAX_CACHED_INDEXES:
+                self._indexes.pop(next(iter(self._indexes)))
             embedder = build_embedder(provider, self._index_dir) if provider else None
             documents = [
                 section.as_document()
@@ -60,6 +64,7 @@ class Runtime:
             journal=self.journal,
             session=session,
             lang=lang,
+            attempts=self._attempts,
         )
 
     def agent(

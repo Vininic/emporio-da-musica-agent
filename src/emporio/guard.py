@@ -3,7 +3,7 @@ from collections.abc import Iterable
 
 from emporio.domain.money import to_cents
 
-MONEY = re.compile(r"R\$\s?(\d[\d.,]*\d|\d)")
+MONEY = re.compile(r"R\$\s?(\d[\d.,]{0,16}\d|\d)")
 PERCENT = re.compile(r"(\d{1,3}(?:[.,]\d+)?)\s?%")
 PHONE = re.compile(r"\(?\b\d{2}\)?[\s-]?\d{4,5}-\d{4}\b")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
@@ -12,11 +12,22 @@ TICKET_CLAIM = re.compile(
     r"\b(abri|abrindo|vou abrir|vamos abrir|deixe-me abrir|deixa eu abrir|registrei|vou registrar"
     r"|opened|opening|i'll open|i will open|let me open|i've logged|i logged|i'll log)\b"
     r"[^.?!]{0,40}\b(chamado|solicitação|reclamação|cancelamento|ocorrência"
-    r"|ticket|case|complaint|request|cancellation)\b",
+    r"|ticket|case|complaint|request|cancellation)\b"
+    r"|\b(chamado|ticket|case|request)\s+(foi\s+|was\s+|has been\s+|já está\s+)?"
+    r"(abert[oa]|registrad[oa]|opened|logged)\b"
+    r"|\b(encaminhei|repassei|avisei)\b[^.?!]{0,30}\bequipe\b"
+    r"|\b(forwarded|passed|sent)\b[^.?!]{0,30}\bteam\b"
+    r"|\bprotocolo\b[^.?!]{0,20}\d",
+    re.IGNORECASE,
+)
+IMPOSSIBLE_ACTION = re.compile(
+    r"\b(cancelei|estornei|reembolsei|i cancell?ed|i refunded|refund (was )?processed)\b",
     re.IGNORECASE,
 )
 DECIMALS = re.compile(r"[.,](\d{1,2})$")
-MONEY_IN_WORDS = re.compile(r"(\d[\d.]*)\s+reais(?:\s+e\s+(\d{1,2})\s+centavos)?", re.IGNORECASE)
+MONEY_IN_WORDS = re.compile(
+    r"(\d[\d.,]{0,16})\s+reais(?:\s+e\s+(\d{1,2})\s+centavos)?", re.IGNORECASE
+)
 
 
 def _to_cents(value: str) -> int:
@@ -28,10 +39,7 @@ def _to_cents(value: str) -> int:
 
 def _money_values(text: str) -> set[int]:
     written = {_to_cents(value) for value in MONEY.findall(text)}
-    spoken = {
-        int(whole.replace(".", "")) * 100 + int(cents or 0)
-        for whole, cents in MONEY_IN_WORDS.findall(text)
-    }
+    spoken = {_to_cents(whole) + int(cents or 0) for whole, cents in MONEY_IN_WORDS.findall(text)}
     return written | spoken
 
 
@@ -60,6 +68,24 @@ def unsupported_claims(answer: str, sources: Iterable[str]) -> list[str]:
 
 
 def unbacked_actions(answer: str, tools_called: Iterable[str], message: str) -> list[str]:
+    if IMPOSSIBLE_ACTION.search(answer):
+        return [message]
     if TICKET_CLAIM.search(answer) and "open_ticket" not in tools_called:
         return [message]
     return []
+
+
+def customer_price_overrides_system(
+    answer: str, tool_sources: Iterable[str], blocks: Iterable[dict]
+) -> bool:
+    system_prices = set()
+    for block in blocks:
+        if block["type"] == "product" and block.get("price"):
+            system_prices.add(block["price"]["final"])
+        elif block["type"] == "quote":
+            system_prices.add(block["final"])
+    if not system_prices:
+        return False
+    stated = _money_values(answer)
+    from_customer = stated - _money_values("\n".join(tool_sources))
+    return bool(from_customer) and not stated & system_prices

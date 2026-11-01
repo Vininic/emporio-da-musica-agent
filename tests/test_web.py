@@ -1,5 +1,6 @@
 import base64
 import json
+import time
 import zlib
 from datetime import datetime
 
@@ -8,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from emporio.config import TIMEZONE, Clock, provider_from
 from emporio.journal import Journal
-from emporio.llm import TextDelta, ToolCall, ToolCalls
+from emporio.llm import LLMError, TextDelta, ToolCall, ToolCalls
 from emporio.runtime import Runtime
 from emporio.web.app import create_app
 
@@ -83,7 +84,7 @@ def test_second_turn_keeps_the_verified_session_through_the_token():
         [ToolCalls((ToolCall("c2", "check_return", '{"order_number": 1, "reason": "defect"}'),))],
         [TextDelta("Fabricante.")],
     )
-    first = events(api.post("/api/chat", json={"message": "pedido 1"}))
+    first = events(api.post("/api/chat", json={"message": "pedido 1, (67) 98432-1098"}))
     token = first[-1]["token"]
     second = events(api.post("/api/chat", json={"state": token, "message": "defeito"}))
     blocks = [e["block"]["type"] for e in second if e["type"] == "block"]
@@ -184,3 +185,57 @@ def test_english_message_in_a_portuguese_chat_switches_the_language():
 
 def test_config_lists_the_models_the_server_accepts():
     assert "gemini-3.5-flash-lite" in client().get("/api/config").json()["models"]["gemini"]
+
+
+def test_non_ascii_signature_is_a_bad_token_not_a_crash():
+    response = client([TextDelta("Oi.")]).post(
+        "/api/chat", json={"message": "oi", "state": "ã.abc"}
+    )
+    assert response.status_code == 400
+
+
+def test_expired_token_is_refused(monkeypatch):
+    api = client([TextDelta("Oi.")], [TextDelta("Oi.")])
+    token = events(api.post("/api/chat", json={"message": "oi"}))[-1]["token"]
+    real_time = time.time
+    monkeypatch.setattr(time, "time", lambda: real_time() + 2 * 86_400)
+    assert api.post("/api/chat", json={"message": "oi", "state": token}).status_code == 400
+
+
+def test_forwarded_header_cannot_dodge_the_rate_limit():
+    runtime = Runtime(
+        clock=Clock(datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)), journal=Journal()
+    )
+    runtime.indexes = lambda _provider, _lang="pt": Runtime.indexes(runtime, None, _lang)
+    rounds = iter([[TextDelta("Oi.")] for _ in range(4)])
+
+    class Next:
+        def stream(self, messages, tools):
+            yield from next(rounds)
+
+    api = TestClient(create_app(runtime, PROVIDER, lambda _p: Next(), rate_limit=2))
+    codes = [
+        api.post(
+            "/api/chat", json={"message": "oi"}, headers={"X-Forwarded-For": f"10.0.0.{i}"}
+        ).status_code
+        for i in range(3)
+    ]
+    assert codes == [200, 200, 429]
+
+
+def test_openapi_schema_is_not_public():
+    assert client().get("/openapi.json").status_code == 404
+
+
+def test_provider_error_detail_stays_on_the_server():
+    class Down:
+        def stream(self, messages, tools):
+            raise LLMError("upstream body with secrets")
+            yield
+
+    runtime = Runtime(
+        clock=Clock(datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)), journal=Journal()
+    )
+    runtime.indexes = lambda _provider, _lang="pt": Runtime.indexes(runtime, None, _lang)
+    api = TestClient(create_app(runtime, PROVIDER, lambda _p: Down()))
+    assert "upstream body" not in api.post("/api/chat", json={"message": "oi"}).text
