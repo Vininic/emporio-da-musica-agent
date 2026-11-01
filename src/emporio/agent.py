@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import unsupported_claims
+from emporio.guard import SECTION, unbacked_actions, unsupported_claims
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
@@ -24,11 +24,11 @@ PROVIDER_DOWN = (
     "pelo telefone (67) 3341-4444."
 )
 CORRECTION = (
-    "[verificação interna, não é mensagem do cliente] Sua última resposta citou {problems}, que não "
-    "veio de nenhuma ferramenta. Consulte a ferramenta certa ou retire a informação, e reescreva a "
-    "resposta inteira ao cliente sem mencionar esta verificação."
+    "[verificação interna, não é mensagem do cliente] Problemas na sua última resposta: {problems}. "
+    "Consulte a ferramenta certa, execute a ação ou retire a afirmação, e reescreva a resposta "
+    "inteira ao cliente sem mencionar esta verificação."
 )
-SENSITIVE_ARGS = {"telefone"}
+SENSITIVE_ARGS = {"telefone", "contato"}
 
 
 @dataclass
@@ -161,12 +161,16 @@ class Agent:
         yield {"type": "done", "model": turn.model, "corrected": turn.corrected}
 
     def _check(self, messages: list[dict], turn: Turn) -> list[str]:
+        answer = strip_markers(turn.text)
+        if not answer:
+            return ["resposta vazia"]
         sources = [
             json.dumps(m["content"], ensure_ascii=False)
             for m in messages
             if m["role"] in ("user", "tool") and m.get("content")
         ]
-        return unsupported_claims(strip_markers(turn.text), sources, set(self._ctx.sections.keys()))
+        claims = unsupported_claims(answer, sources, set(self._ctx.sections.keys()))
+        return [*claims, *unbacked_actions(answer, turn.tools_called)]
 
     def _correct(self, messages: list[dict], turn: Turn, problems: list[str]) -> Iterator[dict]:
         rejected = messages.pop()
@@ -277,7 +281,14 @@ class Agent:
     def _append_unreferenced(self, turn: Turn) -> Iterator[dict]:
         referenced = set(re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text))
         for block_id, block in turn.blocks.items():
-            if block_id in referenced:
-                continue
-            if block["type"] == "policy" or not referenced:
+            if block["type"] == "policy":
+                yield from self._cited_sections(block_id, block, turn)
+            elif block_id not in referenced and not referenced:
                 yield {"type": "block_ref", "id": block_id}
+
+    def _cited_sections(self, block_id: str, block: dict, turn: Turn) -> Iterator[dict]:
+        cited = set(SECTION.findall(turn.text))
+        sections = [section for section in block["sections"] if section["id"] in cited]
+        if sections:
+            yield {"type": "block", "id": block_id, "block": {**block, "sections": sections}}
+            yield {"type": "block_ref", "id": block_id}

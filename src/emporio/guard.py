@@ -8,6 +8,11 @@ PERCENT = re.compile(r"(\d{1,3}(?:,\d+)?)\s?%")
 PHONE = re.compile(r"\(?\b\d{2}\)?[\s-]?\d{4,5}-\d{4}\b")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 SECTION = re.compile(r"§\s?(\d+(?:\.\d+)?)")
+TICKET_CLAIM = re.compile(
+    r"\b(abri|abrindo|vou abrir|vamos abrir|deixe-me abrir|deixa eu abrir|registrei|vou registrar)\b"
+    r"[^.?!]{0,40}\b(chamado|solicitação|reclamação|cancelamento|ocorrência)\b",
+    re.IGNORECASE,
+)
 
 
 def _money_values(text: str) -> set[int]:
@@ -37,3 +42,9 @@ def unsupported_claims(answer: str, sources: Iterable[str], section_ids: set[str
     problems += [f"e-mail {e}" for e in set(EMAIL.findall(answer)) - set(EMAIL.findall(source))]
     problems += [f"seção §{s}" for s in set(SECTION.findall(answer)) - section_ids]
     return sorted(problems)
+
+
+def unbacked_actions(answer: str, tools_called: Iterable[str]) -> list[str]:
+    if TICKET_CLAIM.search(answer) and "open_ticket" not in tools_called:
+        return ["disse que abriu ou abriria um chamado sem chamar open_ticket"]
+    return []

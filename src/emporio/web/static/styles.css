@@ -113,19 +113,16 @@ button {
 
 .status {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 7px;
   margin-top: 10px;
   color: var(--soft);
   font-size: 13px;
 }
 
-.status span {
-  margin-left: -3px;
-}
-
 .status i {
   flex: none;
+  transform: translateY(-1px);
   width: 7px;
   height: 7px;
   border-radius: 50%;

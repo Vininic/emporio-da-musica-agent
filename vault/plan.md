@@ -8,8 +8,8 @@ Deadline: Tuesday 2026-11-03, 23:59 São Paulo. See [005](decisions/005-delivery
 |---|---|---|---|
 | 1 | Deterministic core | Prices, installments, hours, shipping, returns and the identity gate are tested; CI green | Done, PR 1 |
 | 2 | Retrieval, tools, agent loop | Unit tests pass and a real conversation runs end to end on Gemini | Done, PR 2 |
-| 3 | Evals | Every trap in [Traps](traps.md) has a case; a live run produces a scored report kept in the repo | In progress: see `evals/HISTORY.md` |
-| 4 | Web chat | Streaming, inline blocks, trace panel and robot run in a browser, checked on desktop and phone width | In progress, author yet to judge it |
+| 3 | Evals | Every trap in [Traps](traps.md) has a case; a live run produces a scored report kept in the repo | Done for now: 34/47 to 47/47 in `evals/HISTORY.md`, on cases written by the same assistant; stage 5 tests this independently |
+| 4 | Web chat | Streaming, inline blocks, trace panel and robot run in a browser, checked on desktop and phone width | Built and checked in a browser; waiting for the author to judge it |
 | 5 | Independent review | A separate agent attacks the running agent and reviews the code; the author rules on each finding; accepted ones become fixes and cases | |
 | 6 | Conversations and README | 3 to 5 real recorded conversations; README covers setup, decisions, limitations, AI use | |
 | 7 | Deploy | Public URL works with BYOK and with replay of recorded conversations | |

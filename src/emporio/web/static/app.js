@@ -99,9 +99,6 @@ function BotTurn({ turn, live, onAsk }) {
     ${live && turn.activity
       ? html`<div class="activity"><span>${ACTIVITY[turn.activity] ?? "Pensando"}</span></div>`
       : null}
-    ${turn.corrected
-      ? html`<div class="corrected">Resposta revisada: a primeira citava um dado que o sistema não confirmou.</div>`
-      : null}
   </div>`;
 }
 
@@ -373,7 +370,7 @@ function App() {
         <p>Assistente virtual da Empório da Música</p>
         ${config
           ? html`<div class="status ${config.open ? "" : "closed"}">
-              <i></i>${config.open ? "Loja aberta" : "Loja fechada"}<span class="more">${config.open ? `até ${config.closes}` : `, abre ${config.opens}`}</span>
+              <i></i><span>${config.open ? "Loja aberta" : "Loja fechada"}<span class="more">${config.open ? ` até ${config.closes}` : `, abre ${config.opens}`}</span></span>
             </div>`
           : null}
       </div>

@@ -1,0 +1,399 @@
+{
+ "title": "Devolução fora do prazo",
+ "summary": "Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.",
+ "recorded_at": "2026-10-31 19:56",
+ "turns": [
+  {
+   "user": "Me arrependi da minha compra, posso devolver meu pedido?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Para verificar"
+    },
+    {
+     "type": "text",
+     "text": " a devolução por arrependimento, preciso do número do pedido e do telefone cadast"
+    },
+    {
+     "type": "text",
+     "text": "rado."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Pedido 7, telefone (67) 99789-0123. Comprei pelo site.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_593913",
+     "name": "lookup_order",
+     "args": {
+      "telefone": "•••0123",
+      "numero_pedido": 7
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "numero": 7,
+      "cliente": "Letícia",
+      "data_pedido": "03/02/2026",
+      "situacao": "entregue",
+      "total": "R$ 159,90",
+      "pagamento": "cartão de crédito em 3x",
+      "itens": [
+       "1x Shelby SU-21S Soprano Sunburst"
+      ],
+      "rastreamento": "BRKR1122334BR",
+      "previsao_entrega": "17/02/2026",
+      "status": "delivered"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_593913",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_651939",
+     "name": "check_return",
+     "args": {
+      "motivo": "arrependimento",
+      "canal": "online",
+      "numero_pedido": 7
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "return",
+      "pedido": 7,
+      "resultado": "nao_elegivel",
+      "orientacao": "Fora do prazo de 7 dias do direito de arrependimento (§4.1).",
+      "secoes": [
+       "§4.1",
+       "§4.4"
+      ],
+      "codigo": "regret_past_window",
+      "prazo_ate": "24/02/2026",
+      "dias_passados": 36,
+      "data_base": "previsão de entrega do pedido, pois o sistema não registra o recebimento"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_651939",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_651942",
+     "name": "search_policies",
+     "args": {
+      "consulta": "prazo arrependimento devolução internet"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Direito de Arrependimento (Compras Online)"
+       },
+       {
+        "id": "4",
+        "title": "Política de Trocas e Devoluções"
+       },
+       {
+        "id": "8.2",
+        "title": "Garantia do Fabricante"
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_651942",
+     "name": "search_policies",
+     "ms": 514,
+     "ok": true,
+     "search": {
+      "modo": "híbrido",
+      "top": [
+       {
+        "id": "4.1",
+        "score": 0.03279
+       },
+       {
+        "id": "4",
+        "score": 0.03175
+       },
+       {
+        "id": "8.2",
+        "score": 0.03102
+       }
+      ]
+     },
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "O prazo"
+    },
+    {
+     "type": "text",
+     "text": " para devolução por arrependimento é de 7 dias corridos após o recebimento, conforme"
+    },
+    {
+     "type": "text",
+     "text": " a seção §4.1 das políticas da loja. Como a previsão de entrega foi em 17/02"
+    },
+    {
+     "type": "text",
+     "text": "/2026, o prazo encerrou em 24/02/2026. \n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Direito de Arrependimento (Compras Online)"
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Poxa. Mas recebi com um defeito, faz diferença?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_351451",
+     "name": "check_return",
+     "args": {
+      "numero_pedido": 7,
+      "motivo": "defeito",
+      "canal": "online"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b4",
+     "block": {
+      "type": "return",
+      "pedido": 7,
+      "resultado": "garantia",
+      "orientacao": "Passou dos 30 dias de troca, mas está na garantia legal de 90 dias (§8.1). A loja pode intermediar com o fabricante.",
+      "secoes": [
+       "§4.2",
+       "§8.1",
+       "§8.3"
+      ],
+      "codigo": "defect_legal_warranty",
+      "prazo_ate": "18/05/2026",
+      "dias_passados": 36,
+      "data_base": "previsão de entrega do pedido, pois o sistema não registra o recebimento"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_351451",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b4"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_669630",
+     "name": "search_policies",
+     "args": {
+      "consulta": "garantia defeito troca 90 dias"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.2",
+        "title": "Trocas por Defeito"
+       },
+       {
+        "id": "8.1",
+        "title": "Garantia Legal"
+       },
+       {
+        "id": "4",
+        "title": "Política de Trocas e Devoluções"
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_669630",
+     "name": "search_policies",
+     "ms": 422,
+     "ok": true,
+     "search": {
+      "modo": "híbrido",
+      "top": [
+       {
+        "id": "4.2",
+        "score": 0.03252
+       },
+       {
+        "id": "8.1",
+        "score": 0.03252
+       },
+       {
+        "id": "4",
+        "score": 0.03175
+       }
+      ]
+     },
+     "block": "b5"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Faz diferença"
+    },
+    {
+     "type": "text",
+     "text": ". O prazo de troca imediata por defeito na loja é de 30 dias (§"
+    },
+    {
+     "type": "text",
+     "text": "4.2), mas o produto está coberto pela garantia legal de 90 dias (§8.1), válida"
+    },
+    {
+     "type": "text",
+     "text": " até 18/05/2026. A loja pode intermediar o processo com o fabricante. "
+    },
+    {
+     "type": "text",
+     "text": "\n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b4"
+    },
+    {
+     "type": "text",
+     "text": "\n\nPosso abrir um chamado para a equipe cuidar disso para você?"
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.2",
+        "title": "Trocas por Defeito"
+       },
+       {
+        "id": "8.1",
+        "title": "Garantia Legal"
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b5"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

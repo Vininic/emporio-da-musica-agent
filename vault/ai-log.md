@@ -29,3 +29,11 @@ Only what actually happened. Tool: Claude Code (desktop app). Newest last.
 **The assistant's model choice was wrong.** It chose `gemini-3.8-flash` because it was newest. The API's error response revealed a free-tier limit of 20 requests per day per model, which the first eval runs exhausted. See [003](decisions/003-providers.md).
 
 **A provider hiccup looked like a code bug, twice.** Streaming was suspected and tested head to head: not the cause. Latency on the free tier simply varies from 0.8 s to 30 s.
+
+**A parallel-call bug hid behind a vague provider error.** One case failed twice with "400 invalid argument". Google's endpoint sends parallel tool calls with `index: null`, and the collector merged them into one call with broken arguments. Found by printing the raw stream.
+
+**The guard grew from facts to actions.** A prompt rule against promising without acting did not hold on the lite model, so the guard now rejects "abri um chamado" when `open_ticket` was not called. It fired on real runs. This follows the author's principle: "a IA não pode surtar".
+
+**A printed "applied" that applied nothing.** A throwaway script meant to adjust recorded conversations printed success without writing a file. The assistant noticed on the next turn and re-recorded instead, since hand-edited recordings would be fake.
+
+**47/47 is not proof.** The same assistant wrote the cases and the code, and models vary between runs. Stage 5 exists for this reason.

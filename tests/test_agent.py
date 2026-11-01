@@ -2,11 +2,15 @@ import json
 from datetime import datetime
 
 import pytest
+from openai.types.chat.chat_completion_chunk import (
+    ChoiceDeltaToolCall,
+    ChoiceDeltaToolCallFunction,
+)
 
 from emporio.agent import FALLBACK, Agent, MarkerFilter
 from emporio.config import TIMEZONE, Clock
 from emporio.guard import unsupported_claims
-from emporio.llm import LLMError, TextDelta, ToolCall, ToolCalls
+from emporio.llm import LLMError, TextDelta, ToolCall, ToolCallCollector, ToolCalls
 from emporio.runtime import Runtime
 from emporio.tools import Session, tool_schemas
 
@@ -237,3 +241,98 @@ def test_guard_catches_invented_contact_details_and_sections():
         "Liga (67) 3333-3333, escreve a@b.com, veja §99 e 15%", ["nada"], {"4.1"}
     )
     assert len(problems) == 4
+
+
+def _delta(call_id, index, name, arguments):
+    return ChoiceDeltaToolCall(
+        id=call_id,
+        index=index if index is not None else 0,
+        type="function",
+        function=ChoiceDeltaToolCallFunction(name=name, arguments=arguments),
+    ).model_copy(update={"index": index})
+
+
+def test_parallel_calls_without_an_index_stay_separate():
+    collector = ToolCallCollector()
+    collector.add(_delta("a", None, "get_product", '{"nome":"x"}'))
+    collector.add(_delta("b", None, "list_promotions", "{}"))
+    assert [(c.id, c.name, c.arguments) for c in collector.calls] == [
+        ("a", "get_product", '{"nome":"x"}'),
+        ("b", "list_promotions", "{}"),
+    ]
+
+
+def test_arguments_split_across_chunks_are_joined():
+    collector = ToolCallCollector()
+    collector.add(_delta("a", 0, "get_product", '{"nome"'))
+    collector.add(_delta(None, 0, None, ':"x"}'))
+    assert [c.arguments for c in collector.calls] == ['{"nome":"x"}']
+
+
+def test_parallel_tool_calls_all_run_and_keep_their_results():
+    llm = ScriptedLLM(
+        [
+            ToolCalls(
+                (
+                    ToolCall("a", "get_product", '{"nome": "Takamine GD20"}'),
+                    ToolCall("b", "list_promotions", "{}"),
+                )
+            )
+        ],
+        text("Sai por R$ 2.199,00."),
+    )
+    _, messages, _, _ = run(llm, "Tem promoção do Takamine GD20?")
+    assert [m["tool_call_id"] for m in messages if m["role"] == "tool"] == ["a", "b"]
+
+
+def test_promising_a_ticket_without_opening_one_triggers_a_correction():
+    llm = ScriptedLLM(
+        text("Vou abrir um chamado agora mesmo."),
+        call("open_ticket", tipo="reclamacao", resumo="Chegou quebrado"),
+        text("Abri o chamado. Retorno em até 24 horas úteis."),
+    )
+    events, _, _, runtime = run(llm, "chegou quebrado")
+
+    assert "open_ticket" in of_type(events, "guard")[0]["problems"][0]
+    assert of_type(events, "replace")[0]["text"].startswith("Abri o chamado")
+    assert runtime.journal.tickets()
+
+
+def test_offering_a_ticket_is_not_a_promise():
+    llm = ScriptedLLM(text("Posso abrir um chamado, quer?"))
+    events, _, _, _ = run(llm, "oi")
+    assert not of_type(events, "guard")
+
+
+def test_empty_answer_after_a_tool_is_retried():
+    llm = ScriptedLLM(call("store_info"), text(""), text("Abrimos às 09:00."))
+    events, messages, _, _ = run(llm, "abrem que horas?")
+    assert of_type(events, "replace")[0]["text"] == "Abrimos às 09:00."
+    assert messages[-1]["content"] == "Abrimos às 09:00."
+
+
+def test_policy_chips_show_only_what_the_answer_cites():
+    llm = ScriptedLLM(
+        call("search_policies", consulta="arrependimento devolução"),
+        text("São 7 dias após o recebimento (§4.1)."),
+    )
+    events, _, _, _ = run(llm, "posso devolver?")
+
+    final_blocks = [b for b in of_type(events, "block") if b["block"]["type"] == "policy"]
+    assert [s["id"] for s in final_blocks[-1]["block"]["sections"]] == ["4.1"]
+    assert of_type(events, "block_ref")[-1]["id"] == final_blocks[-1]["id"]
+
+
+def test_policy_chips_are_dropped_when_nothing_is_cited():
+    llm = ScriptedLLM(call("search_policies", consulta="frete"), text("Depende da cidade."))
+    events, _, _, _ = run(llm, "frete?")
+    assert not of_type(events, "block_ref")
+
+
+def test_ticket_contact_never_reaches_the_trace():
+    llm = ScriptedLLM(
+        call("open_ticket", tipo="outro", resumo="x", contato="Ana (67) 99654-7821"),
+        text("Abri o chamado."),
+    )
+    events, _, _, _ = run(llm, "oi")
+    assert "99654" not in json.dumps(of_type(events, "tool_start"))
