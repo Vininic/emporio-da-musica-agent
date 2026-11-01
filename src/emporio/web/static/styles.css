@@ -19,7 +19,7 @@
   --good: #79b87e;
   --bad: #d67c85;
   --stage: #222a44;
-  --image: #eef0f5;
+  --image: #ffffff;
   --map-filter: invert(0.9) hue-rotate(190deg) saturate(0.55) brightness(0.95);
   color-scheme: dark;
 }
@@ -41,7 +41,7 @@
   --muted: #7c8291;
   --gold: #e8e2cf;
   --stage: #252934;
-  --image: #e8e9ec;
+  --image: #ffffff;
   --map-filter: invert(0.9) grayscale(1) brightness(0.95);
   color-scheme: dark;
 }
