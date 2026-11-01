@@ -35,6 +35,7 @@ function ProductImage({ item, words }) {
   if (!item.image || failed) return html`<div class="product-image empty"><${Icon} name=${icon} size=${26} /></div>`;
   return html`<div class="product-image">
     <img src=${item.image.url} alt=${item.name} title=${words.imageSource} loading="lazy" referrerpolicy="no-referrer" onError=${() => setFailed(true)} />
+    ${item.image.illustrative ? html`<span class="image-tag">${words.illustrative}</span>` : null}
   </div>`;
 }
 

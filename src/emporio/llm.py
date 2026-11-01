@@ -154,12 +154,12 @@ class OpenAICompatibleLLM:
                             yield event
                         return
                     except Exception as error:
-                        last_error = error
                         if isinstance(error, APIStatusError) and error.status_code in (401, 403):
                             if route == 0:
                                 raise LLMError("chave de API recusada", auth=True) from error
                             log.warning("fallback key rejected: %s", _describe(error))
                             break
+                        last_error = error
                         if emitted or not _is_retryable(error):
                             raise LLMError(_describe(error)) from error
                         log.warning("%s failed: %s", model, _describe(error))

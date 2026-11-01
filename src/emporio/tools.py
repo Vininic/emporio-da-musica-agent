@@ -230,7 +230,11 @@ def _product_block(product: Product, lang: Lang, with_specs: bool = False) -> di
         block["specs"] = _specs(product, lang)
     image = PRODUCT_IMAGES.get(str(product.id))
     if image:
-        block["image"] = {"url": image["url"], "source": image["source"]}
+        block["image"] = {
+            "url": image["url"],
+            "source": image["source"],
+            "illustrative": image.get("illustrative", False),
+        }
     return block
 
 
