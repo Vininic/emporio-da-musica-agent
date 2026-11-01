@@ -1,0 +1,8 @@
+.venv
+.env
+.git
+data/runtime
+docs
+evals
+tests
+vault
