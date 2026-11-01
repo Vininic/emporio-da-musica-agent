@@ -37,3 +37,19 @@ Only what actually happened. Tool: Claude Code (desktop app). Newest last.
 **A printed "applied" that applied nothing.** A throwaway script meant to adjust recorded conversations printed success without writing a file. The assistant noticed on the next turn and re-recorded instead, since hand-edited recordings would be fake.
 
 **47/47 is not proof.** The same assistant wrote the cases and the code, and models vary between runs. Stage 5 exists for this reason.
+
+**The author rejected the interface twice before accepting a direction.** The first draft was generic. The second over-corrected by reusing his portfolio's scenery in a chat screen. He redirected the work to the chat products he had named from the start, with his palette and square borders as a subtle theme, and to what a company would expect to see. Rejected drafts were not committed, and from then on interface work went to him as screenshots before entering history.
+
+**The assistant gave two wrong causes for a head-shaking bug.** It blamed duplicate nodes, then rotation accumulating between clips, stating both as facts. Sampling the head's rotation frame by frame showed the real cause: the Idle clip's own head track swings by 0.7 rad. That track is now filtered out, and the samples stay constant.
+
+**The assistant recommended no key on the public site, and the author overruled it.** A visitor without a key would be turned away. The key stays on the server, never reaches the browser, and a per-address rate limit sits in front of it. See [003](decisions/003-providers.md).
+
+**The assistant claimed a fallback it had not tested.** OpenRouter was described as the automatic fallback from the start. Testing it for the public site showed the key returning 401, so the fallback had never run.
+
+**The author found the replies stilted.** Reading them showed why: section numbers in customer text, phrases copied from the prompt's examples, and call-center openings. The prompt was rewritten and citations moved to chips under the message.
+
+**English was added at the author's request, and his test found a gap.** Tools, blocks, manual and persona follow the conversation language. Tool arguments moved to English so the model sees one schema. He then reported that English did not really work. The backend did respond in English when asked to, but a customer writing English in a Portuguese session still got Portuguese. Each message now sets the language, by a small word-count check, and the interface follows.
+
+**A visual check caught wrong product images.** The image script requires brand and model in the result's title, and that rule still let through computer keyboards for "Teclado Sintetizador" and a mismatched guitar. A contact sheet of all 48 matches showed 7 wrong pictures. They were rejected, so those products show a category icon instead.
+
+**The independent review found what 55/55 did not.** A separate agent with no shared context sent 40 messages and read the code, producing 23 findings in [vault/reviews](reviews/2026-11-01-red-team.md). The worst: a customer imitating the internal check message got a false price past the guard, because the guard trusted values from customer messages. The attempt limit, described in the README as enforced in code, lived in a token the client could discard. Most findings were fixed the same day, some only partly, and each states which. The author rules on them.
