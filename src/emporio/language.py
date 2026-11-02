@@ -1,0 +1,98 @@
+import re
+
+from emporio.i18n import Lang
+
+WORDS: dict[Lang, set[str]] = {
+    "pt": {
+        "que",
+        "nao",
+        "voce",
+        "voces",
+        "tem",
+        "quanto",
+        "qual",
+        "quais",
+        "meu",
+        "minha",
+        "com",
+        "para",
+        "pra",
+        "uma",
+        "um",
+        "esta",
+        "estou",
+        "quero",
+        "posso",
+        "oi",
+        "ola",
+        "obrigado",
+        "obrigada",
+        "cade",
+        "onde",
+        "como",
+        "sim",
+        "custa",
+        "loja",
+        "pedido",
+        "vendem",
+        "comprei",
+        "telefone",
+        "gostaria",
+        "preciso",
+        "tudo",
+        "bom",
+        "boa",
+        "ate",
+        "mais",
+    },
+    "en": {
+        "the",
+        "you",
+        "your",
+        "does",
+        "have",
+        "has",
+        "how",
+        "much",
+        "what",
+        "which",
+        "where",
+        "when",
+        "is",
+        "are",
+        "can",
+        "could",
+        "my",
+        "i",
+        "want",
+        "need",
+        "for",
+        "with",
+        "of",
+        "hi",
+        "hello",
+        "thanks",
+        "please",
+        "store",
+        "order",
+        "there",
+        "would",
+        "this",
+        "it",
+        "and",
+        "phone",
+        "bought",
+        "sell",
+        "up",
+    },
+}
+ACCENTS = str.maketrans("áàâãéêíóôõúüç", "aaaaeeiooouuc")
+MINIMUM_HITS = 2
+
+
+def detect_language(message: str, current: Lang) -> Lang:
+    tokens = re.findall(r"[a-z]+", message.lower().translate(ACCENTS))
+    other: Lang = "en" if current == "pt" else "pt"
+    other_hits = sum(token in WORDS[other] for token in tokens)
+    current_hits = sum(token in WORDS[current] for token in tokens)
+    return other if other_hits >= MINIMUM_HITS and other_hits > current_hits else current

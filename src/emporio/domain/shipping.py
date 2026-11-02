@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 FREE_SHIPPING_ABOVE_CENTS = 50_000
@@ -22,7 +23,7 @@ class ShippingEstimate:
 def estimate(city: str, total_cents: int, category_id: int | None = None) -> ShippingEstimate:
     special = category_id in LARGE_INSTRUMENT_CATEGORIES
 
-    if city.strip().casefold() in METRO_CITIES:
+    if re.split(r"[-,/]", city)[0].strip().casefold() in METRO_CITIES:
         fee = METRO_FEE_CENTS if total_cents < FREE_SHIPPING_ABOVE_CENTS else 0
         return ShippingEstimate(
             region="metropolitana",

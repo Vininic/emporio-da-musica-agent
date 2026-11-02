@@ -3,22 +3,44 @@ from collections.abc import Iterable
 
 from emporio.domain.money import to_cents
 
-MONEY = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?")
-PERCENT = re.compile(r"(\d{1,3}(?:,\d+)?)\s?%")
+MONEY = re.compile(r"R\$\s?(\d[\d.,]{0,16}\d|\d)")
+PERCENT = re.compile(r"(\d{1,3}(?:[.,]\d+)?)\s?%")
 PHONE = re.compile(r"\(?\b\d{2}\)?[\s-]?\d{4,5}-\d{4}\b")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
-SECTION = re.compile(r"§\s?(\d+(?:\.\d+)?)")
+SECTION_REFERENCE = re.compile(r"§|\bse[cç][aã]o\s+\d|\bsection\s+\d", re.IGNORECASE)
 TICKET_CLAIM = re.compile(
-    r"\b(abri|abrindo|vou abrir|vamos abrir|deixe-me abrir|deixa eu abrir|registrei|vou registrar)\b"
-    r"[^.?!]{0,40}\b(chamado|solicitação|reclamação|cancelamento|ocorrência)\b",
+    r"\b(abri|abrindo|vou abrir|vamos abrir|deixe-me abrir|deixa eu abrir|registrei|vou registrar"
+    r"|opened|opening|i'll open|i will open|let me open|i've logged|i logged|i'll log)\b"
+    r"[^.?!]{0,40}\b(chamado|solicitação|reclamação|cancelamento|ocorrência"
+    r"|ticket|case|complaint|request|cancellation)\b"
+    r"|\b(chamado|ticket|case|request)\s+(foi\s+|was\s+|has been\s+|já está\s+)?"
+    r"(abert[oa]|registrad[oa]|opened|logged)\b"
+    r"|\b(encaminhei|repassei|avisei)\b[^.?!]{0,30}\bequipe\b"
+    r"|\b(forwarded|passed|sent)\b[^.?!]{0,30}\bteam\b"
+    r"|\bprotocolo\b[^.?!]{0,20}\d",
     re.IGNORECASE,
+)
+IMPOSSIBLE_ACTION = re.compile(
+    r"\b(cancelei|estornei|reembolsei|i cancell?ed|i refunded|refund (was )?processed)\b",
+    re.IGNORECASE,
+)
+DECIMALS = re.compile(r"[.,](\d{1,2})$")
+MONEY_IN_WORDS = re.compile(
+    r"(\d[\d.,]{0,16})\s+reais(?:\s+e\s+(\d{1,2})\s+centavos)?", re.IGNORECASE
 )
 
 
+def _to_cents(value: str) -> int:
+    decimals = DECIMALS.search(value)
+    whole = value[: decimals.start()] if decimals else value
+    cents = decimals[1].ljust(2, "0") if decimals else "00"
+    return to_cents(f"{re.sub(r'[.,]', '', whole)}.{cents}")
+
+
 def _money_values(text: str) -> set[int]:
-    return {
-        to_cents(f"{whole.replace('.', '')}.{cents or '0'}") for whole, cents in MONEY.findall(text)
-    }
+    written = {_to_cents(value) for value in MONEY.findall(text)}
+    spoken = {_to_cents(whole) + int(cents or 0) for whole, cents in MONEY_IN_WORDS.findall(text)}
+    return written | spoken
 
 
 def _percents(text: str) -> set[str]:
@@ -29,22 +51,41 @@ def _phones(text: str) -> set[str]:
     return {re.sub(r"\D", "", value) for value in PHONE.findall(text)}
 
 
-def unsupported_claims(answer: str, sources: Iterable[str], section_ids: set[str]) -> list[str]:
+def unsupported_claims(answer: str, sources: Iterable[str]) -> list[str]:
     source = "\n".join(sources)
     problems = []
 
     known_money = _money_values(source)
     problems += [
-        f"valor R$ {cents / 100:.2f}" for cents in _money_values(answer) if cents not in known_money
+        f"R$ {cents / 100:.2f}" for cents in _money_values(answer) if cents not in known_money
     ]
-    problems += [f"percentual {p}%" for p in _percents(answer) - _percents(source)]
-    problems += [f"telefone {p}" for p in _phones(answer) - _phones(source)]
+    problems += [f"{p}%" for p in _percents(answer) - _percents(source)]
+    problems += [f"phone {p}" for p in _phones(answer) - _phones(source)]
     problems += [f"e-mail {e}" for e in set(EMAIL.findall(answer)) - set(EMAIL.findall(source))]
-    problems += [f"seção §{s}" for s in set(SECTION.findall(answer)) - section_ids]
+    if SECTION_REFERENCE.search(answer):
+        problems.append("section number written in the answer; use [[fonte:x]]")
     return sorted(problems)
 
 
-def unbacked_actions(answer: str, tools_called: Iterable[str]) -> list[str]:
+def unbacked_actions(answer: str, tools_called: Iterable[str], message: str) -> list[str]:
+    if IMPOSSIBLE_ACTION.search(answer):
+        return [message]
     if TICKET_CLAIM.search(answer) and "open_ticket" not in tools_called:
-        return ["disse que abriu ou abriria um chamado sem chamar open_ticket"]
+        return [message]
     return []
+
+
+def customer_price_overrides_system(
+    answer: str, tool_sources: Iterable[str], blocks: Iterable[dict]
+) -> bool:
+    system_prices = set()
+    for block in blocks:
+        if block["type"] == "product" and block.get("price"):
+            system_prices.add(block["price"]["final"])
+        elif block["type"] == "quote":
+            system_prices.add(block["final"])
+    if not system_prices:
+        return False
+    stated = _money_values(answer)
+    from_customer = stated - _money_values("\n".join(tool_sources))
+    return bool(from_customer) and not stated & system_prices

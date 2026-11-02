@@ -6,13 +6,14 @@ import statistics
 import subprocess
 import time
 from dataclasses import replace
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import yaml
 
 from emporio.agent import strip_markers
 from emporio.config import TIMEZONE, Clock, provider_from_env
+from emporio.i18n import Lang, brl, format_date, text
 from emporio.journal import Journal
 from emporio.llm import OpenAICompatibleLLM
 from emporio.runtime import Runtime
@@ -23,21 +24,38 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_NOW = datetime(2026, 3, 25, 10, 30, tzinfo=TIMEZONE)
 PAUSE_BETWEEN_CASES = 1.0
 RATE_LIMIT_PATIENCE = 120.0
+MONEY_KEYS = {"list", "final", "pix", "each", "list_price", "fee"}
+ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def load_cases() -> list[dict]:
     return yaml.safe_load((ROOT / "cases.yaml").read_text(encoding="utf-8"))
 
 
-def _visible_text(answers: list[str], blocks: list[dict]) -> str:
-    combined = "\n".join(answers) + "\n" + json.dumps(blocks, ensure_ascii=False)
-    return normalize_text(combined)
+def _as_shown(value, lang: Lang, key: str = "", kind: str = ""):
+    if isinstance(value, dict):
+        inner = value.get("type", kind)
+        return {k: _as_shown(v, lang, k, inner) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_as_shown(item, lang, key, kind) for item in value]
+    if isinstance(value, str) and ISO_DATE.match(value):
+        return format_date(date.fromisoformat(value), lang)
+    if isinstance(value, int) and (
+        key in MONEY_KEYS or (key == "total" and kind != "product_list")
+    ):
+        return text(lang)["free"] if key == "fee" and value == 0 else brl(value, lang)
+    return value
+
+
+def _visible_text(answers: list[str], blocks: list[dict], lang: Lang = "pt") -> str:
+    shown = json.dumps(_as_shown(blocks, lang), ensure_ascii=False)
+    return normalize_text("\n".join(answers) + "\n" + shown)
 
 
 def check(case: dict, observed: dict) -> list[str]:
     failures = []
     called = observed["tools"]
-    text = _visible_text(observed["answers"], observed["blocks"])
+    visible = _visible_text(observed["answers"], observed["blocks"], case.get("lang", "pt"))
 
     failures += [f"tool not called: {tool}" for tool in case.get("tools", []) if tool not in called]
     failures += [f"forbidden tool: {tool}" for tool in case.get("forbidden", []) if tool in called]
@@ -45,12 +63,12 @@ def check(case: dict, observed: dict) -> list[str]:
         failures.append(f"none of the tools: {case['any_tools']}")
 
     for pattern in case.get("contains", []):
-        if not re.search(pattern, text):
+        if not re.search(pattern, visible):
             failures.append(f"missing: {pattern}")
-    if case.get("any") and not any(re.search(pattern, text) for pattern in case["any"]):
+    if case.get("any") and not any(re.search(pattern, visible) for pattern in case["any"]):
         failures.append(f"none of: {case['any']}")
     for pattern in case.get("absent", []):
-        if re.search(pattern, text):
+        if re.search(pattern, visible):
             failures.append(f"present: {pattern}")
 
     shown = {block["type"] for block in observed["blocks"]}
@@ -64,12 +82,12 @@ def check(case: dict, observed: dict) -> list[str]:
     return failures
 
 
-def run_case(case: dict, runtime_for, provider) -> dict:
+def run_case(case: dict, runtime_for, provider, effort: str | None = None) -> dict:
     now = case.get("now")
     clock = Clock(datetime.fromisoformat(now).replace(tzinfo=TIMEZONE) if now else DEFAULT_NOW)
     runtime = runtime_for(clock)
-    llm = OpenAICompatibleLLM(provider, patience=RATE_LIMIT_PATIENCE)
-    agent = runtime.agent(Session(case["id"]), provider, llm)
+    llm = OpenAICompatibleLLM(provider, patience=RATE_LIMIT_PATIENCE, effort=effort)
+    agent = runtime.agent(Session(case["id"]), provider, llm, case.get("lang", "pt"))
 
     observed = {"tools": [], "calls": [], "answers": [], "blocks": []}
     messages: list[dict] = []
@@ -92,6 +110,8 @@ def run_case(case: dict, runtime_for, provider) -> dict:
             elif kind == "replace":
                 answer = event["text"]
             elif kind == "tool_start":
+                if event["name"] == "lookup_order" and event["args"].get("phone") in (None, "•••"):
+                    continue
                 observed["tools"].append(event["name"])
                 observed["calls"].append((event["name"], event["args"]))
             elif kind == "block":
@@ -138,6 +158,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="Run on this model only, with no fallback")
     parser.add_argument("--case", action="append", help="Run only these case ids")
+    parser.add_argument("--effort", default="low", help="Reasoning effort, as the site defaults")
     parser.add_argument("--label", default="", help="Note for the history table")
     parser.add_argument("--no-save", action="store_true")
     args = parser.parse_args()
@@ -158,7 +179,7 @@ def main() -> None:
     cases = [c for c in load_cases() if not args.case or c["id"] in args.case]
     results = []
     for case in cases:
-        result = run_case(case, runtime_for, provider)
+        result = run_case(case, runtime_for, provider, args.effort)
         results.append(result)
         status = "PASS" if result["passed"] else "FAIL"
         print(f"{status}  {result['latency_s']:>6.1f}s  {case['id']}", flush=True)

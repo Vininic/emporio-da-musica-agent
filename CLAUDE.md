@@ -17,7 +17,7 @@ Prototype customer service agent for Empório da Música. Read `vault/Home.md` f
 
 ## Language
 
-English for code, commits and docs. Portuguese for everything a customer reads.
+English for code, commits and docs. Customers read Portuguese or English, their choice.
 
 ## Before committing
 

@@ -1,14 +1,18 @@
-export function newBotTurn(question) {
+export function newTurn(question, tokenBefore = null) {
   return {
     question,
+    tokenBefore,
+    tokenAfter: null,
+    time: Date.now(),
     parts: [],
     blocks: {},
     trace: [],
     activity: "thinking",
     guard: null,
-    corrected: false,
     model: null,
     done: false,
+    rating: null,
+    failed: false,
   };
 }
 
@@ -64,23 +68,30 @@ export function applyEvent(turn, event) {
       };
     case "guard":
       return { ...turn, guard: event.problems };
+    case "provider_error":
+      return { ...turn, failed: true };
     case "model":
       return { ...turn, model: event.name };
+    case "state":
+      return { ...turn, tokenAfter: event.token };
     case "done":
-      return {
-        ...turn,
-        activity: null,
-        done: true,
-        corrected: Boolean(event.corrected),
-        model: event.model ?? turn.model,
-      };
+      return { ...turn, activity: null, done: true, model: event.model ?? turn.model };
     default:
       return turn;
   }
 }
 
-export function turnsFromHistory(history) {
-  return history.map((entry) =>
-    entry.events.reduce(applyEvent, newBotTurn(entry.user)),
-  );
+export function plainText(turn) {
+  return turn.parts
+    .filter((part) => part.kind === "text")
+    .map((part) => part.text.trim())
+    .join("\n\n");
+}
+
+export function toMarkdown(conversation, labelYou) {
+  const lines = [`# ${conversation.title}`, ""];
+  for (const turn of conversation.turns) {
+    lines.push(`**${labelYou}:** ${turn.question}`, "", `**Amadeus:** ${plainText(turn)}`, "");
+  }
+  return lines.join("\n");
 }

@@ -116,8 +116,13 @@ class ToolCallCollector:
 
 class OpenAICompatibleLLM:
     def __init__(
-        self, provider: Provider, timeout: float = FIRST_BYTE_TIMEOUT, patience: float = 0
+        self,
+        provider: Provider,
+        timeout: float = FIRST_BYTE_TIMEOUT,
+        patience: float = 0,
+        effort: str | None = None,
     ):
+        self._effort = effort
         self._routes = [(self._client(provider, timeout), provider.chat_models)]
         if provider.fallback is not None:
             self._routes.append(
@@ -136,7 +141,7 @@ class OpenAICompatibleLLM:
         self, messages: list[dict], tools: list[dict]
     ) -> Iterator[TextDelta | ToolCalls | ModelUsed]:
         last_error: Exception | None = None
-        for client, models in self._routes:
+        for route, (client, models) in enumerate(self._routes):
             for model in models:
                 attempt = 0
                 waited_here = 0.0
@@ -149,9 +154,12 @@ class OpenAICompatibleLLM:
                             yield event
                         return
                     except Exception as error:
-                        last_error = error
                         if isinstance(error, APIStatusError) and error.status_code in (401, 403):
-                            raise LLMError("chave de API recusada", auth=True) from error
+                            if route == 0:
+                                raise LLMError("chave de API recusada", auth=True) from error
+                            log.warning("fallback key rejected: %s", _describe(error))
+                            break
+                        last_error = error
                         if emitted or not _is_retryable(error):
                             raise LLMError(_describe(error)) from error
                         log.warning("%s failed: %s", model, _describe(error))
@@ -175,6 +183,8 @@ class OpenAICompatibleLLM:
         arguments = {"model": model, "messages": messages, "stream": True, "temperature": 0.4}
         if tools:
             arguments["tools"] = tools
+        if self._effort:
+            arguments["reasoning_effort"] = self._effort
 
         collector = ToolCallCollector()
         announced = False

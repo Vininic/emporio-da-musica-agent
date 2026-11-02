@@ -1,0 +1,11 @@
+.venv
+.env
+.git
+data/runtime
+docs
+evals
+tests
+vault
+delivery
+scripts
+.env.local

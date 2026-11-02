@@ -2,30 +2,29 @@
 
 Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.
 
-Recorded 2026-10-31 19:56.
+Recorded 2026-11-01 19:06.
 
 **Cliente:** Me arrependi da minha compra, posso devolver meu pedido?
 
-**Amadeus:** Para verificar a devolução por arrependimento, preciso do número do pedido e do telefone cadastrado.
+**Amadeus:** Para eu ver como está a situação do seu pedido e te orientar, preciso que você me passe o número do pedido e o telefone que está no cadastro. Com isso, eu consigo checar o que dá para fazer.
 
 **Cliente:** Pedido 7, telefone (67) 99789-0123. Comprei pelo site.
 
-_Tools: lookup_order, check_return, search_policies_
+_Tools: lookup_order, check_return_
 
-**Amadeus:** O prazo para devolução por arrependimento é de 7 dias corridos após o recebimento, conforme a seção §4.1 das políticas da loja. Como a previsão de entrega foi em 17/02/2026, o prazo encerrou em 24/02/2026.
+**Amadeus:** Olhei aqui no sistema, Letícia. Pelo site, o prazo para desistir da compra por arrependimento é de 7 dias após o recebimento, e como a entrega foi prevista para 17/02, esse prazo encerrou no dia 24/02.
 
-> Block: return, order 7: nao_elegivel, §4.1, §4.4
-> Block: cited: §4.1 Direito de Arrependimento (Compras Online)
+Como já passou desse período, não consigo seguir com a devolução automática. Se você ainda quiser conversar sobre isso, posso abrir um chamado para a equipe avaliar, mas não consigo garantir nada por aqui. Quer que eu abra?
+
+> Block: order 7: delivered, R$ 159,90
+> Block: return, order 7: nao_elegivel, deadline 24/02/2026
 
 **Cliente:** Poxa. Mas recebi com um defeito, faz diferença?
 
-_Tools: check_return, search_policies_
+_Tools: check_return_
 
-**Amadeus:** Faz diferença. O prazo de troca imediata por defeito na loja é de 30 dias (§4.2), mas o produto está coberto pela garantia legal de 90 dias (§8.1), válida até 18/05/2026. A loja pode intermediar o processo com o fabricante. 
+**Amadeus:** Faz diferença, sim. Como passou dos 30 dias, a gente entra na garantia legal de 90 dias. A loja pode intermediar esse contato com o fabricante para resolver o problema do defeito.
 
+Quer que eu abra um chamado agora para a nossa equipe cuidar disso para você?
 
-
-Posso abrir um chamado para a equipe cuidar disso para você?
-
-> Block: return, order 7: garantia, §4.2, §8.1, §8.3
-> Block: cited: §4.2 Trocas por Defeito, §8.1 Garantia Legal
+> Block: return, order 7: garantia, deadline 18/05/2026

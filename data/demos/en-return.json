@@ -1,0 +1,243 @@
+{
+ "lang": "en",
+ "title": "Return past the window",
+ "summary": "Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.",
+ "recorded_at": "2026-11-01 19:07",
+ "turns": [
+  {
+   "user": "I regret my purchase, can I return my order?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "I can help you with that. To check the status of your return, I need the order number and the phone number you used when"
+    },
+    {
+     "type": "text",
+     "text": " you made the purchase."
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.1-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Order 7, phone (67) 99789-0123. I bought it on the website.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1153364",
+     "name": "lookup_order",
+     "args": {
+      "phone": "•••0123",
+      "order_number": 7
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "number": 7,
+      "order_date": "2026-02-03",
+      "status": "delivered",
+      "total": 15990,
+      "payment": "credit_3x",
+      "items": [
+       "1x Shelby SU-21S Soprano Sunburst"
+      ],
+      "tracking": "BRKR1122334BR",
+      "eta": "2026-02-17",
+      "note": null
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1153364",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_1438853",
+     "name": "check_return",
+     "args": {
+      "order_number": 7,
+      "reason": "regret",
+      "channel": "online"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "nao_elegivel",
+      "code": "regret_past_window",
+      "sections": [
+       "4.1",
+       "4.4"
+      ],
+      "deadline": "2026-02-24",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_1438853",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "I checked your order, but unfortunately, it's no longer eligible for a return due to regret. For"
+    },
+    {
+     "type": "text",
+     "text": " online purchases, you have 7 days after delivery to change your mind, and that window closed on February 24"
+    },
+    {
+     "type": "text",
+     "text": ", 2026. Since our system doesn't record the exact date of receipt, we count from the estimated delivery date"
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.1-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Oh. But it arrived with a defect, does that change anything?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_999307",
+     "name": "check_return",
+     "args": {
+      "reason": "defect",
+      "order_number": 7,
+      "channel": "online"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "garantia",
+      "code": "defect_legal_warranty",
+      "sections": [
+       "4.2",
+       "8.1",
+       "8.3"
+      ],
+      "deadline": "2026-05-18",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_999307",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b3"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.1-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "That is a different situation. Since it has a defect, you are outside the 30-day window for a"
+    },
+    {
+     "type": "text",
+     "text": " direct exchange, but you are still covered by the 90-day legal warranty. We can mediate this process with the manufacturer for you"
+    },
+    {
+     "type": "text",
+     "text": ".\n\nIf you would like me to start"
+    },
+    {
+     "type": "text",
+     "text": " this, I can open a ticket for our team to assist you with the warranty claim. Would you like me to do that"
+    },
+    {
+     "type": "text",
+     "text": "?"
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.1-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

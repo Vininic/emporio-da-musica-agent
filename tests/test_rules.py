@@ -137,3 +137,28 @@ def test_t24_defect_has_three_stages():
 
     manufacturer = assess(Reason.DEFECT, "delivered", TODAY, date(2025, 10, 15), date(2025, 10, 25))
     assert manufacturer.outcome is Outcome.MANUFACTURER
+
+
+def test_describe_opening_in_english():
+    now = datetime(2026, 3, 28, 14, 0)
+    assert hours.describe_opening(hours.next_opening(now), now, "en") == "Monday, Mar 30, at 09:00"
+
+
+def test_week_schedule_marks_today_and_sunday_closed():
+    rows = hours.week_schedule(datetime(2026, 3, 25, 10, 30), "en")
+    assert [row["day"] for row in rows if row["today"]] == ["Wednesday"]
+    assert rows[6]["opens"] is None
+    assert (rows[5]["opens"], rows[5]["closes"]) == ("09:00", "13:00")
+
+
+def test_next_holidays_include_movable_good_friday():
+    assert hours.next_holidays(datetime(2026, 3, 25, 10, 30)) == [
+        "2026-04-03",
+        "2026-04-21",
+        "2026-05-01",
+    ]
+
+
+@pytest.mark.parametrize("city", ["Campo Grande - MS", "Campo Grande/MS", "Campo Grande, MS"])
+def test_city_with_state_counts_as_metro(city):
+    assert shipping.estimate(city, 100_000).region == "metropolitana"

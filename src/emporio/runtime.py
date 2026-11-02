@@ -2,14 +2,17 @@ from pathlib import Path
 
 from emporio.agent import Agent
 from emporio.config import ROOT, Clock, Provider
+from emporio.i18n import LANGS, Lang
 from emporio.journal import Journal
 from emporio.llm import LLM, OpenAICompatibleLLM, build_embedder
 from emporio.policies import load_sections
 from emporio.retrieval import HybridIndex
 from emporio.store import Store
-from emporio.tools import Session, ToolContext, catalog_documents
+from emporio.tools import Session, ToolContext, VerificationAttempts, catalog_documents
 
+MAX_CACHED_INDEXES = 8
 UNSEARCHABLE = {"1.2"}
+MANUALS = {"pt": "policies.md", "en": "policies.en.md"}
 
 
 class Runtime:
@@ -22,35 +25,49 @@ class Runtime:
         self.clock = clock or Clock.from_env()
         self.journal = journal or Journal()
         self.store = Store(data_dir / "raw")
-        self.section_list = load_sections(data_dir / "policies.md")
-        self.sections = {section.id: section for section in self.section_list}
+        self.sections = {
+            lang: {s.id: s for s in load_sections(data_dir / MANUALS[lang])} for lang in LANGS
+        }
         self._index_dir = data_dir / "index"
         self._indexes: dict[str, tuple[HybridIndex, HybridIndex]] = {}
+        self._attempts = VerificationAttempts()
 
-    def indexes(self, provider: Provider | None) -> tuple[HybridIndex, HybridIndex]:
-        key = f"{provider.name}:{provider.api_key}" if provider else "keyword"
+    def indexes(
+        self, provider: Provider | None, lang: Lang = "pt"
+    ) -> tuple[HybridIndex, HybridIndex]:
+        key = f"{lang}:{provider.name}:{provider.api_key}" if provider else f"{lang}:keyword"
         if key not in self._indexes:
+            while len(self._indexes) >= MAX_CACHED_INDEXES:
+                self._indexes.pop(next(iter(self._indexes)))
             embedder = build_embedder(provider, self._index_dir) if provider else None
+            documents = [
+                section.as_document()
+                for section in self.sections[lang].values()
+                if section.id not in UNSEARCHABLE
+            ]
             self._indexes[key] = (
                 HybridIndex(catalog_documents(self.store), embedder),
-                HybridIndex(
-                    [s.as_document() for s in self.section_list if s.id not in UNSEARCHABLE],
-                    embedder,
-                ),
+                HybridIndex(documents, embedder),
             )
         return self._indexes[key]
 
-    def context(self, session: Session, provider: Provider | None) -> ToolContext:
-        catalog_index, policy_index = self.indexes(provider)
+    def context(
+        self, session: Session, provider: Provider | None, lang: Lang = "pt"
+    ) -> ToolContext:
+        catalog_index, policy_index = self.indexes(provider, lang)
         return ToolContext(
             store=self.store,
             catalog_index=catalog_index,
             policy_index=policy_index,
-            sections=self.sections,
+            sections=self.sections[lang],
             clock=self.clock,
             journal=self.journal,
             session=session,
+            lang=lang,
+            attempts=self._attempts,
         )
 
-    def agent(self, session: Session, provider: Provider, llm: LLM | None = None) -> Agent:
-        return Agent(llm or OpenAICompatibleLLM(provider), self.context(session, provider))
+    def agent(
+        self, session: Session, provider: Provider, llm: LLM | None = None, lang: Lang = "pt"
+    ) -> Agent:
+        return Agent(llm or OpenAICompatibleLLM(provider), self.context(session, provider, lang))
