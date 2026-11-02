@@ -2,7 +2,7 @@
  "lang": "pt",
  "title": "Pedido atrasado",
  "summary": "Order tracking without the phone is refused; with it, a late delivery opens a ticket.",
- "recorded_at": "2026-11-01 19:06",
+ "recorded_at": "2026-11-02 19:06",
  "turns": [
   {
    "user": "Cadê meu pedido 8?",
@@ -13,19 +13,44 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_258503",
+     "name": "lookup_order",
+     "args": {
+      "order_number": 8
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_258503",
+     "name": "lookup_order",
+     "ms": 2,
+     "ok": false,
+     "search": null,
+     "block": null
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "Para eu puxar os detalhes do seu pedido 8, preciso que você me informe"
+     "text": "Para"
     },
     {
      "type": "text",
-     "text": " o número de telefone que está no cadastro. Sem ele, não consigo acessar o sistema."
+     "text": " eu olhar como está a entrega, você me passa o telefone do cadastro, por favor?"
     },
     {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]
@@ -35,15 +60,15 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1349828",
+     "call": "call_151084",
      "name": "lookup_order",
      "args": {
-      "order_number": 8,
-      "phone": "•••7821"
+      "phone": "•••7821",
+      "order_number": 8
      }
     },
     {
@@ -67,7 +92,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1349828",
+     "call": "call_151084",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -80,15 +105,16 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1518781",
+     "call": "call_193298",
      "name": "open_ticket",
      "args": {
+      "summary": "Pedido 8 com atraso na entrega (previsão era 28/02/2026)",
       "kind": "complaint",
-      "summary": "Pedido 8 atrasado há 25 dias. Cliente Ana. Código de rastreio: BRJL5544332BR."
+      "contact": "•••7821"
      }
     },
     {
@@ -98,14 +124,14 @@
       "type": "ticket",
       "ticket": 1,
       "kind": "complaint",
-      "summary": "Pedido 8 atrasado há 25 dias. Cliente Ana. Código de rastreio: BRJL5544332BR."
+      "summary": "Pedido 8 com atraso na entrega (previsão era 28/02/2026)"
      }
     },
     {
      "type": "tool_end",
-     "call": "call_1518781",
+     "call": "call_193298",
      "name": "open_ticket",
-     "ms": 1,
+     "ms": 0,
      "ok": true,
      "search": null,
      "block": "b2"
@@ -116,35 +142,27 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "O seu pedido do ukulele Kala Concert, feito em 15/0"
+     "text": "Olhei"
     },
     {
      "type": "text",
-     "text": "2/2026, consta como enviado, mas infelizmente está atrasado há 25 dias. Pe"
+     "text": " seu pedido aqui, Ana. O ukulele Kala KA-C Concert Mogno já foi enviado, mas"
     },
     {
      "type": "text",
-     "text": "ço desculpas por isso, não é o tipo de ritmo que a gente gosta de tocar aqui.\n\nO código de rastre"
+     "text": " a previsão de entrega era para 28/02/2026 e ele acabou atrasando. \n\n"
     },
     {
      "type": "text",
-     "text": "io é BRJL5544332BR. Como o prazo de entrega já passou, abri um chamado para nossa"
-    },
-    {
-     "type": "text",
-     "text": " equipe verificar o que está acontecendo com essa entrega. Eles vão te dar um retorno em até 24 horas úteis.\n\n"
+     "text": "Abri um chamado para a equipe verificar o que aconteceu com a transportadora, e o retorno vem em até 24 horas úteis."
     },
     {
      "type": "block_ref",
      "id": "b1"
-    },
-    {
-     "type": "text",
-     "text": "\n"
     },
     {
      "type": "block_ref",
@@ -152,7 +170,7 @@
     },
     {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]
@@ -162,27 +180,68 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_142038",
+     "name": "open_ticket",
+     "args": {
+      "contact": "•••7821",
+      "kind": "complaint",
+      "summary": "Cobrança de urgência sobre o atraso da entrega do pedido 8"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "ticket",
+      "ticket": 2,
+      "kind": "complaint",
+      "summary": "Cobrança de urgência sobre o atraso da entrega do pedido 8"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_142038",
+     "name": "open_ticket",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b3"
+    },
+    {
+     "type": "gesture",
+     "name": "thumbs"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "Eu já abri o chamado logo que vimos esse atraso, então a equipe"
+     "text": "Eu"
     },
     {
      "type": "text",
-     "text": " já está com a bola da vez para verificar o que houve com o transporte. Como o prazo de resposta é de até 24 horas ú"
+     "text": " entendo perfeitamente, a ansiedade com um instrumento novo na estrada é grande"
     },
     {
      "type": "text",
-     "text": "teis, eles vão entrar em contato com você assim que tiverem uma posição concreta. Pode deixar que não vou te deixar na"
+     "text": ". Reforcei o chamado com a equipe para darem prioridade nisso, e o retorno vem em até 24 horas ú"
     },
     {
      "type": "text",
-     "text": " mão."
+     "text": "teis."
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
     },
     {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]

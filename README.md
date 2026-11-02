@@ -66,14 +66,16 @@ The model chooses tools and writes prose. It never computes a price, a date or a
 | 2 | 49/55 | After those fixes. Same code can vary between runs, since the model is not deterministic |
 | 3 | 55/55 | After prompt fixes, and after seven cases were adjusted: four rejected correct phrasing, two named one tool where the outcome is what matters, and one counted a call rejected for lacking a phone |
 | 4 | 51/57 on `gemini-3.1-flash-lite` | After the independent review added two cases. The default model had run out of daily quota, so this ran on the fallback, which is weaker: it asked for an order number instead of opening a complaint ticket, and stated there are no branches without a source. Two of its six failures were cases stricter than their purpose, since relaxed |
+| 5 | **55/57** | Final run before delivery, on the default model. Both failures are real: it said the Kalani KAL-700T splits into 3 installments when the tool allows 4, working the math out from the manual instead of using the tool's value, and it stated there is no branch in São Paulo without a source |
 
-Median time to first token was about 1.9 s, and a full turn about 2.1 s, excluding rate-limit waits. There are also 181 offline tests with no API key needed.
+In the final run, median time to first token was about 2.3 s and a full turn about 2.4 s, excluding rate-limit waits. There are also 181 offline tests with no API key needed.
 
 The same assistant wrote the cases and the code, so this score shows the agent does what its author checked, not that it is safe. [vault/reviews](vault/reviews) holds an independent attack by a separate agent, with the state of each finding. It found 23 problems that a perfect score had not, including a way to get a false price past the guard.
 
 ## Known limitations
 
 - **Lite model.** Facts hold because of tools and the guard, but the prose is less graceful than a larger model's, and behavior varies between runs: the same suite scored 49 and 55. It sometimes opens a ticket for a late order before the customer asks, as in one recorded conversation.
+- **Errors left in the recorded conversations.** They are kept as recorded. In `en-catalog` the agent says there are no steel-string guitars up to R$ 1000, which is false. In `pedido-atrasado` it says it reinforced the ticket without calling any tool, a wording the guard does not catch.
 - **Product images.** A script found them by web search and they were reviewed by eye. They are third-party thumbnails linked from the search engine's cache, fine for a prototype and not for production, where the store would use its own photos. 40 of 65 products have an exact match; the other 25 show a picture of the same type of instrument, tagged as illustrative.
 - **Store address.** The manual's street does not appear on OpenStreetMap, so the map shows the city center with no pin.
 - **Language detection.** It counts common words, so a short or mixed message keeps the current language.

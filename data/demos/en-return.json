@@ -2,7 +2,7 @@
  "lang": "en",
  "title": "Return past the window",
  "summary": "Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.",
- "recorded_at": "2026-11-01 19:07",
+ "recorded_at": "2026-11-02 19:07",
  "turns": [
   {
    "user": "I regret my purchase, can I return my order?",
@@ -13,19 +13,19 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "I can help you with that. To check the status of your return, I need the order number and the phone number you used when"
+     "text": "Let's see. Can you give me the order number and the"
     },
     {
      "type": "text",
-     "text": " you made the purchase."
+     "text": " phone on file?"
     },
     {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]
@@ -35,15 +35,15 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1153364",
+     "call": "call_249767",
      "name": "lookup_order",
      "args": {
-      "phone": "•••0123",
-      "order_number": 7
+      "order_number": 7,
+      "phone": "•••0123"
      }
     },
     {
@@ -66,7 +66,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1153364",
+     "call": "call_249767",
      "name": "lookup_order",
      "ms": 0,
      "ok": true,
@@ -79,11 +79,11 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_1438853",
+     "call": "call_225490",
      "name": "check_return",
      "args": {
       "order_number": 7,
@@ -110,7 +110,7 @@
     },
     {
      "type": "tool_end",
-     "call": "call_1438853",
+     "call": "call_225490",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -123,23 +123,64 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_319226",
+     "name": "search_policies",
+     "args": {
+      "query": "regret online 7 days"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_319226",
+     "name": "search_policies",
+     "ms": 779,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "4.1",
+        "score": 0.03279
+       },
+       {
+        "id": "4.3",
+        "score": 0.032
+       },
+       {
+        "id": "4.2",
+        "score": 0.03102
+       }
+      ]
+     },
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "I checked your order, but unfortunately, it's no longer eligible for a return due to regret. For"
+     "text": "I checked"
     },
     {
      "type": "text",
-     "text": " online purchases, you have 7 days after delivery to change your mind, and that window closed on February 24"
+     "text": " your order: for online purchases you have 7 calendar days after receiving the product to"
     },
     {
      "type": "text",
-     "text": ", 2026. Since our system doesn't record the exact date of receipt, we count from the estimated delivery date"
+     "text": " change your mind"
     },
     {
      "type": "text",
-     "text": "."
+     "text": ", and going by the estimated delivery of February 17, that deadline"
+    },
+    {
+     "type": "text",
+     "text": " ended on February 24. If it arrived on another date, tell me and I'll redo the math."
     },
     {
      "type": "block_ref",
@@ -150,8 +191,26 @@
      "id": "b2"
     },
     {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Right of Withdrawal (Online Purchases)",
+        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]
@@ -161,21 +220,21 @@
    "events": [
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "tool_start",
-     "call": "call_999307",
+     "call": "call_190403",
      "name": "check_return",
      "args": {
-      "reason": "defect",
+      "channel": "online",
       "order_number": 7,
-      "channel": "online"
+      "reason": "defect"
      }
     },
     {
      "type": "block",
-     "id": "b3",
+     "id": "b4",
      "block": {
       "type": "return",
       "order": 7,
@@ -193,12 +252,12 @@
     },
     {
      "type": "tool_end",
-     "call": "call_999307",
+     "call": "call_190403",
      "name": "check_return",
      "ms": 0,
      "ok": true,
      "search": null,
-     "block": "b3"
+     "block": "b4"
     },
     {
      "type": "gesture",
@@ -206,35 +265,107 @@
     },
     {
      "type": "model",
-     "name": "gemini-3.1-flash-lite"
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_146068",
+     "name": "search_policies",
+     "args": {
+      "query": "defect warranty 30 days manufacturer"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_146068",
+     "name": "search_policies",
+     "ms": 511,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "4.2",
+        "score": 0.03279
+       },
+       {
+        "id": "8.1",
+        "score": 0.032
+       },
+       {
+        "id": "8.2",
+        "score": 0.032
+       }
+      ]
+     },
+     "block": "b5"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": "That is a different situation. Since it has a defect, you are outside the 30-day window for a"
+     "text": "That"
     },
     {
      "type": "text",
-     "text": " direct exchange, but you are still covered by the 90-day legal warranty. We can mediate this process with the manufacturer for you"
+     "text": " does change things. Since it's past the 30-day store exchange window,"
     },
     {
      "type": "text",
-     "text": ".\n\nIf you would like me to start"
+     "text": " you have to claim the warranty directly with the manufacturer, but we can mediate the process for you"
     },
     {
      "type": "text",
-     "text": " this, I can open a ticket for our team to assist you with the warranty claim. Would you like me to do that"
+     "text": "."
     },
     {
      "type": "text",
-     "text": "?"
+     "text": " That warranty runs for 90 days from when you received it"
+    },
+    {
+     "type": "text",
+     "text": ", and based on the estimated delivery,"
+    },
+    {
+     "type": "text",
+     "text": " you're within that until May 18. Would you like me to open a ticket for our team to help with the"
+    },
+    {
+     "type": "text",
+     "text": " manufacturer?"
     },
     {
      "type": "block_ref",
-     "id": "b3"
+     "id": "b4"
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.2",
+        "title": "Exchanges for Defects",
+        "text": "Products with manufacturing defects may be exchanged within 30 (thirty) calendar days after purchase. After 30 days, the customer must claim the warranty directly with the manufacturer. Empório da Música may mediate the process on request. Damage caused by misuse, falls, excessive humidity or unauthorized modifications is not covered."
+       },
+       {
+        "id": "8.1",
+        "title": "Legal Warranty",
+        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b5"
     },
     {
      "type": "done",
-     "model": "gemini-3.1-flash-lite",
+     "model": "gemini-3.5-flash-lite",
      "corrected": false
     }
    ]
