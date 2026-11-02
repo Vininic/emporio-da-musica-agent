@@ -4,7 +4,7 @@ Customer service agent prototype for a fictional instrument store in Campo Grand
 
 Amadeus answers in Portuguese or English. It searches the catalog, quotes prices, checks orders after verifying identity, explains store policy, gives the store's hours and location, and opens tickets for the team.
 
-- Live: LIVE_URL
+- Live: https://emporio-da-musica.vercel.app
 - Example conversations: [docs/conversations](docs/conversations)
 - Why it is built this way: [vault/Home.md](vault/Home.md)
 

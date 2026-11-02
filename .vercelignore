@@ -8,3 +8,4 @@ tests
 vault
 delivery
 scripts
+.env.local

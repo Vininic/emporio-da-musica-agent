@@ -12,7 +12,7 @@ Deadline: Tuesday 2026-11-03, 23:59 São Paulo. See [005](decisions/005-delivery
 | 4 | Web chat | Streaming, inline blocks, trace panel and robot run in a browser, checked on desktop and phone width | Rebuilt after the author's review, in Portuguese and English; direction accepted, see [002](decisions/002-interface.md) |
 | 5 | Independent review | A separate agent attacks the running agent and reviews the code; the author rules on each finding; accepted ones become fixes and cases | 23 findings, all accepted by the author, fixes applied, see [review](reviews/2026-11-01-red-team.md) |
 | 6 | Conversations and README | 3 to 5 real recorded conversations; README covers setup, decisions, limitations, AI use | Done: 8 recorded, 5 Portuguese and 3 English |
-| 7 | Deploy | Public URL works with BYOK and with replay of recorded conversations | |
+| 7 | Deploy | Public URL works with BYOK and with replay of recorded conversations | Live at https://emporio-da-musica.vercel.app. Customer CSVs, source and `.env` confirmed 404. Waiting for the server key |
 | 8 | Delivery | English PDF ready for the author to submit; final eval run; language bar shows Python; repository frozen | |
 
 ## Author checkpoints
