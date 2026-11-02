@@ -9,7 +9,14 @@ OPENING = {
     5: (time(9), time(13)),
 }
 FIXED_HOLIDAYS = {(1, 1), (4, 21), (5, 1), (9, 7), (10, 12), (11, 2), (11, 15), (11, 20), (12, 25)}
-WEEKDAYS = ("segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo")
+WEEKDAYS = {
+    "pt": ("segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"),
+    "en": ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"),
+}
+OPENING_TEXT = {
+    "pt": {"today": "hoje", "tomorrow": "amanhã", "format": "{when}, {date}, às {time}"},
+    "en": {"today": "today", "tomorrow": "tomorrow", "format": "{when}, {date}, at {time}"},
+}
 
 
 def _easter(year: int) -> date:
@@ -41,6 +48,31 @@ def is_open(now: datetime) -> bool:
     return window is not None and window[0] <= now.time() < window[1]
 
 
+def week_schedule(now: datetime, lang: str = "pt") -> list[dict]:
+    rows = []
+    for weekday, name in enumerate(WEEKDAYS[lang]):
+        window = OPENING.get(weekday)
+        rows.append(
+            {
+                "day": name,
+                "opens": window[0].strftime("%H:%M") if window else None,
+                "closes": window[1].strftime("%H:%M") if window else None,
+                "today": weekday == now.weekday(),
+            }
+        )
+    return rows
+
+
+def next_holidays(now: datetime, count: int = 3) -> list[str]:
+    found = []
+    day = now.date()
+    while len(found) < count:
+        if is_holiday(day):
+            found.append(day.isoformat())
+        day += timedelta(days=1)
+    return found
+
+
 def next_opening(now: datetime) -> datetime:
     window = _window(now.date())
     if window is not None and now.time() < window[0]:
@@ -52,11 +84,17 @@ def next_opening(now: datetime) -> datetime:
     return datetime.combine(day, window[0], now.tzinfo)
 
 
-def describe_opening(moment: datetime, now: datetime) -> str:
+def weekday_name(moment: datetime, lang: str = "pt") -> str:
+    return WEEKDAYS[lang][moment.weekday()]
+
+
+def describe_opening(moment: datetime, now: datetime, lang: str = "pt") -> str:
+    words = OPENING_TEXT[lang]
     if moment.date() == now.date():
-        when = "hoje"
+        when = words["today"]
     elif moment.date() == now.date() + timedelta(days=1):
-        when = "amanhã"
+        when = words["tomorrow"]
     else:
-        when = WEEKDAYS[moment.weekday()]
-    return f"{when}, {moment.strftime('%d/%m')}, às {moment.strftime('%H:%M')}"
+        when = weekday_name(moment, lang)
+    day = moment.strftime("%d/%m" if lang == "pt" else "%b %d")
+    return words["format"].format(when=when, date=day, time=moment.strftime("%H:%M"))

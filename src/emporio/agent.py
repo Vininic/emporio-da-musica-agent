@@ -1,34 +1,29 @@
 import json
+import logging
 import re
 import time
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from emporio.domain import hours
-from emporio.guard import SECTION, unbacked_actions, unsupported_claims
+from emporio.guard import customer_price_overrides_system, unbacked_actions, unsupported_claims
+from emporio.i18n import AGENT_TEXT
 from emporio.llm import LLM, LLMError, ModelUsed, TextDelta, ToolCall, ToolCalls
 from emporio.prompt import system_prompt
 from emporio.tools import Session, ToolContext, run_tool, tool_schemas
 
+log = logging.getLogger(__name__)
+
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY_MESSAGES = 40
-MAX_MARKER_LENGTH = 24
-MARKER = re.compile(r"\[\[(bloco|gesto):([a-z0-9_]+)\]\]")
+MAX_MARKER_LENGTH = 80
+MARKER = re.compile(r"\[\[\s*([a-z]+\s*:[^\[\]]*?)\s*\]\]")
+MARKER_KINDS = {"block": "bloco", "source": "fonte", "gesture": "gesto"}
+ALWAYS_SHOWN = {"order", "return", "quote", "ticket"}
+CLOSING_PUNCTUATION = " .,;:!?)\n"
 GESTURES = {"wave", "yes", "no", "thumbs", "dance"}
-FALLBACK = (
-    "Não consegui confirmar essa informação no sistema e prefiro não chutar. "
-    "A equipe da loja resolve isso pelo telefone (67) 3341-4444."
-)
-PROVIDER_DOWN = (
-    "Estou sem acesso ao sistema neste momento. Tenta de novo em instantes, ou fala com a equipe "
-    "pelo telefone (67) 3341-4444."
-)
-CORRECTION = (
-    "[verificação interna, não é mensagem do cliente] Problemas na sua última resposta: {problems}. "
-    "Consulte a ferramenta certa, execute a ação ou retire a afirmação, e reescreva a resposta "
-    "inteira ao cliente sem mencionar esta verificação."
-)
-SENSITIVE_ARGS = {"telefone", "contato"}
+SENSITIVE_ARGS = {"phone", "contact"}
+FALLBACK = AGENT_TEXT["pt"]["fallback"]
 
 
 @dataclass
@@ -42,9 +37,35 @@ class Turn:
     sources: list[str] = field(default_factory=list)
 
 
+def _marker_items(body: str) -> Iterator[tuple[str, str]]:
+    kind = ""
+    for piece in body.split(","):
+        name, separator, value = piece.partition(":")
+        if separator:
+            kind = MARKER_KINDS.get(name.strip(), name.strip())
+        else:
+            value = name
+        if value.strip():
+            yield kind, value.strip()
+
+
+def _referenced(text: str, kind: str) -> list[str]:
+    return [
+        value
+        for body in MARKER.findall(text)
+        for found, value in _marker_items(body)
+        if found == kind
+    ]
+
+
 class MarkerFilter:
     def __init__(self):
         self._buffer = ""
+        self._space = False
+
+    def _spaced(self, text: str) -> str:
+        pending, self._space = self._space, False
+        return f" {text}" if pending and text[0] not in CLOSING_PUNCTUATION else text
 
     def feed(self, text: str) -> Iterator[tuple[str, str]]:
         self._buffer += text
@@ -53,15 +74,18 @@ class MarkerFilter:
             if match is None:
                 break
             before = self._buffer[: match.start()]
-            if before:
-                yield "text", before
-            yield match[1], match[2]
+            stripped = before.rstrip(" ")
+            if stripped:
+                yield "text", self._spaced(stripped)
+            self._space = self._space or stripped != before
+            yield from _marker_items(match[1])
             self._buffer = self._buffer[match.end() :]
 
         hold = self._partial_marker_start()
-        safe, self._buffer = self._buffer[:hold], self._buffer[hold:]
+        safe = self._buffer[:hold].rstrip(" ")
+        self._buffer = self._buffer[len(safe) :]
         if safe:
-            yield "text", safe
+            yield "text", self._spaced(safe)
 
     def _partial_marker_start(self) -> int:
         start = self._buffer.find("[[")
@@ -73,12 +97,12 @@ class MarkerFilter:
 
     def flush(self) -> Iterator[tuple[str, str]]:
         if self._buffer:
-            yield "text", self._buffer
+            yield "text", self._spaced(self._buffer)
             self._buffer = ""
 
 
 def strip_markers(text: str) -> str:
-    return MARKER.sub("", text).strip()
+    return re.sub(rf" *{MARKER.pattern}", "", text).strip()
 
 
 def _mask(arguments: dict) -> dict:
@@ -88,7 +112,7 @@ def _mask(arguments: dict) -> dict:
     }
 
 
-def _trim(messages: list[dict]) -> list[dict]:
+def trim_history(messages: list[dict]) -> list[dict]:
     if len(messages) <= MAX_HISTORY_MESSAGES:
         return messages
     trimmed = messages[-MAX_HISTORY_MESSAGES:]
@@ -97,18 +121,16 @@ def _trim(messages: list[dict]) -> list[dict]:
     return trimmed
 
 
-def _gesture_after_tool(name: str, data: dict) -> str | None:
+def _gesture_after_tool(name: str, data: dict, block: dict | None) -> str | None:
     if name == "lookup_order":
-        return "yes" if data.get("verificado") else "no"
+        return "yes" if data.get("verified") else "no"
     if name == "get_product":
-        if not data.get("encontrado"):
-            return "no"
-        return "yes" if data["produto"].get("situacao") == "disponível" else "no"
+        return "yes" if block and block.get("availability") == "disponivel" else "no"
     if name == "search_products":
         return "thumbs" if data.get("total") else "no"
     if name == "check_return":
-        return "yes" if data.get("resultado") == "elegivel" else "no"
-    if name == "open_ticket" and "chamado" in data:
+        return "yes" if data.get("outcome") == "elegivel" else "no"
+    if name == "open_ticket" and "ticket" in data:
         return "thumbs"
     return None
 
@@ -118,6 +140,7 @@ class Agent:
         self._llm = llm
         self._ctx = ctx
         self._tools = tool_schemas()
+        self._words = AGENT_TEXT[ctx.lang]
 
     @property
     def session(self) -> Session:
@@ -126,6 +149,9 @@ class Agent:
     def run(self, messages: list[dict], user_text: str) -> Iterator[dict]:
         first_turn = not messages
         messages.append({"role": "user", "content": user_text})
+        self._ctx.customer_text = " ".join(
+            m["content"] for m in messages if m["role"] == "user" and isinstance(m["content"], str)
+        )
         turn = Turn()
         now = self._ctx.clock.now()
 
@@ -139,7 +165,9 @@ class Agent:
                     "id": "closed",
                     "block": {
                         "type": "closed",
-                        "abre": hours.describe_opening(hours.next_opening(now), now),
+                        "opens": hours.describe_opening(
+                            hours.next_opening(now), now, self._ctx.lang
+                        ),
                     },
                 }
 
@@ -151,10 +179,16 @@ class Agent:
                 yield from self._correct(messages, turn, problems)
         except LLMError as error:
             yield {"type": "provider_error", "auth": error.auth, "detail": str(error)}
-            message = "A chave de API foi recusada." if error.auth else PROVIDER_DOWN
+            message = self._words["bad_key"] if error.auth else self._words["provider_down"]
             messages.pop() if messages and messages[-1]["role"] == "user" else None
             yield {"type": "replace", "text": message}
             yield {"type": "done", "model": None, "corrected": False}
+            return
+        except Exception:
+            log.exception("turn failed")
+            messages.pop() if messages and messages[-1]["role"] == "user" else None
+            yield {"type": "replace", "text": self._words["fallback"]}
+            yield {"type": "done", "model": turn.model, "corrected": False}
             return
 
         yield from self._append_unreferenced(turn)
@@ -163,21 +197,41 @@ class Agent:
     def _check(self, messages: list[dict], turn: Turn) -> list[str]:
         answer = strip_markers(turn.text)
         if not answer:
-            return ["resposta vazia"]
+            return [self._words["empty"]]
         sources = [
             json.dumps(m["content"], ensure_ascii=False)
             for m in messages
             if m["role"] in ("user", "tool") and m.get("content")
         ]
-        claims = unsupported_claims(answer, sources, set(self._ctx.sections.keys()))
-        return [*claims, *unbacked_actions(answer, turn.tools_called)]
+        tool_sources = [
+            json.dumps(m["content"], ensure_ascii=False)
+            for m in messages
+            if m["role"] == "tool" and m.get("content")
+        ]
+        claims = unsupported_claims(answer, sources)
+        if customer_price_overrides_system(answer, tool_sources, turn.blocks.values()):
+            claims.append(self._words["customer_price"])
+        backed = turn.tools_called
+        if self.session.tickets_opened:
+            backed = [*backed, "open_ticket"]
+        actions = unbacked_actions(answer, backed, self._words["ticket_claim"])
+        return [*claims, *actions]
+
+    def _fallback_text(self, turn: Turn) -> str:
+        for block in turn.blocks.values():
+            if block["type"] == "ticket":
+                return self._words["ticket_fallback"].format(ticket=block["ticket"])
+        return self._words["fallback"]
 
     def _correct(self, messages: list[dict], turn: Turn, problems: list[str]) -> Iterator[dict]:
         rejected = messages.pop()
         attempt = [
             *messages,
             rejected,
-            {"role": "user", "content": CORRECTION.format(problems=", ".join(problems))},
+            {
+                "role": "user",
+                "content": self._words["correction"].format(problems=", ".join(problems)),
+            },
         ]
         start = len(attempt)
         turn.text = ""
@@ -188,21 +242,21 @@ class Agent:
 
         added = attempt[start:]
         if turn.gave_up or not strip_markers(turn.text) or self._check(messages + added, turn):
-            turn.text = FALLBACK
-            messages.append({"role": "assistant", "content": FALLBACK})
+            turn.text = self._fallback_text(turn)
+            messages.append({"role": "assistant", "content": turn.text})
         else:
             messages.extend(added)
 
         yield {"type": "replace", "text": strip_markers(turn.text)}
-        for block_id in re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text):
+        for block_id in _referenced(turn.text, "bloco"):
             yield {"type": "block_ref", "id": block_id}
 
     def _respond(self, messages: list[dict], turn: Turn, stream: bool) -> Iterator[dict]:
-        system = {"role": "system", "content": system_prompt(self._ctx.clock.now())}
+        system = {"role": "system", "content": system_prompt(self._ctx.clock.now(), self._ctx.lang)}
         for _ in range(MAX_TOOL_ROUNDS):
             text, calls = "", ()
             marker_filter = MarkerFilter()
-            for event in self._llm.stream([system, *_trim(messages)], self._tools):
+            for event in self._llm.stream([system, *trim_history(messages)], self._tools):
                 if isinstance(event, ModelUsed):
                     turn.model = event.name
                     yield {"type": "model", "name": event.name}
@@ -220,16 +274,21 @@ class Agent:
                 messages.append({"role": "assistant", "content": text})
                 return
 
+            if text:
+                turn.text += f"{text}\n\n"
+                if stream:
+                    yield {"type": "text", "text": "\n\n"}
+
             assistant = {"role": "assistant", "content": text or None}
             assistant["tool_calls"] = [call.as_message() for call in calls]
             messages.append(assistant)
             for call in calls:
                 yield from self._run_call(messages, turn, call)
 
-        turn.text = FALLBACK
+        turn.text = self._words["fallback"]
         turn.gave_up = True
-        messages.append({"role": "assistant", "content": FALLBACK})
-        yield {"type": "replace", "text": FALLBACK}
+        messages.append({"role": "assistant", "content": turn.text})
+        yield {"type": "replace", "text": turn.text}
 
     def _marker_events(self, pieces: Iterator[tuple[str, str]]) -> Iterator[dict]:
         for kind, value in pieces:
@@ -245,22 +304,26 @@ class Agent:
             arguments = json.loads(call.arguments or "{}")
         except json.JSONDecodeError:
             arguments = {}
+        if not isinstance(arguments, dict):
+            arguments = {}
 
-        turn.tools_called.append(call.name)
         yield {"type": "tool_start", "call": call.id, "name": call.name, "args": _mask(arguments)}
         started = time.perf_counter()
         result = run_tool(self._ctx, call.name, arguments)
         elapsed = round((time.perf_counter() - started) * 1000)
+        if "error" not in result.data:
+            turn.tools_called.append(call.name)
 
         data = dict(result.data)
-        search_trace = data.pop("_busca", None)
+        search_trace = data.pop("_search", None)
         block_id = None
         if result.block is not None:
             block_id = f"b{self.session.next_block}"
             self.session.next_block += 1
-            data["bloco"] = block_id
+            data["block"] = block_id
             turn.blocks[block_id] = result.block
-            yield {"type": "block", "id": block_id, "block": result.block}
+            if result.block["type"] != "policy":
+                yield {"type": "block", "id": block_id, "block": result.block}
 
         content = json.dumps(data, ensure_ascii=False)
         messages.append({"role": "tool", "tool_call_id": call.id, "content": content})
@@ -270,24 +333,24 @@ class Agent:
             "call": call.id,
             "name": call.name,
             "ms": elapsed,
-            "ok": "erro" not in data,
+            "ok": "error" not in data,
             "search": search_trace,
             "block": block_id,
         }
-        gesture = _gesture_after_tool(call.name, data)
+        gesture = _gesture_after_tool(call.name, data, result.block)
         if gesture:
             yield {"type": "gesture", "name": gesture}
 
     def _append_unreferenced(self, turn: Turn) -> Iterator[dict]:
-        referenced = set(re.findall(r"\[\[bloco:([a-z0-9_]+)\]\]", turn.text))
+        referenced = set(_referenced(turn.text, "bloco"))
         for block_id, block in turn.blocks.items():
             if block["type"] == "policy":
                 yield from self._cited_sections(block_id, block, turn)
-            elif block_id not in referenced and not referenced:
+            elif block_id not in referenced and (not referenced or block["type"] in ALWAYS_SHOWN):
                 yield {"type": "block_ref", "id": block_id}
 
     def _cited_sections(self, block_id: str, block: dict, turn: Turn) -> Iterator[dict]:
-        cited = set(SECTION.findall(turn.text))
+        cited = set(_referenced(turn.text, "fonte"))
         sections = [section for section in block["sections"] if section["id"] in cited]
         if sections:
             yield {"type": "block", "id": block_id, "block": {**block, "sections": sections}}

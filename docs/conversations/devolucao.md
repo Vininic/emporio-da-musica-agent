@@ -2,30 +2,27 @@
 
 Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.
 
-Recorded 2026-10-31 19:56.
+Recorded 2026-11-02 19:06.
 
 **Cliente:** Me arrependi da minha compra, posso devolver meu pedido?
 
-**Amadeus:** Para verificar a devolução por arrependimento, preciso do número do pedido e do telefone cadastrado.
+**Amadeus:** Vamos ver. Me passa o número do pedido e o telefone do cadastro?
 
 **Cliente:** Pedido 7, telefone (67) 99789-0123. Comprei pelo site.
 
 _Tools: lookup_order, check_return, search_policies_
 
-**Amadeus:** O prazo para devolução por arrependimento é de 7 dias corridos após o recebimento, conforme a seção §4.1 das políticas da loja. Como a previsão de entrega foi em 17/02/2026, o prazo encerrou em 24/02/2026.
+**Amadeus:** Olhei seu pedido. Nas compras feitas pelo site você tem até 7 dias corridos após o recebimento para desistir da compra, e pela previsão de entrega isso encerrou em 24/02. Como passou desse prazo, não dá mais para aceitar a devolução por arrependimento.
 
-> Block: return, order 7: nao_elegivel, §4.1, §4.4
-> Block: cited: §4.1 Direito de Arrependimento (Compras Online)
+> Block: order 7: delivered, R$ 159,90
+> Block: return, order 7: nao_elegivel, deadline 24/02/2026
+> Block: cited: 4.1 Direito de Arrependimento (Compras Online)
 
 **Cliente:** Poxa. Mas recebi com um defeito, faz diferença?
 
 _Tools: check_return, search_policies_
 
-**Amadeus:** Faz diferença. O prazo de troca imediata por defeito na loja é de 30 dias (§4.2), mas o produto está coberto pela garantia legal de 90 dias (§8.1), válida até 18/05/2026. A loja pode intermediar o processo com o fabricante. 
+**Amadeus:** Faz diferença. Como o problema é defeito, entra na garantia legal de 90 dias a contar da data em que você recebeu, e o prazo vai até 18/05. Quer que eu abra um chamado para a equipe orientar sobre o atendimento?
 
-
-
-Posso abrir um chamado para a equipe cuidar disso para você?
-
-> Block: return, order 7: garantia, §4.2, §8.1, §8.3
-> Block: cited: §4.2 Trocas por Defeito, §8.1 Garantia Legal
+> Block: return, order 7: garantia, deadline 18/05/2026
+> Block: cited: 8.1 Garantia Legal

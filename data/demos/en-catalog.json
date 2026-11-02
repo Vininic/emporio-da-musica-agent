@@ -1,0 +1,323 @@
+{
+ "lang": "en",
+ "title": "Acoustic guitars up to R$ 1000",
+ "summary": "The catalog query in English: same data, English labels and prose.",
+ "recorded_at": "2026-11-02 19:07",
+ "turns": [
+  {
+   "user": "What acoustic guitars do you have for up to R$ 1000?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_160092",
+     "name": "search_products",
+     "args": {
+      "category": "violões",
+      "max_price": 1000,
+      "strings": "nylon"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "product_list",
+      "total": 5,
+      "items": [
+       {
+        "type": "product",
+        "id": 83,
+        "name": "Tagima Memphis AC-39 Nylon Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 15,
+        "price": {
+         "list": 42990,
+         "final": 42990,
+         "pix": 40840,
+         "pix_applies": true,
+         "count": 5,
+         "each": 8598,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts3.mm.bing.net/th?id=OIP.HvluKg8KckLXJy_NT2qG9AHaHa&pid=15.1&w=480&h=480",
+         "source": "https://shopee.com.br/Violão-clássico-Tagima-Memphis-AC-39-para-destros-preta-verniz-brilhante-i.489746259.22593695860",
+         "illustrative": true
+        }
+       },
+       {
+        "type": "product",
+        "id": 85,
+        "name": "Rozini RC-104 Nylon Estudante",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 10,
+        "price": {
+         "list": 45990,
+         "final": 45990,
+         "pix": 43690,
+         "pix_applies": true,
+         "count": 5,
+         "each": 9198,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.mm.bing.net/th?id=OIP.PxUP-2YS8qyE-KBAqwNZXQHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.magazineluiza.com.br/kit-violao-de-nylon-estudante-class-cl100-br-natural-classico-acustico-com-acessorios/p/ba31f4kf4f/im/isvi/",
+         "illustrative": true
+        }
+       },
+       {
+        "type": "product",
+        "id": 81,
+        "name": "Yamaha C40 Nylon Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 12,
+        "price": {
+         "list": 59990,
+         "final": 59990,
+         "pix": 56990,
+         "pix_applies": true,
+         "count": 6,
+         "each": 9998,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.explicit.bing.net/th?id=OIP.O41SxFYfIciLiRZ689j3LAAAAA&pid=15.1&w=480&h=480",
+         "source": "https://www.mercadolivre.com.br/violao-acustico-classico-nylon-yamaha-c40-mii-natural-c-bag/up/MLBU1372849065",
+         "illustrative": false
+        }
+       },
+       {
+        "type": "product",
+        "id": 84,
+        "name": "Giannini GN-15 Nylon Cedr Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 6,
+        "price": {
+         "list": 68900,
+         "final": 68900,
+         "pix": 65455,
+         "pix_applies": true,
+         "count": 6,
+         "each": 11483,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts4.explicit.bing.net/th?id=OIP.BSgEWV8vmqJZp39InjBe0gHaG4&pid=15.1&w=480&h=480",
+         "source": "https://produto.mercadolivre.com.br/MLB-1215077861-violo-nylon-giannini-gn15-natural-serie-estudo-_JM",
+         "illustrative": false
+        }
+       },
+       {
+        "type": "product",
+        "id": 82,
+        "name": "Yamaha C70 Nylon Natural",
+        "category_id": 5,
+        "category": "Acoustic guitars",
+        "availability": "disponivel",
+        "stock": 8,
+        "price": {
+         "list": 84900,
+         "final": 84900,
+         "pix": 80655,
+         "pix_applies": true,
+         "count": 8,
+         "each": 10613,
+         "promo_percent": null,
+         "promo_name": null
+        },
+        "image": {
+         "url": "https://ts2.mm.bing.net/th?id=OIP.kIIiqTHUoY-Y02h_GOBK0wHaHa&pid=15.1&w=480&h=480",
+         "source": "https://www.carneiromusic.com.br/cordas/violao/acusticos/violao-yamaha-c70-classico-nylon-acustico-natural",
+         "illustrative": false
+        }
+       }
+      ]
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_160092",
+     "name": "search_products",
+     "ms": 1,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "thumbs"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_363479",
+     "name": "search_products",
+     "args": {
+      "max_price": 1000,
+      "strings": "aço",
+      "category": "violões"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_363479",
+     "name": "search_products",
+     "ms": 1,
+     "ok": true,
+     "search": null,
+     "block": null
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "We"
+    },
+    {
+     "type": "text",
+     "text": " have a few nylon-string acoustic guitars under R$ 1000 right now,"
+    },
+    {
+     "type": "text",
+     "text": " from solid student models to reliable options like the Yamaha C40 for R$ 599.90. There are"
+    },
+    {
+     "type": "text",
+     "text": " no steel-string ones in this price range at the moment. \n\n"
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "I'm a beginner. Which one would you take, and can I pay in installments?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_293710",
+     "name": "search_policies",
+     "args": {
+      "query": "parcelamento"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_293710",
+     "name": "search_policies",
+     "ms": 743,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "3.1",
+        "score": 0.01639
+       },
+       {
+        "id": "3",
+        "score": 0.01613
+       },
+       {
+        "id": "5.2",
+        "score": 0.01587
+       }
+      ]
+     },
+     "block": "b2"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "For a"
+    },
+    {
+     "type": "text",
+     "text": " beginner, the Yamaha C40 is hard to beat for R$ 599."
+    },
+    {
+     "type": "text",
+     "text": "90. It holds its tuning well, which saves you a lot of frustration when you are starting out. \n\nYes, you can pay"
+    },
+    {
+     "type": "text",
+     "text": " in installments on credit cards with up to 12 interest-free installments, provided each installment is at least R$ 1"
+    },
+    {
+     "type": "text",
+     "text": "00.00, or up to 6 interest-free installments with a minimum installment of R$ 80.00"
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "3.1",
+        "title": "Installment Rules",
+        "text": "Up to 3 installments: interest free, no minimum installment (except below R$ 50.00). 4 to 6 installments: interest free, minimum installment of R$ 80.00. 7 to 12 installments: interest free, minimum installment of R$ 100.00. Combining payment methods: allowed (e.g. PIX + card) for purchases above R$ 2,000.00."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

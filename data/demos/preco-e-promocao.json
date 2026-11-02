@@ -1,7 +1,8 @@
 {
+ "lang": "pt",
  "title": "Preço e promoção vencida",
  "summary": "Price lookup, then a customer claiming an expired discount, then the store address.",
- "recorded_at": "2026-10-31 19:56",
+ "recorded_at": "2026-11-02 19:06",
  "turns": [
   {
    "user": "Quanto custa o Takamine GD20?",
@@ -16,10 +17,10 @@
     },
     {
      "type": "tool_start",
-     "call": "call_604311",
+     "call": "call_235810",
      "name": "get_product",
      "args": {
-      "nome": "Takamine GD20"
+      "name": "Takamine GD20"
      }
     },
     {
@@ -29,23 +30,41 @@
       "type": "product",
       "id": 95,
       "name": "Takamine GD20 Dreadnought Natural",
+      "category_id": 5,
       "category": "Violões",
       "availability": "disponivel",
-      "availability_label": "disponível",
+      "stock": 5,
       "price": {
-       "preco_tabela": "R$ 2.199,00",
-       "preco_final": "R$ 2.199,00",
-       "preco_pix": "R$ 2.089,05",
-       "desconto_pix_aplicado": true,
-       "parcelamento": "até 12x de R$ 183,25 sem juros"
+       "list": 219900,
+       "final": 219900,
+       "pix": 208905,
+       "pix_applies": true,
+       "count": 12,
+       "each": 18325,
+       "promo_percent": null,
+       "promo_name": null
+      },
+      "specs": {
+       "Tampo": "Cedro Sólido",
+       "Fundo e laterais": "Sapele",
+       "Braço": "Mogno",
+       "Cordas": "aço",
+       "Escala": "650mm",
+       "Eletrônica": "não",
+       "Cor": "Natural"
+      },
+      "image": {
+       "url": "https://ts2.explicit.bing.net/th?id=OIP.ggxIeaNQyNRuv8NPiq6lxQHaHa&pid=15.1&w=480&h=480",
+       "source": "https://www.gear4music.com/Guitar-and-Bass/Takamine-GD20-NS-Dreadnought-Acoustic-Natural/ULR",
+       "illustrative": false
       }
      }
     },
     {
      "type": "tool_end",
-     "call": "call_604311",
+     "call": "call_235810",
      "name": "get_product",
-     "ms": 1,
+     "ms": 2,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -60,19 +79,19 @@
     },
     {
      "type": "text",
-     "text": "O Tak"
+     "text": "O"
     },
     {
      "type": "text",
-     "text": "amine GD20 custa R$ 2.199,00,"
+     "text": " Takamine GD20 custa R$ 2.199,00"
     },
     {
      "type": "text",
-     "text": " podendo ser parcelado em até 12x de R$ 183,25 sem juros, ou R"
+     "text": ", podendo ser parcelado em até 12x de R$ 183,25 sem juros"
     },
     {
      "type": "text",
-     "text": "$ 2.089,05 no PIX.\n\n"
+     "text": ", ou R$ 2.089,05 no PIX.\n\n"
     },
     {
      "type": "block_ref",
@@ -80,15 +99,15 @@
     },
     {
      "type": "text",
-     "text": "\n\nÉ"
+     "text": "\n\n"
     },
     {
      "type": "text",
-     "text": " um dreadnought decente, com tampo em cedro sólido. Timbre honesto. Precisa de mais alguma coisa"
+     "text": "É um dreadnought com tampo sólido em cedro, aquele violão que já sai tocando com um timbre bem"
     },
     {
      "type": "text",
-     "text": "?"
+     "text": " quente e encorpado."
     },
     {
      "type": "done",
@@ -105,16 +124,145 @@
      "name": "gemini-3.5-flash-lite"
     },
     {
-     "type": "text",
-     "text": "A oferta"
+     "type": "tool_start",
+     "call": "call_201477",
+     "name": "get_product",
+     "args": {
+      "name": "Takamine GD20"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "product",
+      "id": 95,
+      "name": "Takamine GD20 Dreadnought Natural",
+      "category_id": 5,
+      "category": "Violões",
+      "availability": "disponivel",
+      "stock": 5,
+      "price": {
+       "list": 219900,
+       "final": 219900,
+       "pix": 208905,
+       "pix_applies": true,
+       "count": 12,
+       "each": 18325,
+       "promo_percent": null,
+       "promo_name": null
+      },
+      "specs": {
+       "Tampo": "Cedro Sólido",
+       "Fundo e laterais": "Sapele",
+       "Braço": "Mogno",
+       "Cordas": "aço",
+       "Escala": "650mm",
+       "Eletrônica": "não",
+       "Cor": "Natural"
+      },
+      "image": {
+       "url": "https://ts2.explicit.bing.net/th?id=OIP.ggxIeaNQyNRuv8NPiq6lxQHaHa&pid=15.1&w=480&h=480",
+       "source": "https://www.gear4music.com/Guitar-and-Bass/Takamine-GD20-NS-Dreadnought-Acoustic-Natural/ULR",
+       "illustrative": false
+      }
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_201477",
+     "name": "get_product",
+     "ms": 2,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_208117",
+     "name": "search_policies",
+     "args": {
+      "query": "promoção encerrada desconto expirado"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_208117",
+     "name": "search_policies",
+     "ms": 718,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "7.3",
+        "score": 0.03227
+       },
+       {
+        "id": "6.2",
+        "score": 0.03226
+       },
+       {
+        "id": "6.1",
+        "score": 0.03202
+       }
+      ]
+     },
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
      "type": "text",
-     "text": " com 12% de desconto encerrou. O preço vigente é o do sistema. "
+     "text": "Essa"
     },
     {
      "type": "text",
-     "text": "\n\nQuer fechar por esse valor ou prefere ver outro modelo?"
+     "text": " oferta especial de 12% já encerrou, o valor vigente no"
+    },
+    {
+     "type": "text",
+     "text": " sistema é R$ 2.199,00 mesmo"
+    },
+    {
+     "type": "text",
+     "text": ". Posso te"
+    },
+    {
+     "type": "text",
+     "text": " ajudar a fechar por esse preço atual ou prefere dar uma olhada em outro modelo?"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "7.3",
+        "title": "Situações Especiais",
+        "text": "Produto fora de estoque: informar que o produto está temporariamente indisponível e sugerir alternativas semelhantes que estejam disponíveis. Nunca confirmar disponibilidade sem verificar o estoque atual. Produto descontinuado: informar que o produto não faz mais parte do catálogo e oferecer modelos equivalentes ou sucessores. Promoção expirada: caso o cliente pergunte sobre uma promoção, verificar se ela encontra-se ativa no sistema. Se a promoção estiver vencida, informar com transparência e apresentar o preço atual. Nunca prometer um desconto que não está mais vigente. Reclamação: ouvir o cliente com empatia, registrar a reclamação e encaminhar para o responsável. Prazo de retorno: 24 horas úteis."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
     },
     {
      "type": "done",
@@ -132,32 +280,85 @@
     },
     {
      "type": "tool_start",
-     "call": "call_469639",
+     "call": "call_192482",
      "name": "store_info",
      "args": {}
     },
     {
      "type": "block",
-     "id": "b2",
+     "id": "b4",
      "block": {
       "type": "store",
-      "nome": "Empório da Música",
-      "endereco": "Rua 14 de Maio, 3200, Centro, Campo Grande - MS, CEP 79202-333",
-      "telefone": "(67) 3341-4444",
+      "name": "Empório da Música",
+      "address": "Rua 14 de Maio, 3200, Centro, Campo Grande - MS, 79202-333",
+      "phone": "(67) 3341-4444",
       "email": "contato@emporiodamusica.com.br",
-      "fundacao": "2008",
-      "horarios": "Segunda a sexta, 09:00 às 18:00. Sábado, 09:00 às 13:00. Domingo e feriados, fechado.",
-      "aberta_agora": true
+      "founded": "2008",
+      "hours": "Segunda a sexta, 09:00 às 18:00. Sábado, 09:00 às 13:00. Domingo e feriados, fechado.",
+      "open_now": true,
+      "schedule": [
+       {
+        "day": "segunda",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "terça",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "quarta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": true
+       },
+       {
+        "day": "quinta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "sexta",
+        "opens": "09:00",
+        "closes": "18:00",
+        "today": false
+       },
+       {
+        "day": "sábado",
+        "opens": "09:00",
+        "closes": "13:00",
+        "today": false
+       },
+       {
+        "day": "domingo",
+        "opens": null,
+        "closes": null,
+        "today": false
+       }
+      ],
+      "holidays": [
+       "2026-04-03",
+       "2026-04-21",
+       "2026-05-01"
+      ],
+      "map": {
+       "lat": -20.464,
+       "lon": -54.6163
+      }
      }
     },
     {
      "type": "tool_end",
-     "call": "call_469639",
+     "call": "call_192482",
      "name": "store_info",
      "ms": 0,
      "ok": true,
      "search": null,
-     "block": "b2"
+     "block": "b4"
     },
     {
      "type": "model",
@@ -169,15 +370,23 @@
     },
     {
      "type": "text",
-     "text": " na Rua 14 de Maio, 3200, Centro, em"
+     "text": " na Rua 14 de Maio, 3200, no Centro de"
     },
     {
      "type": "text",
-     "text": " Campo Grande.\n\n"
+     "text": " Campo Grande. Como agora é quarta-feira às 10:30, estamos com as portas abertas até"
+    },
+    {
+     "type": "text",
+     "text": " as 18:00, se quiser vir conferir os instrumentos de perto"
+    },
+    {
+     "type": "text",
+     "text": "."
     },
     {
      "type": "block_ref",
-     "id": "b2"
+     "id": "b4"
     },
     {
      "type": "done",

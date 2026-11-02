@@ -2,26 +2,29 @@
 
 Order tracking without the phone is refused; with it, a late delivery opens a ticket.
 
-Recorded 2026-10-31 19:57.
+Recorded 2026-11-02 19:06.
 
 **Cliente:** Cadê meu pedido 8?
 
-**Amadeus:** Para consultar o pedido 8, preciso que você informe também o telefone cadastrado na compra.
+_Tools: lookup_order_
+
+**Amadeus:** Para eu olhar como está a entrega, você me passa o telefone do cadastro, por favor?
 
 **Cliente:** (67) 99654-7821
 
 _Tools: lookup_order, open_ticket_
 
-**Amadeus:** O pedido 8 está com atraso na entrega.
+**Amadeus:** Olhei seu pedido aqui, Ana. O ukulele Kala KA-C Concert Mogno já foi enviado, mas a previsão de entrega era para 28/02/2026 e ele acabou atrasando. 
 
+Abri um chamado para a equipe verificar o que aconteceu com a transportadora, e o retorno vem em até 24 horas úteis.
 
-
-Abri um chamado para verificarmos o ocorrido. Retornaremos em até 24 horas úteis.
-
-> Block: order 8: enviado, R$ 349,90
-> Block: order 8: enviado, R$ 349,90
-> Block: ticket 1: reclamacao, return em até 24 horas úteis
+> Block: order 8: shipped, R$ 349,90
+> Block: ticket 1: complaint
 
 **Cliente:** Já era pra ter chegado. Podem ver isso pra mim?
 
-**Amadeus:** O chamado já foi aberto com os dados do pedido 8 e nossa equipe vai verificar o que aconteceu. O retorno será em até 24 horas úteis.
+_Tools: open_ticket_
+
+**Amadeus:** Eu entendo perfeitamente, a ansiedade com um instrumento novo na estrada é grande. Reforcei o chamado com a equipe para darem prioridade nisso, e o retorno vem em até 24 horas úteis.
+
+> Block: ticket 2: complaint

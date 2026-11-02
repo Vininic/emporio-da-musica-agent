@@ -1,0 +1,374 @@
+{
+ "lang": "en",
+ "title": "Return past the window",
+ "summary": "Non-trivial, in English: identity check, sales channel, a return window computed from the order, answered from the English manual.",
+ "recorded_at": "2026-11-02 19:07",
+ "turns": [
+  {
+   "user": "I regret my purchase, can I return my order?",
+   "events": [
+    {
+     "type": "gesture",
+     "name": "wave"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "Let's see. Can you give me the order number and the"
+    },
+    {
+     "type": "text",
+     "text": " phone on file?"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Order 7, phone (67) 99789-0123. I bought it on the website.",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_249767",
+     "name": "lookup_order",
+     "args": {
+      "order_number": 7,
+      "phone": "•••0123"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b1",
+     "block": {
+      "type": "order",
+      "number": 7,
+      "order_date": "2026-02-03",
+      "status": "delivered",
+      "total": 15990,
+      "payment": "credit_3x",
+      "items": [
+       "1x Shelby SU-21S Soprano Sunburst"
+      ],
+      "tracking": "BRKR1122334BR",
+      "eta": "2026-02-17",
+      "note": null
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_249767",
+     "name": "lookup_order",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b1"
+    },
+    {
+     "type": "gesture",
+     "name": "yes"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_225490",
+     "name": "check_return",
+     "args": {
+      "order_number": 7,
+      "reason": "regret",
+      "channel": "online"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b2",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "nao_elegivel",
+      "code": "regret_past_window",
+      "sections": [
+       "4.1",
+       "4.4"
+      ],
+      "deadline": "2026-02-24",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_225490",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b2"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_319226",
+     "name": "search_policies",
+     "args": {
+      "query": "regret online 7 days"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_319226",
+     "name": "search_policies",
+     "ms": 779,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "4.1",
+        "score": 0.03279
+       },
+       {
+        "id": "4.3",
+        "score": 0.032
+       },
+       {
+        "id": "4.2",
+        "score": 0.03102
+       }
+      ]
+     },
+     "block": "b3"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "I checked"
+    },
+    {
+     "type": "text",
+     "text": " your order: for online purchases you have 7 calendar days after receiving the product to"
+    },
+    {
+     "type": "text",
+     "text": " change your mind"
+    },
+    {
+     "type": "text",
+     "text": ", and going by the estimated delivery of February 17, that deadline"
+    },
+    {
+     "type": "text",
+     "text": " ended on February 24. If it arrived on another date, tell me and I'll redo the math."
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
+    },
+    {
+     "type": "block_ref",
+     "id": "b2"
+    },
+    {
+     "type": "block",
+     "id": "b3",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.1",
+        "title": "Right of Withdrawal (Online Purchases)",
+        "text": "The customer may request a return within 7 (seven) calendar days after receiving the product, with no need for justification. The product must be in its original packaging, with no signs of use, with all accessories and manuals. The refund is made through the original payment method within 10 business days. Return shipping is paid by the store in the case of withdrawal."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b3"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  },
+  {
+   "user": "Oh. But it arrived with a defect, does that change anything?",
+   "events": [
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_190403",
+     "name": "check_return",
+     "args": {
+      "channel": "online",
+      "order_number": 7,
+      "reason": "defect"
+     }
+    },
+    {
+     "type": "block",
+     "id": "b4",
+     "block": {
+      "type": "return",
+      "order": 7,
+      "outcome": "garantia",
+      "code": "defect_legal_warranty",
+      "sections": [
+       "4.2",
+       "8.1",
+       "8.3"
+      ],
+      "deadline": "2026-05-18",
+      "days_passed": 36,
+      "estimated": true
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_190403",
+     "name": "check_return",
+     "ms": 0,
+     "ok": true,
+     "search": null,
+     "block": "b4"
+    },
+    {
+     "type": "gesture",
+     "name": "no"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "tool_start",
+     "call": "call_146068",
+     "name": "search_policies",
+     "args": {
+      "query": "defect warranty 30 days manufacturer"
+     }
+    },
+    {
+     "type": "tool_end",
+     "call": "call_146068",
+     "name": "search_policies",
+     "ms": 511,
+     "ok": true,
+     "search": {
+      "mode": "hybrid",
+      "top": [
+       {
+        "id": "4.2",
+        "score": 0.03279
+       },
+       {
+        "id": "8.1",
+        "score": 0.032
+       },
+       {
+        "id": "8.2",
+        "score": 0.032
+       }
+      ]
+     },
+     "block": "b5"
+    },
+    {
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
+    },
+    {
+     "type": "text",
+     "text": "That"
+    },
+    {
+     "type": "text",
+     "text": " does change things. Since it's past the 30-day store exchange window,"
+    },
+    {
+     "type": "text",
+     "text": " you have to claim the warranty directly with the manufacturer, but we can mediate the process for you"
+    },
+    {
+     "type": "text",
+     "text": "."
+    },
+    {
+     "type": "text",
+     "text": " That warranty runs for 90 days from when you received it"
+    },
+    {
+     "type": "text",
+     "text": ", and based on the estimated delivery,"
+    },
+    {
+     "type": "text",
+     "text": " you're within that until May 18. Would you like me to open a ticket for our team to help with the"
+    },
+    {
+     "type": "text",
+     "text": " manufacturer?"
+    },
+    {
+     "type": "block_ref",
+     "id": "b4"
+    },
+    {
+     "type": "block",
+     "id": "b5",
+     "block": {
+      "type": "policy",
+      "sections": [
+       {
+        "id": "4.2",
+        "title": "Exchanges for Defects",
+        "text": "Products with manufacturing defects may be exchanged within 30 (thirty) calendar days after purchase. After 30 days, the customer must claim the warranty directly with the manufacturer. Empório da Música may mediate the process on request. Damage caused by misuse, falls, excessive humidity or unauthorized modifications is not covered."
+       },
+       {
+        "id": "8.1",
+        "title": "Legal Warranty",
+        "text": "Under the Consumer Protection Code, all products have a legal warranty of 90 (ninety) days against manufacturing defects, counted from the date the customer receives them."
+       }
+      ]
+     }
+    },
+    {
+     "type": "block_ref",
+     "id": "b5"
+    },
+    {
+     "type": "done",
+     "model": "gemini-3.5-flash-lite",
+     "corrected": false
+    }
+   ]
+  }
+ ]
+}

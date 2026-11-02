@@ -18,4 +18,5 @@ Do both. The PDF carries the repository link and a one-page summary. The author 
 The e-mail requires English. The brief is in Portuguese and customers of a store in Campo Grande speak Portuguese.
 
 - English: README, this vault, commits, code, PDF.
-- Portuguese: everything the customer reads, and the example conversations. Direct quotes stay in the original.
+- Customers choose Portuguese or English. The default follows the browser. Example conversations are recorded in both.
+- Direct quotes stay in the original.

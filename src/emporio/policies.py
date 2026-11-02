@@ -12,7 +12,7 @@ class Section:
     text: str
 
     def as_document(self) -> Document:
-        return Document(self.id, f"§{self.id} {self.title}", self.text)
+        return Document(self.id, f"{self.id} {self.title}", self.text)
 
 
 def load_sections(path: Path) -> list[Section]:

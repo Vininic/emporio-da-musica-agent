@@ -111,8 +111,11 @@ class Embedder:
             return np.load(path)
 
         vectors = self.embed_documents([f"title: {d.title} | text: {d.text}" for d in documents])
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        np.save(path, vectors)
+        try:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            np.save(path, vectors)
+        except OSError as error:
+            log.warning("could not cache embeddings: %s", error)
         return vectors
 
 

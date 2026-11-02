@@ -6,3 +6,8 @@ __pycache__/
 .ruff_cache/
 vault/.obsidian/workspace*
 data/runtime/
+delivery/
+
+.vercel
+.env*
+!.env.example

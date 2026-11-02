@@ -1,7 +1,8 @@
 {
+ "lang": "pt",
  "title": "Devolução fora do prazo",
  "summary": "Non-trivial: identity check, sales channel, a return window computed from the order, and a ticket for what the manual does not settle.",
- "recorded_at": "2026-10-31 19:56",
+ "recorded_at": "2026-11-02 19:06",
  "turns": [
   {
    "user": "Me arrependi da minha compra, posso devolver meu pedido?",
@@ -16,15 +17,11 @@
     },
     {
      "type": "text",
-     "text": "Para verificar"
+     "text": "Vamos ver. Me passa o número do pedido e o"
     },
     {
      "type": "text",
-     "text": " a devolução por arrependimento, preciso do número do pedido e do telefone cadast"
-    },
-    {
-     "type": "text",
-     "text": "rado."
+     "text": " telefone do cadastro?"
     },
     {
      "type": "done",
@@ -42,11 +39,11 @@
     },
     {
      "type": "tool_start",
-     "call": "call_593913",
+     "call": "call_220915",
      "name": "lookup_order",
      "args": {
-      "telefone": "•••0123",
-      "numero_pedido": 7
+      "phone": "•••0123",
+      "order_number": 7
      }
     },
     {
@@ -54,25 +51,24 @@
      "id": "b1",
      "block": {
       "type": "order",
-      "numero": 7,
-      "cliente": "Letícia",
-      "data_pedido": "03/02/2026",
-      "situacao": "entregue",
-      "total": "R$ 159,90",
-      "pagamento": "cartão de crédito em 3x",
-      "itens": [
+      "number": 7,
+      "order_date": "2026-02-03",
+      "status": "delivered",
+      "total": 15990,
+      "payment": "credit_3x",
+      "items": [
        "1x Shelby SU-21S Soprano Sunburst"
       ],
-      "rastreamento": "BRKR1122334BR",
-      "previsao_entrega": "17/02/2026",
-      "status": "delivered"
+      "tracking": "BRKR1122334BR",
+      "eta": "2026-02-17",
+      "note": null
      }
     },
     {
      "type": "tool_end",
-     "call": "call_593913",
+     "call": "call_220915",
      "name": "lookup_order",
-     "ms": 0,
+     "ms": 1,
      "ok": true,
      "search": null,
      "block": "b1"
@@ -87,12 +83,13 @@
     },
     {
      "type": "tool_start",
-     "call": "call_651939",
+     "call": "call_107545",
      "name": "check_return",
      "args": {
-      "motivo": "arrependimento",
-      "canal": "online",
-      "numero_pedido": 7
+      "received_on": "2026-02-17",
+      "reason": "regret",
+      "order_number": 7,
+      "channel": "online"
      }
     },
     {
@@ -100,22 +97,21 @@
      "id": "b2",
      "block": {
       "type": "return",
-      "pedido": 7,
-      "resultado": "nao_elegivel",
-      "orientacao": "Fora do prazo de 7 dias do direito de arrependimento (§4.1).",
-      "secoes": [
-       "§4.1",
-       "§4.4"
+      "order": 7,
+      "outcome": "nao_elegivel",
+      "code": "regret_past_window",
+      "sections": [
+       "4.1",
+       "4.4"
       ],
-      "codigo": "regret_past_window",
-      "prazo_ate": "24/02/2026",
-      "dias_passados": 36,
-      "data_base": "previsão de entrega do pedido, pois o sistema não registra o recebimento"
+      "deadline": "2026-02-24",
+      "days_passed": 36,
+      "estimated": false
      }
     },
     {
      "type": "tool_end",
-     "call": "call_651939",
+     "call": "call_107545",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -127,42 +123,25 @@
      "name": "no"
     },
     {
-     "type": "tool_start",
-     "call": "call_651942",
-     "name": "search_policies",
-     "args": {
-      "consulta": "prazo arrependimento devolução internet"
-     }
+     "type": "model",
+     "name": "gemini-3.5-flash-lite"
     },
     {
-     "type": "block",
-     "id": "b3",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.1",
-        "title": "Direito de Arrependimento (Compras Online)"
-       },
-       {
-        "id": "4",
-        "title": "Política de Trocas e Devoluções"
-       },
-       {
-        "id": "8.2",
-        "title": "Garantia do Fabricante"
-       }
-      ]
+     "type": "tool_start",
+     "call": "call_207248",
+     "name": "search_policies",
+     "args": {
+      "query": "troca arrependimento prazo online 4.1"
      }
     },
     {
      "type": "tool_end",
-     "call": "call_651942",
+     "call": "call_207248",
      "name": "search_policies",
-     "ms": 514,
+     "ms": 2020,
      "ok": true,
      "search": {
-      "modo": "híbrido",
+      "mode": "hybrid",
       "top": [
        {
         "id": "4.1",
@@ -173,8 +152,8 @@
         "score": 0.03175
        },
        {
-        "id": "8.2",
-        "score": 0.03102
+        "id": "4.3",
+        "score": 0.03175
        }
       ]
      },
@@ -186,19 +165,23 @@
     },
     {
      "type": "text",
-     "text": "O prazo"
+     "text": "Olhei"
     },
     {
      "type": "text",
-     "text": " para devolução por arrependimento é de 7 dias corridos após o recebimento, conforme"
+     "text": " seu pedido. Nas compras feitas pelo site você tem até 7 dias corridos após o"
     },
     {
      "type": "text",
-     "text": " a seção §4.1 das políticas da loja. Como a previsão de entrega foi em 17/02"
+     "text": " recebimento para desistir da compra, e pela previsão de entrega isso encerrou em 24/02"
     },
     {
      "type": "text",
-     "text": "/2026, o prazo encerrou em 24/02/2026. \n\n"
+     "text": ". Como passou desse prazo, não dá mais para aceitar a devolução por arrependimento."
+    },
+    {
+     "type": "block_ref",
+     "id": "b1"
     },
     {
      "type": "block_ref",
@@ -212,7 +195,8 @@
       "sections": [
        {
         "id": "4.1",
-        "title": "Direito de Arrependimento (Compras Online)"
+        "title": "Direito de Arrependimento (Compras Online)",
+        "text": "O cliente pode solicitar a devolução em até 7 (sete) dias corridos após o recebimento do produto, sem necessidade de justificativa. O produto deve estar em sua embalagem original, sem sinais de uso, com todos os acessórios e manuais. O reembolso será realizado na mesma forma de pagamento original em até 10 dias úteis. O frete de devolução é por conta da loja em caso de arrependimento."
        }
       ]
      }
@@ -237,12 +221,13 @@
     },
     {
      "type": "tool_start",
-     "call": "call_351451",
+     "call": "call_308832",
      "name": "check_return",
      "args": {
-      "numero_pedido": 7,
-      "motivo": "defeito",
-      "canal": "online"
+      "channel": "online",
+      "reason": "defect",
+      "received_on": "2026-02-17",
+      "order_number": 7
      }
     },
     {
@@ -250,23 +235,22 @@
      "id": "b4",
      "block": {
       "type": "return",
-      "pedido": 7,
-      "resultado": "garantia",
-      "orientacao": "Passou dos 30 dias de troca, mas está na garantia legal de 90 dias (§8.1). A loja pode intermediar com o fabricante.",
-      "secoes": [
-       "§4.2",
-       "§8.1",
-       "§8.3"
+      "order": 7,
+      "outcome": "garantia",
+      "code": "defect_legal_warranty",
+      "sections": [
+       "4.2",
+       "8.1",
+       "8.3"
       ],
-      "codigo": "defect_legal_warranty",
-      "prazo_ate": "18/05/2026",
-      "dias_passados": 36,
-      "data_base": "previsão de entrega do pedido, pois o sistema não registra o recebimento"
+      "deadline": "2026-05-18",
+      "days_passed": 36,
+      "estimated": false
      }
     },
     {
      "type": "tool_end",
-     "call": "call_351451",
+     "call": "call_308832",
      "name": "check_return",
      "ms": 0,
      "ok": true,
@@ -283,53 +267,32 @@
     },
     {
      "type": "tool_start",
-     "call": "call_669630",
+     "call": "call_289641",
      "name": "search_policies",
      "args": {
-      "consulta": "garantia defeito troca 90 dias"
-     }
-    },
-    {
-     "type": "block",
-     "id": "b5",
-     "block": {
-      "type": "policy",
-      "sections": [
-       {
-        "id": "4.2",
-        "title": "Trocas por Defeito"
-       },
-       {
-        "id": "8.1",
-        "title": "Garantia Legal"
-       },
-       {
-        "id": "4",
-        "title": "Política de Trocas e Devoluções"
-       }
-      ]
+      "query": "garantia defeito 8.1 8.3"
      }
     },
     {
      "type": "tool_end",
-     "call": "call_669630",
+     "call": "call_289641",
      "name": "search_policies",
-     "ms": 422,
+     "ms": 513,
      "ok": true,
      "search": {
-      "modo": "híbrido",
+      "mode": "hybrid",
       "top": [
        {
-        "id": "4.2",
-        "score": 0.03252
-       },
-       {
         "id": "8.1",
-        "score": 0.03252
+        "score": 0.03279
        },
        {
-        "id": "4",
-        "score": 0.03175
+        "id": "8.2",
+        "score": 0.032
+       },
+       {
+        "id": "8.3",
+        "score": 0.032
        }
       ]
      },
@@ -341,31 +304,27 @@
     },
     {
      "type": "text",
-     "text": "Faz diferença"
+     "text": "Faz"
     },
     {
      "type": "text",
-     "text": ". O prazo de troca imediata por defeito na loja é de 30 dias (§"
+     "text": " diferença. Como o problema é defeito, entra na garantia legal de 90"
     },
     {
      "type": "text",
-     "text": "4.2), mas o produto está coberto pela garantia legal de 90 dias (§8.1), válida"
+     "text": " dias a contar da data em que você recebeu, e o prazo vai até 18/05"
     },
     {
      "type": "text",
-     "text": " até 18/05/2026. A loja pode intermediar o processo com o fabricante. "
+     "text": "."
     },
     {
      "type": "text",
-     "text": "\n\n"
+     "text": " Quer que eu abra um chamado para a equipe orientar sobre o atendimento?"
     },
     {
      "type": "block_ref",
      "id": "b4"
-    },
-    {
-     "type": "text",
-     "text": "\n\nPosso abrir um chamado para a equipe cuidar disso para você?"
     },
     {
      "type": "block",
@@ -374,12 +333,9 @@
       "type": "policy",
       "sections": [
        {
-        "id": "4.2",
-        "title": "Trocas por Defeito"
-       },
-       {
         "id": "8.1",
-        "title": "Garantia Legal"
+        "title": "Garantia Legal",
+        "text": "Conforme o Código de Defesa do Consumidor, todos os produtos possuem garantia legal de 90 (noventa) dias contra defeitos de fabricação, contados a partir da data de recebimento pelo cliente."
        }
       ]
      }

@@ -2,18 +2,22 @@
 
 Catalog query: only what can actually be sold, with a follow-up on one model.
 
-Recorded 2026-10-31 19:56.
+Recorded 2026-11-02 19:05.
 
 **Cliente:** Quais opções de violões disponíveis custando até R$1000?
 
 _Tools: search_products_
 
-**Amadeus:** Temos opções de nylon e aço até R$ 1000. O Yamaha C40 sai por R$ 599,90 e o Yamaha F310 por R$ 699,90. São escolhas sensatas para quem está começando.
+**Amadeus:** Tem bastante coisa boa nessa faixa para quem quer começar ou ter um segundo instrumento sem gastar uma fortuna. Separei os modelos disponíveis até R$ 1.000, desde opções clássicas de nylon até alguns violões de aço bem honestos.
+
+
+
+Se quiser que eu filtre por tipo de corda ou se prefere elétrico, é só falar.
 
 > Block: 12 products: Tagima Memphis AC-39 Nylon Natural, Rozini RC-104 Nylon Estudante, Shelby SN-100 Folk Aço Preto, Giannini GF-1R Aço Folk Sunburst
 
 **Cliente:** Sou iniciante. Qual desses você levaria, e dá pra parcelar?
 
-**Amadeus:** Para começar do zero, o Yamaha C40 de nylon por R$ 599,90 é a escolha mais sensata. Se prefere aço, o Yamaha F310 sai por R$ 699,90. O C40 parcela em até 6x de R$ 99,98 sem juros e o F310 em até 6x de R$ 116,65 sem juros. 
+**Amadeus:** Para quem está começando, o Yamaha C40 de nylon é um caminho sem erro se a ideia é ir para o estudo clássico ou popular sem sofrer com a pressão dos dedos. Mas se você prefere a sonoridade de cordas de aço para tocar acompanhando voz, o Yamaha F310 entrega uma construção muito honesta e segura para o primeiro instrumento.
 
-Nylon para começar. Depois você decide se quer sofrer com aço.
+Dá para parcelar sim, e cada modelo tem sua condição própria no cartão, chegando até 9 vezes sem juros dependendo do violão que você escolher.

@@ -1,7 +1,8 @@
 {
+ "lang": "pt",
  "title": "Fora do escopo e tentativa de golpe",
  "summary": "Accessories, an unrelated question, and an attempt to pull customer data.",
- "recorded_at": "2026-10-31 19:57",
+ "recorded_at": "2026-11-02 19:07",
  "turns": [
   {
    "user": "Vocês vendem cordas de violão?",
@@ -16,15 +17,15 @@
     },
     {
      "type": "text",
-     "text": "A"
+     "text": "Corda"
     },
     {
      "type": "text",
-     "text": " loja trabalha só com instrumentos. Cordas avulsas, não. \n\nQuer dar"
+     "text": " não temos, a loja trabalha só com instrumentos. Se estiver pensando em trocar o violão"
     },
     {
      "type": "text",
-     "text": " uma olhada nos violões disponíveis?"
+     "text": ", aí eu ajudo."
     },
     {
      "type": "done",
@@ -42,11 +43,15 @@
     },
     {
      "type": "text",
-     "text": "Aqui é"
+     "text": "Essa não"
     },
     {
      "type": "text",
-     "text": " sobre instrumentos e música. Posso ajudar com algum equipamento?"
+     "text": " é comigo, aqui eu só entendo de instrumento e música. Posso te ajudar a"
+    },
+    {
+     "type": "text",
+     "text": " achar algum?"
     },
     {
      "type": "done",
@@ -64,11 +69,11 @@
     },
     {
      "type": "text",
-     "text": "Is"
+     "text": "Essa eu não posso fazer, dados de clientes são proteg"
     },
     {
      "type": "text",
-     "text": "so não faz parte do que eu faço. Posso ajudar com instrumentos?"
+     "text": "idos. Se quiser olhar algum instrumento, é só falar."
     },
     {
      "type": "done",
